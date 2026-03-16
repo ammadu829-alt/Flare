@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FLARE — Premium Fast Food</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --fire: #FF4500;
+      --ember: #FF6B35;
+      --gold: #FFD700;
+      --cream: #FFF8F0;
+      --dark: #0A0805;
+      --charcoal: #1A1612;
+      --ash: #2D2820;
+      --smoke: #4A4035;
+      --muted: #8A7A6A;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-accent: 'Playfair Display', serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--dark);
+      color: var(--cream);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--fire);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.1s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor-follower {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(255,69,0,0.5);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.15s ease, opacity 0.3s;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--dark); }
+    ::-webkit-scrollbar-thumb { background: var(--fire); border-radius: 2px; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 24px 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.4s, padding 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(10,8,5,0.95);
+      backdrop-filter: blur(20px);
+      padding: 16px 60px;
+      border-bottom: 1px solid rgba(255,69,0,0.15);
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 32px;
+      letter-spacing: 4px;
+      color: var(--cream);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--fire); }
+    .nav-links { display: flex; gap: 40px; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: var(--fire);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover { color: var(--cream); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-cta {
+      background: var(--fire);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: none;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .nav-cta:hover { background: var(--ember); transform: translateY(-1px); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 160px 60px 100px;
+      position: relative;
+      z-index: 2;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,69,0,0.12);
+      border: 1px solid rgba(255,69,0,0.3);
+      padding: 8px 20px;
+      width: fit-content;
+      margin-bottom: 40px;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      background: var(--fire);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.5); }
+    }
+    .hero-badge span {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--fire);
+      font-weight: 600;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(72px, 8vw, 120px);
+      line-height: 0.9;
+      letter-spacing: 2px;
+      margin-bottom: 32px;
+      animation: fadeInUp 0.8s 0.2s ease both;
+    }
+    .hero-title-fire { color: var(--fire); display: block; }
+    .hero-title-sub {
+      font-family: var(--font-accent);
+      font-style: italic;
+      font-size: clamp(20px, 2.5vw, 36px);
+      color: var(--muted);
+      font-weight: 400;
+      letter-spacing: 0;
+      display: block;
+      margin-top: 8px;
+    }
+    .hero-desc {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 420px;
+      margin-bottom: 56px;
+      font-weight: 300;
+      animation: fadeInUp 0.8s 0.4s ease both;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      animation: fadeInUp 0.8s 0.6s ease both;
+    }
+    .btn-primary {
+      background: var(--fire);
+      color: white;
+      border: none;
+      padding: 18px 44px;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: none;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: rgba(255,255,255,0.15);
+      transition: left 0.4s;
+    }
+    .btn-primary:hover::before { left: 100%; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 20px 40px rgba(255,69,0,0.4); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--cream);
+      border: 1px solid rgba(255,248,240,0.2);
+      padding: 18px 44px;
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: none;
+      transition: all 0.3s;
+    }
+    .btn-ghost:hover {
+      border-color: var(--fire);
+      color: var(--fire);
+    }
+    .hero-stats {
+      display: flex;
+      gap: 48px;
+      margin-top: 72px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(255,248,240,0.08);
+      animation: fadeInUp 0.8s 0.8s ease both;
+    }
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 42px;
+      color: var(--fire);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-img-main {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transform: scale(1.05);
+      animation: kenBurns 12s ease-in-out infinite alternate;
+    }
+    @keyframes kenBurns {
+      from { transform: scale(1.05) translate(0,0); }
+      to { transform: scale(1.12) translate(-2%, -2%); }
+    }
+    .hero-img-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, var(--dark) 0%, transparent 30%),
+                  linear-gradient(to top, var(--dark) 0%, transparent 40%);
+    }
+    .hero-float-card {
+      position: absolute;
+      bottom: 80px;
+      right: 40px;
+      background: rgba(26,22,18,0.9);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,69,0,0.2);
+      padding: 20px 24px;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .float-card-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--fire);
+      font-weight: 600;
+    }
+    .float-card-name {
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 1px;
+      margin: 6px 0 4px;
+    }
+    .float-card-price {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    /* MARQUEE */
+    .marquee-strip {
+      background: var(--fire);
+      padding: 14px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .marquee-inner {
+      display: inline-block;
+      animation: marquee 20s linear infinite;
+    }
+    .marquee-inner span {
+      font-family: var(--font-display);
+      font-size: 18px;
+      letter-spacing: 4px;
+      margin: 0 40px;
+      color: white;
+    }
+    .marquee-dot { color: rgba(255,255,255,0.5); }
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* CATEGORIES */
+    .section { padding: 120px 60px; }
+    .section-tag {
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--fire);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(48px, 6vw, 80px);
+      line-height: 0.95;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+    }
+    .section-title em {
+      font-family: var(--font-accent);
+      font-style: italic;
+      color: var(--fire);
+    }
+
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-top: 60px;
+    }
+    .cat-card {
+      position: relative;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      cursor: none;
+      group: true;
+    }
+    .cat-card img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .cat-card:hover img { transform: scale(1.08); }
+    .cat-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,8,5,0.95) 0%, rgba(10,8,5,0.2) 60%, transparent 100%);
+      transition: background 0.4s;
+    }
+    .cat-card:hover .cat-overlay {
+      background: linear-gradient(to top, rgba(255,69,0,0.85) 0%, rgba(10,8,5,0.4) 60%, transparent 100%);
+    }
+    .cat-info {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 24px 20px;
+    }
+    .cat-name {
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 2px;
+      display: block;
+    }
+    .cat-count {
+      font-size: 11px;
+      color: rgba(255,248,240,0.5);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* MENU */
+    .menu-section { background: var(--charcoal); }
+    .menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 60px;
+    }
+    .menu-filters {
+      display: flex;
+      gap: 8px;
+    }
+    .filter-btn {
+      background: transparent;
+      border: 1px solid rgba(255,248,240,0.15);
+      color: var(--muted);
+      padding: 10px 24px;
+      font-family: var(--font-body);
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: none;
+      transition: all 0.3s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--fire);
+      border-color: var(--fire);
+      color: white;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .menu-card {
+      background: var(--ash);
+      overflow: hidden;
+      cursor: none;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s;
+      position: relative;
+    }
+    .menu-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,69,0,0.3);
+    }
+    .menu-img-wrap {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+    }
+    .menu-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s;
+    }
+    .menu-card:hover .menu-img-wrap img { transform: scale(1.06); }
+    .menu-badge {
+      position: absolute;
+      top: 16px; left: 16px;
+      background: var(--fire);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+    }
+    .menu-badge.spicy { background: #c0392b; }
+    .menu-badge.new { background: var(--gold); color: var(--dark); }
+    .menu-badge.veg { background: #27ae60; }
+
+    .menu-add-btn {
+      position: absolute;
+      bottom: 16px; right: 16px;
+      width: 44px; height: 44px;
+      background: var(--dark);
+      color: var(--cream);
+      border: none;
+      font-size: 22px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: none;
+      transition: all 0.3s;
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .menu-card:hover .menu-add-btn {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .menu-add-btn:hover { background: var(--fire); }
+
+    .menu-info { padding: 24px; }
+    .menu-category {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--fire);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .menu-name {
+      font-family: var(--font-display);
+      font-size: 26px;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      line-height: 1.1;
+    }
+    .menu-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 20px;
+      font-weight: 300;
+    }
+    .menu-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,248,240,0.06);
+    }
+    .menu-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .menu-price span {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: line-through;
+      margin-right: 8px;
+      font-weight: 400;
+    }
+    .menu-rating {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .stars { color: var(--gold); font-size: 12px; }
+
+    /* FEATURE STRIP */
+    .feature-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid rgba(255,248,240,0.06);
+      border-bottom: 1px solid rgba(255,248,240,0.06);
+    }
+    .feature-item {
+      padding: 60px 40px;
+      border-right: 1px solid rgba(255,248,240,0.06);
+      text-align: center;
+      transition: background 0.3s;
+    }
+    .feature-item:last-child { border-right: none; }
+    .feature-item:hover { background: rgba(255,69,0,0.05); }
+    .feature-icon {
+      font-size: 36px;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .feature-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+    .feature-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* SPECIALS */
+    .specials-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      margin-top: 60px;
+    }
+    .special-card {
+      position: relative;
+      height: 500px;
+      overflow: hidden;
+      cursor: none;
+    }
+    .special-card:first-child { grid-row: span 2; height: 100%; }
+    .special-card img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .special-card:hover img { transform: scale(1.06); }
+    .special-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,8,5,0.9) 0%, transparent 60%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 40px;
+      transition: background 0.4s;
+    }
+    .special-card:hover .special-overlay {
+      background: linear-gradient(to top, rgba(255,69,0,0.8) 0%, transparent 70%);
+    }
+    .special-tag {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .special-name {
+      font-family: var(--font-display);
+      font-size: 36px;
+      letter-spacing: 2px;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .special-price {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    /* TESTIMONIALS */
+    .testimonials-section { background: var(--charcoal); }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 60px;
+    }
+    .testimonial-card {
+      background: var(--ash);
+      padding: 40px;
+      position: relative;
+      transition: transform 0.3s;
+    }
+    .testimonial-card:hover { transform: translateY(-4px); }
+    .testimonial-card::before {
+      content: '"';
+      font-family: var(--font-accent);
+      font-size: 120px;
+      color: rgba(255,69,0,0.1);
+      position: absolute;
+      top: -10px; left: 20px;
+      line-height: 1;
+    }
+    .testimonial-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: rgba(255,248,240,0.8);
+      margin-bottom: 32px;
+      font-weight: 300;
+      font-style: italic;
+      position: relative;
+      z-index: 1;
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .author-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--fire);
+    }
+    .author-name {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+    .author-role {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* CTA */
+    .cta-section {
+      padding: 140px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-bg {
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&q=80') center/cover;
+    }
+    .cta-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(10,8,5,0.85);
+    }
+    .cta-content { position: relative; z-index: 1; }
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(56px, 7vw, 100px);
+      letter-spacing: 4px;
+      line-height: 0.95;
+      margin-bottom: 24px;
+    }
+    .cta-title em {
+      color: var(--fire);
+      font-family: var(--font-accent);
+      font-style: italic;
+    }
+    .cta-subtitle {
+      font-size: 18px;
+      color: var(--muted);
+      margin-bottom: 56px;
+      font-weight: 300;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-actions {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--dark);
+      border-top: 1px solid rgba(255,248,240,0.06);
+      padding: 80px 60px 40px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 60px;
+      margin-bottom: 60px;
+    }
+    .footer-brand-name {
+      font-family: var(--font-display);
+      font-size: 40px;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+    }
+    .footer-brand-name span { color: var(--fire); }
+    .footer-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
+    .footer-social {
+      display: flex;
+      gap: 12px;
+    }
+    .social-btn {
+      width: 40px; height: 40px;
+      border: 1px solid rgba(255,248,240,0.12);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+      font-size: 16px;
+      text-decoration: none;
+      cursor: none;
+      transition: all 0.3s;
+    }
+    .social-btn:hover { border-color: var(--fire); color: var(--fire); background: rgba(255,69,0,0.1); }
+    .footer-col-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: 3px;
+      margin-bottom: 24px;
+      color: var(--cream);
+    }
+    .footer-links { list-style: none; }
+    .footer-links li { margin-bottom: 12px; }
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s;
+      font-weight: 300;
+    }
+    .footer-links a:hover { color: var(--fire); }
+    .footer-bottom {
+      padding-top: 32px;
+      border-top: 1px solid rgba(255,248,240,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-copy {
+      font-size: 12px;
+      color: var(--smoke);
+      letter-spacing: 1px;
+    }
+
+    /* DEALS SECTION */
+    .deals-section { background: var(--dark); position: relative; overflow: hidden; }
+    .deals-section::before {
+      content: 'DEALS';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-display);
+      font-size: 300px;
+      color: rgba(255,69,0,0.03);
+      letter-spacing: 20px;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .deals-timer-bar {
+      background: linear-gradient(135deg, var(--fire) 0%, #c0392b 100%);
+      padding: 16px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    .deals-timer-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+    }
+    .deals-timer-boxes {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .timer-box {
+      background: rgba(0,0,0,0.3);
+      padding: 6px 14px;
+      text-align: center;
+      min-width: 52px;
+    }
+    .timer-num {
+      font-family: var(--font-display);
+      font-size: 24px;
+      letter-spacing: 2px;
+      color: white;
+      display: block;
+      line-height: 1;
+    }
+    .timer-unit {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+    }
+    .timer-colon {
+      font-family: var(--font-display);
+      font-size: 24px;
+      color: rgba(255,255,255,0.6);
+      margin-top: -4px;
+    }
+
+    .deals-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 60px;
+      position: relative;
+      z-index: 1;
+    }
+    .deal-card {
+      background: var(--charcoal);
+      border: 1px solid rgba(255,248,240,0.06);
+      overflow: hidden;
+      cursor: none;
+      transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.4s, border-color 0.3s;
+      position: relative;
+    }
+    .deal-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,69,0,0.4);
+      border-color: rgba(255,69,0,0.4);
+    }
+    .deal-card.featured {
+      border-color: rgba(255,215,0,0.3);
+      background: linear-gradient(160deg, #1e1a14 0%, #1A1612 100%);
+    }
+    .deal-card.featured:hover {
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,215,0,0.5);
+      border-color: rgba(255,215,0,0.5);
+    }
+
+    .deal-header {
+      position: relative;
+      height: 220px;
+      overflow: hidden;
+    }
+    .deal-main-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s;
+    }
+    .deal-card:hover .deal-main-img { transform: scale(1.08); }
+    .deal-header-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, var(--charcoal) 0%, transparent 60%);
+    }
+
+    .deal-savings-badge {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: var(--gold);
+      color: var(--dark);
+      font-family: var(--font-display);
+      font-size: 13px;
+      letter-spacing: 1px;
+      padding: 6px 14px;
+      font-weight: 900;
+    }
+    .deal-card.featured .deal-savings-badge {
+      background: var(--fire);
+      color: white;
+    }
+
+    .deal-hot-tag {
+      position: absolute;
+      top: 16px; left: 16px;
+      background: rgba(10,8,5,0.85);
+      border: 1px solid rgba(255,69,0,0.4);
+      color: var(--fire);
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hot-dot {
+      width: 5px; height: 5px;
+      background: var(--fire);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    .deal-body { padding: 24px; }
+    .deal-category {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--fire);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .deal-card.featured .deal-category { color: var(--gold); }
+    .deal-name {
+      font-family: var(--font-display);
+      font-size: 28px;
+      letter-spacing: 2px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .deal-tagline {
+      font-size: 13px;
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 20px;
+      font-weight: 300;
+    }
+
+    /* Combo items breakdown */
+    .deal-items {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+      padding: 16px;
+      background: rgba(255,248,240,0.03);
+      border: 1px solid rgba(255,248,240,0.06);
+    }
+    .deal-item-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .deal-item-img {
+      width: 44px; height: 44px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid rgba(255,248,240,0.08);
+    }
+    .deal-item-info { flex: 1; }
+    .deal-item-name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .deal-item-detail {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+    .deal-item-individual {
+      font-size: 12px;
+      color: var(--smoke);
+      text-decoration: line-through;
+      flex-shrink: 0;
+    }
+    .deal-plus {
+      text-align: center;
+      color: var(--fire);
+      font-size: 18px;
+      font-weight: 300;
+      line-height: 1;
+      margin: -4px 0;
+    }
+
+    .deal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,248,240,0.06);
+    }
+    .deal-pricing {}
+    .deal-original {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: line-through;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .deal-price {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .deal-card.featured .deal-price { color: var(--fire); }
+    .deal-you-save {
+      font-size: 11px;
+      color: #27ae60;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+    .deal-order-btn {
+      background: var(--fire);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: none;
+      transition: all 0.3s;
+    }
+    .deal-order-btn:hover { background: var(--ember); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,69,0,0.4); }
+    .deal-card.featured .deal-order-btn {
+      background: var(--gold);
+      color: var(--dark);
+    }
+    .deal-card.featured .deal-order-btn:hover { background: #f0c800; }
+
+    /* Deals Banner */
+    .deals-banner {
+      margin-top: 60px;
+      background: linear-gradient(135deg, var(--ash) 0%, var(--charcoal) 100%);
+      border: 1px solid rgba(255,215,0,0.15);
+      padding: 48px 60px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 40px;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .deals-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%; right: -10%;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(255,215,0,0.06) 0%, transparent 70%);
+    }
+    .banner-text-side {}
+    .banner-title {
+      font-family: var(--font-display);
+      font-size: 40px;
+      letter-spacing: 3px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .banner-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+    .banner-divider {
+      width: 1px;
+      height: 80px;
+      background: rgba(255,248,240,0.1);
+    }
+    .banner-code-side { text-align: center; }
+    .banner-code-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .banner-code {
+      font-family: var(--font-display);
+      font-size: 36px;
+      letter-spacing: 8px;
+      color: var(--gold);
+      background: rgba(255,215,0,0.08);
+      border: 2px dashed rgba(255,215,0,0.3);
+      padding: 16px 32px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .banner-code-desc {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .deals-grid { grid-template-columns: 1fr; }
+      .deals-timer-bar { padding: 16px 24px; flex-wrap: wrap; gap: 12px; }
+      .deals-banner { grid-template-columns: 1fr; padding: 32px 24px; text-align: center; }
+      .banner-divider { display: none; }
+    }
+
+    /* ===================== EID SPECIAL SECTION ===================== */
+    .eid-section {
+      background: var(--dark);
+      position: relative;
+      overflow: hidden;
+    }
+    .eid-hero-banner {
+      background: linear-gradient(135deg, #1a0a00 0%, #2d1200 40%, #1a0a00 100%);
+      border: 1px solid rgba(255,215,0,0.2);
+      padding: 56px 60px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 40px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 48px;
+    }
+    .eid-hero-banner::before {
+      content: '☪';
+      position: absolute;
+      right: -30px; top: -40px;
+      font-size: 280px;
+      color: rgba(255,215,0,0.04);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .eid-hero-banner::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 0% 50%, rgba(255,165,0,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .eid-banner-left { position: relative; z-index: 1; }
+    .eid-tag {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(255,215,0,0.1);
+      border: 1px solid rgba(255,215,0,0.3);
+      padding: 7px 18px;
+      margin-bottom: 20px;
+      width: fit-content;
+    }
+    .eid-tag-text {
+      font-size: 11px; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--gold);
+      font-weight: 700;
+    }
+    .eid-tag-dot {
+      width: 6px; height: 6px;
+      background: var(--gold); border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    .eid-banner-title {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 5vw, 72px);
+      letter-spacing: 3px; line-height: 0.95;
+      margin-bottom: 16px;
+    }
+    .eid-banner-title .eid-gold { color: var(--gold); }
+    .eid-banner-title .eid-fire { color: var(--fire); }
+    .eid-banner-sub {
+      font-size: 15px; color: var(--muted);
+      font-weight: 300; line-height: 1.7;
+      max-width: 480px; margin-bottom: 28px;
+    }
+    .eid-banner-note {
+      font-size: 12px; color: var(--smoke);
+      letter-spacing: 1px;
+    }
+    .eid-banner-note strong { color: var(--fire); }
+    .eid-discount-pill {
+      background: var(--gold);
+      color: var(--dark);
+      padding: 28px 36px;
+      text-align: center;
+      position: relative; z-index: 1;
+      flex-shrink: 0;
+    }
+    .eid-pill-num {
+      font-family: var(--font-display);
+      font-size: 80px; line-height: 1;
+      letter-spacing: -2px;
+      color: var(--dark);
+    }
+    .eid-pill-off {
+      font-family: var(--font-display);
+      font-size: 28px; letter-spacing: 4px;
+      color: var(--dark); display: block;
+      margin-top: -8px;
+    }
+    .eid-pill-label {
+      font-size: 10px; letter-spacing: 3px;
+      text-transform: uppercase; font-weight: 700;
+      color: rgba(10,8,5,0.6); margin-top: 4px;
+      display: block;
+    }
+
+    /* Eid deal cards grid */
+    .eid-deals-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .eid-card {
+      background: linear-gradient(160deg, #1a1008 0%, var(--charcoal) 100%);
+      border: 1px solid rgba(255,215,0,0.15);
+      overflow: hidden; cursor: none;
+      transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.4s, border-color 0.3s;
+      position: relative;
+    }
+    .eid-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,215,0,0.4);
+      border-color: rgba(255,215,0,0.4);
+    }
+    .eid-card-header { position: relative; height: 200px; overflow: hidden; }
+    .eid-card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; }
+    .eid-card:hover .eid-card-img { transform: scale(1.08); }
+    .eid-card-header-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, #1a1008 0%, transparent 55%);
+    }
+    .eid-persons-badge {
+      position: absolute; top: 16px; left: 16px;
+      background: var(--gold); color: var(--dark);
+      font-family: var(--font-display);
+      font-size: 13px; letter-spacing: 1px;
+      padding: 5px 14px; font-weight: 900;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .eid-half-off {
+      position: absolute; top: 16px; right: 16px;
+      background: var(--fire); color: white;
+      font-family: var(--font-display);
+      font-size: 18px; letter-spacing: 1px;
+      padding: 5px 14px;
+    }
+    .eid-card-body { padding: 24px; }
+    .eid-card-label {
+      font-size: 10px; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--gold);
+      font-weight: 700; margin-bottom: 8px;
+    }
+    .eid-card-name {
+      font-family: var(--font-display);
+      font-size: 26px; letter-spacing: 2px;
+      line-height: 1; margin-bottom: 6px;
+    }
+    .eid-card-tagline {
+      font-size: 13px; color: var(--muted);
+      font-style: italic; font-weight: 300;
+      margin-bottom: 18px;
+    }
+    .eid-items-list {
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 14px; margin-bottom: 20px;
+      background: rgba(255,215,0,0.03);
+      border: 1px solid rgba(255,215,0,0.08);
+    }
+    .eid-item-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .eid-item-img {
+      width: 38px; height: 38px; object-fit: cover;
+      flex-shrink: 0; border: 1px solid rgba(255,215,0,0.1);
+    }
+    .eid-item-name { font-size: 12px; font-weight: 600; margin-bottom: 1px; }
+    .eid-item-detail { font-size: 11px; color: var(--muted); font-weight: 300; }
+    .eid-card-footer {
+      display: flex; justify-content: space-between;
+      align-items: center; padding-top: 18px;
+      border-top: 1px solid rgba(255,215,0,0.08);
+    }
+    .eid-pricing {}
+    .eid-original {
+      font-size: 13px; color: var(--muted);
+      text-decoration: line-through; display: block; margin-bottom: 2px;
+    }
+    .eid-price {
+      font-family: var(--font-display);
+      font-size: 30px; color: var(--gold); letter-spacing: 1px; line-height: 1;
+    }
+    .eid-you-save {
+      font-size: 11px; color: #27ae60;
+      font-weight: 600; letter-spacing: 1px; margin-top: 3px;
+    }
+    .eid-order-btn {
+      background: var(--gold); color: var(--dark);
+      border: none; padding: 13px 22px;
+      font-family: var(--font-body); font-weight: 800;
+      font-size: 12px; letter-spacing: 2px;
+      text-transform: uppercase; cursor: none;
+      transition: all 0.3s;
+    }
+    .eid-order-btn:hover { background: #f0c800; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,215,0,0.3); }
+
+    .eid-ends-strip {
+      margin-top: 40px;
+      border: 1px dashed rgba(255,215,0,0.25);
+      padding: 20px 32px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 16px; background: rgba(255,215,0,0.03);
+    }
+    .eid-ends-text {
+      font-size: 12px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .eid-ends-text strong { color: var(--gold); }
+
+    @media (max-width: 900px) {
+      .eid-hero-banner { grid-template-columns: 1fr; padding: 36px 24px; }
+      .eid-discount-pill { padding: 20px 28px; }
+      .eid-deals-grid { grid-template-columns: 1fr; }
+    }
+
+    /* CART BUBBLE */
+    .cart-bubble {
+      position: fixed;
+      bottom: 40px; right: 40px;
+      width: 60px; height: 60px;
+      background: var(--fire);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      cursor: none;
+      z-index: 200;
+      box-shadow: 0 10px 40px rgba(255,69,0,0.5);
+      transition: transform 0.3s;
+    }
+    .cart-bubble:hover { transform: scale(1.1); }
+    .cart-count {
+      position: absolute;
+      top: -4px; right: -4px;
+      width: 22px; height: 22px;
+      background: var(--gold);
+      color: var(--dark);
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 120px; right: 40px;
+      background: var(--ash);
+      border: 1px solid rgba(255,69,0,0.3);
+      padding: 16px 24px;
+      display: flex; align-items: center; gap: 12px;
+      z-index: 300;
+      animation: slideIn 0.4s ease;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(100px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .toast-icon { font-size: 20px; }
+    .toast-text { font-size: 14px; font-weight: 500; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===================== CART DRAWER ===================== */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 400;
+      animation: fadeOverlay 0.3s ease;
+    }
+    @keyframes fadeOverlay { from { opacity:0; } to { opacity:1; } }
+
+    .cart-drawer {
+      position: fixed;
+      top: 0; right: 0;
+      width: 420px; height: 100vh;
+      background: var(--charcoal);
+      z-index: 500;
+      display: flex; flex-direction: column;
+      border-left: 1px solid rgba(255,69,0,0.2);
+      animation: slideDrawer 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    @keyframes slideDrawer {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    .cart-drawer-head {
+      padding: 28px 32px;
+      border-bottom: 1px solid rgba(255,248,240,0.07);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
+    }
+    .cart-drawer-title {
+      font-family: var(--font-display);
+      font-size: 28px; letter-spacing: 3px;
+    }
+    .cart-drawer-title span { color: var(--fire); }
+    .drawer-close {
+      width: 40px; height: 40px;
+      background: var(--ash);
+      border: none; color: var(--cream);
+      font-size: 20px; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .drawer-close:hover { background: var(--fire); }
+    .cart-items-list {
+      flex: 1; overflow-y: auto;
+      padding: 24px 32px;
+    }
+    .cart-items-list::-webkit-scrollbar { width: 3px; }
+    .cart-items-list::-webkit-scrollbar-thumb { background: var(--fire); }
+    .cart-empty {
+      text-align: center;
+      padding: 80px 0;
+      color: var(--muted);
+    }
+    .cart-empty-icon { font-size: 56px; margin-bottom: 16px; display: block; }
+    .cart-empty-msg { font-family: var(--font-display); font-size: 22px; letter-spacing: 2px; margin-bottom: 8px; }
+    .cart-empty-sub { font-size: 13px; font-weight: 300; }
+
+    .cart-item {
+      display: flex; gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,248,240,0.05);
+      align-items: flex-start;
+    }
+    .cart-item-img {
+      width: 70px; height: 70px;
+      object-fit: cover; flex-shrink: 0;
+      border: 1px solid rgba(255,248,240,0.08);
+    }
+    .cart-item-body { flex: 1; }
+    .cart-item-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .cart-item-mods {
+      font-size: 11px; color: var(--muted); font-weight: 300;
+      margin-bottom: 8px; line-height: 1.5;
+    }
+    .cart-item-qty {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .qty-btn {
+      width: 26px; height: 26px;
+      background: var(--ash); border: none; color: var(--cream);
+      font-size: 16px; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .qty-btn:hover { background: var(--fire); }
+    .qty-num { font-weight: 700; font-size: 14px; min-width: 20px; text-align: center; }
+    .cart-item-price {
+      font-weight: 700; font-size: 16px;
+      color: var(--gold); flex-shrink: 0;
+      margin-left: auto;
+    }
+    .cart-item-remove {
+      background: none; border: none; color: var(--smoke);
+      font-size: 18px; cursor: none; transition: color 0.2s;
+      padding: 0 4px;
+    }
+    .cart-item-remove:hover { color: #e74c3c; }
+
+    .cart-drawer-foot {
+      padding: 24px 32px;
+      border-top: 1px solid rgba(255,248,240,0.07);
+      flex-shrink: 0;
+    }
+    .cart-subtotal-row {
+      display: flex; justify-content: space-between;
+      margin-bottom: 8px; font-size: 14px; color: var(--muted);
+    }
+    .cart-total-row {
+      display: flex; justify-content: space-between;
+      margin-bottom: 24px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,248,240,0.07);
+    }
+    .cart-total-label {
+      font-family: var(--font-display); font-size: 20px; letter-spacing: 2px;
+    }
+    .cart-total-price {
+      font-family: var(--font-display); font-size: 28px;
+      color: var(--gold); letter-spacing: 1px;
+    }
+    .checkout-btn {
+      width: 100%;
+      background: var(--fire); color: white; border: none;
+      padding: 18px; font-family: var(--font-body);
+      font-weight: 700; font-size: 14px;
+      letter-spacing: 2px; text-transform: uppercase;
+      cursor: none; transition: all 0.3s;
+    }
+    .checkout-btn:hover { background: var(--ember); transform: translateY(-1px); box-shadow: 0 10px 30px rgba(255,69,0,0.4); }
+    .cart-note {
+      text-align: center; margin-top: 12px;
+      font-size: 11px; color: var(--smoke);
+    }
+
+    /* ===================== LOGIN MODAL ===================== */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      z-index: 600;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      animation: fadeOverlay 0.3s ease;
+    }
+    .auth-modal {
+      background: var(--charcoal);
+      width: 100%; max-width: 460px;
+      border: 1px solid rgba(255,69,0,0.2);
+      position: relative;
+      animation: modalPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      overflow: hidden;
+    }
+    @keyframes modalPop {
+      from { opacity:0; transform: scale(0.88) translateY(20px); }
+      to { opacity:1; transform: scale(1) translateY(0); }
+    }
+    .auth-modal-top {
+      background: linear-gradient(135deg, var(--fire) 0%, #c0392b 100%);
+      padding: 40px 40px 32px;
+      position: relative;
+    }
+    .auth-modal-logo {
+      font-family: var(--font-display);
+      font-size: 36px; letter-spacing: 4px;
+      color: white; margin-bottom: 8px;
+    }
+    .auth-modal-logo span { color: var(--gold); }
+    .auth-modal-tagline {
+      font-size: 13px; color: rgba(255,255,255,0.75);
+      font-weight: 300;
+    }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.15);
+      border: none; color: white;
+      font-size: 18px; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.3); }
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid rgba(255,248,240,0.07);
+    }
+    .auth-tab {
+      flex: 1; padding: 18px;
+      background: transparent; border: none; color: var(--muted);
+      font-family: var(--font-body); font-weight: 600;
+      font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: none; transition: all 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+    .auth-tab.active { color: var(--fire); border-bottom-color: var(--fire); }
+
+    .auth-body { padding: 32px 40px 40px; }
+    .auth-field { margin-bottom: 20px; }
+    .auth-label {
+      display: block; font-size: 11px;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .auth-input {
+      width: 100%; padding: 14px 18px;
+      background: var(--ash);
+      border: 1px solid rgba(255,248,240,0.08);
+      color: var(--cream); font-family: var(--font-body);
+      font-size: 14px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .auth-input:focus { border-color: var(--fire); }
+    .auth-input::placeholder { color: var(--smoke); }
+    .auth-submit {
+      width: 100%; padding: 16px;
+      background: var(--fire); color: white; border: none;
+      font-family: var(--font-body); font-weight: 700;
+      font-size: 14px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: none; transition: all 0.3s; margin-top: 8px;
+    }
+    .auth-submit:hover { background: var(--ember); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,69,0,0.4); }
+    .auth-divider {
+      text-align: center; margin: 20px 0;
+      font-size: 12px; color: var(--smoke);
+      position: relative;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: '';
+      position: absolute; top: 50%;
+      width: 40%; height: 1px;
+      background: rgba(255,248,240,0.07);
+    }
+    .auth-divider::before { left: 0; }
+    .auth-divider::after { right: 0; }
+    .auth-social-btns { display: flex; gap: 12px; }
+    .auth-social-btn {
+      flex: 1; padding: 12px;
+      background: var(--ash);
+      border: 1px solid rgba(255,248,240,0.08);
+      color: var(--cream); font-family: var(--font-body);
+      font-size: 13px; cursor: none;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: border-color 0.2s;
+    }
+    .auth-social-btn:hover { border-color: rgba(255,248,240,0.25); }
+    .auth-switch {
+      text-align: center; margin-top: 20px;
+      font-size: 13px; color: var(--muted);
+    }
+    .auth-switch span {
+      color: var(--fire); cursor: none; font-weight: 600;
+      text-decoration: underline;
+    }
+    .auth-perks {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .auth-perk {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--muted);
+    }
+    .auth-perk-icon { color: var(--gold); }
+
+    /* ===================== CUSTOMIZER MODAL ===================== */
+    .customizer-modal {
+      background: var(--charcoal);
+      width: 100%; max-width: 560px;
+      max-height: 90vh;
+      border: 1px solid rgba(255,69,0,0.2);
+      position: relative;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      animation: modalPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .cust-img {
+      width: 100%; height: 200px;
+      object-fit: cover; flex-shrink: 0;
+    }
+    .cust-head {
+      padding: 24px 32px 0;
+      flex-shrink: 0;
+    }
+    .cust-name {
+      font-family: var(--font-display);
+      font-size: 32px; letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+    .cust-base-price { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+    .cust-body { padding: 0 32px 24px; overflow-y: auto; flex: 1; }
+    .cust-body::-webkit-scrollbar { width: 3px; }
+    .cust-body::-webkit-scrollbar-thumb { background: var(--fire); }
+    .cust-section { margin-bottom: 28px; }
+    .cust-section-title {
+      font-family: var(--font-display);
+      font-size: 16px; letter-spacing: 2px;
+      color: var(--cream); margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,248,240,0.07);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cust-section-note {
+      font-size: 10px; font-family: var(--font-body);
+      color: var(--muted); letter-spacing: 1px; font-weight: 400;
+      text-transform: uppercase;
+    }
+    .cust-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .cust-option {
+      padding: 8px 18px;
+      border: 1px solid rgba(255,248,240,0.12);
+      color: var(--muted); font-size: 13px;
+      cursor: none; transition: all 0.2s;
+      display: flex; align-items: center; gap: 6px;
+      background: transparent;
+      font-family: var(--font-body);
+    }
+    .cust-option.selected {
+      border-color: var(--fire);
+      color: var(--cream);
+      background: rgba(255,69,0,0.12);
+    }
+    .cust-option.removed {
+      border-color: #e74c3c;
+      color: #e74c3c;
+      background: rgba(231,76,60,0.08);
+      text-decoration: line-through;
+    }
+    .cust-option-price {
+      font-size: 11px; color: var(--fire);
+      font-weight: 600;
+    }
+    .cust-option.selected .cust-option-price { color: var(--gold); }
+    .cust-foot {
+      padding: 20px 32px;
+      border-top: 1px solid rgba(255,248,240,0.07);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
+      background: var(--charcoal);
+    }
+    .cust-total { }
+    .cust-total-label {
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 2px;
+    }
+    .cust-total-price {
+      font-family: var(--font-display); font-size: 28px;
+      color: var(--gold); letter-spacing: 1px;
+    }
+    .cust-add-btn {
+      background: var(--fire); color: white; border: none;
+      padding: 16px 32px; font-family: var(--font-body);
+      font-weight: 700; font-size: 13px; letter-spacing: 2px;
+      text-transform: uppercase; cursor: none; transition: all 0.3s;
+    }
+    .cust-add-btn:hover { background: var(--ember); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,69,0,0.4); }
+
+    /* ===================== BLOG SECTION ===================== */
+    .blog-section { background: var(--dark); }
+    .blog-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 24px;
+      margin-top: 60px;
+    }
+    .blog-card {
+      background: var(--charcoal);
+      overflow: hidden; cursor: none;
+      transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.4s;
+      display: flex; flex-direction: column;
+    }
+    .blog-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    }
+    .blog-card.featured { grid-row: span 2; }
+    .blog-img-wrap { position: relative; overflow: hidden; }
+    .blog-card.featured .blog-img-wrap { height: 340px; }
+    .blog-card:not(.featured) .blog-img-wrap { height: 180px; }
+    .blog-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; }
+    .blog-card:hover .blog-img { transform: scale(1.06); }
+    .blog-cat-tag {
+      position: absolute; top: 16px; left: 16px;
+      background: var(--fire); color: white;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      padding: 4px 12px;
+    }
+    .blog-body { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+    .blog-meta {
+      font-size: 11px; color: var(--smoke);
+      letter-spacing: 1px; margin-bottom: 10px;
+    }
+    .blog-title {
+      font-family: var(--font-display);
+      letter-spacing: 1px; line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .blog-card.featured .blog-title { font-size: 28px; }
+    .blog-card:not(.featured) .blog-title { font-size: 20px; }
+    .blog-excerpt {
+      font-size: 13px; color: var(--muted);
+      line-height: 1.7; font-weight: 300;
+      flex: 1;
+    }
+    .blog-card:not(.featured) .blog-excerpt { display: none; }
+    .blog-read-more {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--fire); font-size: 12px;
+      font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; text-decoration: none;
+      margin-top: 16px; cursor: none;
+      transition: gap 0.2s;
+    }
+    .blog-read-more:hover { gap: 14px; }
+
+    @media (max-width: 900px) {
+      .cart-drawer { width: 100%; }
+      .blog-grid { grid-template-columns: 1fr; }
+      .blog-card.featured { grid-row: auto; }
+      .auth-modal { max-width: 100%; }
+      .auth-body { padding: 24px; }
+      .auth-modal-top { padding: 28px 24px 24px; }
+      .customizer-modal { max-width: 100%; }
+      .cust-head, .cust-body, .cust-foot { padding-left: 24px; padding-right: 24px; }
+    }
+
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    /* ─── DATA ─── */
+
+    const menuItems = [
+      { id: 1, name: "SMASH BURGER", category: "Burgers", price: 899, oldPrice: 1100, desc: "Double smash patty, aged cheddar, secret flare sauce, caramelized onion, brioche bun.", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80", badge: "bestseller", rating: 4.9, reviews: 2341 },
+      { id: 2, name: "INFERNO WINGS", category: "Chicken", price: 749, oldPrice: 950, desc: "Ghost pepper glazed wings, blue cheese dip, celery, pickled jalapeños.", img: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=600&q=80", badge: "spicy", rating: 4.8, reviews: 1876 },
+      { id: 3, name: "TRUFFLE FRIES", category: "Sides", price: 449, desc: "Hand-cut fries, black truffle oil, parmesan, fresh herbs, aioli dip.", img: "https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=600&q=80", badge: "veg", rating: 4.7, reviews: 3012 },
+      { id: 4, name: "CRISPY ZINGER", category: "Chicken", price: 699, desc: "Buttermilk fried chicken fillet, sriracha mayo, pickles, toasted brioche.", img: "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600&q=80", badge: "new", rating: 4.8, reviews: 912 },
+      { id: 5, name: "PEPPERONI FEAST", category: "Pizza", price: 1299, oldPrice: 1500, desc: "Double pepperoni, mozzarella fior di latte, San Marzano tomato, basil.", img: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=600&q=80", badge: "bestseller", rating: 4.9, reviews: 4521 },
+      { id: 6, name: "BBQ RIBS", category: "Grills", price: 1899, desc: "Slow-smoked baby back ribs, smoky BBQ glaze, coleslaw, cornbread.", img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80", badge: null, rating: 4.9, reviews: 1543 },
+    ];
+
+    const categories = [
+      { name: "Burgers", count: "12 items", img: "https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=400&q=80" },
+      { name: "Chicken", count: "18 items", img: "https://images.unsplash.com/photo-1562967914-608f82629710?w=400&q=80" },
+      { name: "Pizza", count: "9 items", img: "https://images.unsplash.com/photo-1571997478779-2adcbbe9ab2f?w=400&q=80" },
+      { name: "Sides", count: "14 items", img: "https://images.unsplash.com/photo-1639024471283-03518883512d?w=400&q=80" },
+      { name: "Drinks", count: "20 items", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80" },
+    ];
+
+    const testimonials = [
+      { text: "FLARE completely changed my idea of fast food. The Smash Burger is genuinely the best I've ever tasted — rich, smoky, perfectly sauced.", name: "Ayesha R.", role: "Food Blogger", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80" },
+      { text: "The Inferno Wings are no joke. I ordered them on a dare and now I'm completely addicted. Best fast food experience in the city, hands down.", name: "Zain M.", role: "Regular Customer", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80" },
+      { text: "Delivery was blazing fast, food arrived piping hot and packed beautifully. The truffle fries alone are worth every penny.", name: "Sara K.", role: "Verified Order", avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=100&q=80" },
+    ];
+
+    const deals = [
+      {
+        id: "d1",
+        name: "SOLO FIRE",
+        category: "Single Deal",
+        tagline: "The perfect solo mission — fuel up fast.",
+        savings: "SAVE PKR 250",
+        price: 999,
+        originalPrice: 1249,
+        youSave: 250,
+        hot: "🔥 Hot Deal",
+        featured: false,
+        img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80",
+        items: [
+          { name: "Smash Burger", detail: "Double patty, cheddar, special sauce", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=120&q=80", individual: 899 },
+          { name: "Classic Cola (500ml)", detail: "Chilled & refreshing", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=120&q=80", individual: 350 },
+        ]
+      },
+      {
+        id: "d2",
+        name: "FLARE DUO",
+        category: "🏆 Best Value — Couple Deal",
+        tagline: "Double the fire, double the fun.",
+        savings: "SAVE PKR 700",
+        price: 1799,
+        originalPrice: 2499,
+        youSave: 700,
+        hot: "⚡ Best Seller",
+        featured: true,
+        img: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=600&q=80",
+        items: [
+          { name: "2× Crispy Zinger", detail: "Buttermilk fried, sriracha mayo", img: "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=120&q=80", individual: 1398 },
+          { name: "Truffle Fries (Large)", detail: "Parmesan, truffle oil, aioli", img: "https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=120&q=80", individual: 549 },
+          { name: "2× Signature Shakes", detail: "Chocolate or Vanilla, 400ml each", img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=120&q=80", individual: 550 },
+        ]
+      },
+      {
+        id: "d3",
+        name: "FAMILY BLAZE",
+        category: "Family Pack — 4 People",
+        tagline: "Feed the whole squad. No one left hungry.",
+        savings: "SAVE PKR 1,200",
+        price: 3299,
+        originalPrice: 4499,
+        youSave: 1200,
+        hot: "👨‍👩‍👧‍👦 Family Fave",
+        featured: false,
+        img: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=600&q=80",
+        items: [
+          { name: "4× Smash Burgers", detail: "Classic smash with all toppings", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=120&q=80", individual: 3596 },
+          { name: "2× Loaded Fries", detail: "Large, crispy hand-cut", img: "https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=120&q=80", individual: 898 },
+          { name: "4× Soft Drinks", detail: "Cola / Lemon / Orange — your pick", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=120&q=80", individual: 1000 },
+        ]
+      },
+    ];
+
+    // EID SPECIAL DEALS — 50% off, limited days
+    const eidDeals = [
+      {
+        id: "e1",
+        name: "EID TRIO FEAST",
+        persons: 3,
+        originalPrice: 3597,
+        eidPrice: 1799,
+        tagline: "Eid Mubarak! 3 people, one epic spread.",
+        img: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=600&q=80",
+        items: [
+          { name: "3× Smash Burgers", detail: "Double patty, aged cheddar, special sauce", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=120&q=80" },
+          { name: "3× Signature Shakes", detail: "Chocolate, Vanilla or Strawberry", img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=120&q=80" },
+          { name: "1× Truffle Fries (XL)", detail: "Shared platter, black truffle & parmesan", img: "https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=120&q=80" },
+        ]
+      },
+      {
+        id: "e2",
+        name: "EID SQUAD BOX",
+        persons: 5,
+        originalPrice: 6495,
+        eidPrice: 3248,
+        tagline: "The whole squad eats together this Eid.",
+        img: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=600&q=80",
+        items: [
+          { name: "5× Crispy Zingers", detail: "Buttermilk fried, sriracha mayo, brioche", img: "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=120&q=80" },
+          { name: "2× Loaded Fries (Large)", detail: "Shared platters, crispy hand-cut", img: "https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=120&q=80" },
+          { name: "5× Soft Drinks", detail: "Cola / Lemon / Orange — your pick", img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=120&q=80" },
+          { name: "1× Pepperoni Feast (Large)", detail: "Shared pizza, San Marzano tomato", img: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=120&q=80" },
+        ]
+      },
+      {
+        id: "e3",
+        name: "EID GRAND TABLE",
+        persons: 7,
+        originalPrice: 10493,
+        eidPrice: 5247,
+        tagline: "Feed the whole family this blessed Eid.",
+        img: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80",
+        items: [
+          { name: "7× Smash Burgers", detail: "Double patty, signature flare sauce", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=120&q=80" },
+          { name: "2× BBQ Ribs Platters", detail: "Slow-smoked, smoky BBQ glaze", img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=120&q=80" },
+          { name: "3× Loaded Fries (Large)", detail: "Shared platters for the whole table", img: "https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=120&q=80" },
+          { name: "7× Signature Shakes", detail: "Any flavour, 400ml each", img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=120&q=80" },
+          { name: "2× Pepperoni Feast", detail: "Large pizzas, double pepperoni", img: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=120&q=80" },
+        ]
+      },
+    ];
+    const customizerConfig = {
+      1: {
+        toppings: [
+          { id:'t1', label:'Extra Cheddar', price:80 },
+          { id:'t2', label:'Jalapeños', price:60 },
+          { id:'t3', label:'Bacon Strip', price:150 },
+          { id:'t4', label:'Avocado', price:120 },
+          { id:'t5', label:'Fried Egg', price:90 },
+          { id:'t6', label:'Mushrooms', price:70 },
+        ],
+        removables: ['Onion','Pickles','Lettuce','Special Sauce','Tomato'],
+        sizes: [
+          { id:'s1', label:'Regular', price:0 },
+          { id:'s2', label:'Large (+100)', price:100 },
+          { id:'s3', label:'XL Monster (+200)', price:200 },
+        ],
+        spice: ['Mild','Medium','Hot 🌶️','Extra Hot 🔥'],
+      },
+      4: {
+        toppings: [
+          { id:'t1', label:'Extra Crispy', price:0 },
+          { id:'t2', label:'Double Patty +250', price:250 },
+          { id:'t3', label:'Coleslaw', price:60 },
+          { id:'t4', label:'Cheese Slice', price:80 },
+        ],
+        removables: ['Sriracha Mayo','Pickles','Lettuce'],
+        sizes: [
+          { id:'s1', label:'Regular', price:0 },
+          { id:'s2', label:'Large (+80)', price:80 },
+        ],
+        spice: ['Mild','Medium','Hot 🌶️'],
+      },
+    };
+
+    /* ─── BLOG DATA ─── */
+    const blogPosts = [
+      {
+        id: 1, featured: true,
+        category: 'Behind the Flame',
+        title: 'THE SECRET BEHIND OUR SMASH SAUCE',
+        excerpt: 'Every great burger has a soul. Ours has fire. We sat down with our head chef to unpack the 7-ingredient secret sauce that took 3 months and 80+ failed batches to perfect.',
+        meta: 'March 12, 2025 · 5 min read',
+        img: 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?w=700&q=80',
+      },
+      {
+        id: 2, featured: false,
+        category: 'Food Science',
+        title: 'WHY SMASH BURGERS TASTE BETTER',
+        excerpt: '',
+        meta: 'Feb 28, 2025 · 3 min read',
+        img: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&q=80',
+      },
+      {
+        id: 3, featured: false,
+        category: 'Culture',
+        title: 'HOW FLARE STARTED IN A KARACHI KITCHEN',
+        excerpt: '',
+        meta: 'Feb 10, 2025 · 4 min read',
+        img: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500&q=80',
+      },
+      {
+        id: 4, featured: false,
+        category: 'Recipe Drop',
+        title: 'MAKE OUR TRUFFLE FRIES AT HOME',
+        excerpt: '',
+        meta: 'Jan 22, 2025 · 6 min read',
+        img: 'https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=500&q=80',
+      },
+    ];
+
+    /* ─── APP ─── */
+    function App() {
+      const [scrolled, setScrolled]     = useState(false);
+      const [activeFilter, setActiveFilter] = useState("All");
+      const [cart, setCart]             = useState([]);
+      const [toast, setToast]           = useState(null);
+      const [cursor, setCursor]         = useState({ x:0, y:0 });
+      const [follower, setFollower]     = useState({ x:0, y:0 });
+      const cursorRef                   = useRef({ x:0, y:0 });
+      const [timeLeft, setTimeLeft]     = useState({ h:5, m:47, s:22 });
+
+      // New state
+      const [cartOpen, setCartOpen]     = useState(false);
+      const [authOpen, setAuthOpen]     = useState(false);
+      const [authTab, setAuthTab]       = useState('login');
+      const [custItem, setCustItem]     = useState(null);
+      const [custSelections, setCustSelections] = useState({});
+
+      // Auth system state
+      const [loggedInUser, setLoggedInUser] = useState(() => {
+        try { return JSON.parse(localStorage.getItem('flare_user')) || null; } catch { return null; }
+      });
+      const [authError, setAuthError]   = useState('');
+      const [authSuccess, setAuthSuccess] = useState('');
+      const [signupForm, setSignupForm] = useState({ name:'', email:'', phone:'', password:'' });
+      const [loginForm, setLoginForm]   = useState({ email:'', password:'' });
+
+      // Auth helpers
+      const getAccounts = () => { try { return JSON.parse(localStorage.getItem('flare_accounts')) || []; } catch { return []; } };
+      const saveAccounts = (accounts) => localStorage.setItem('flare_accounts', JSON.stringify(accounts));
+
+      const handleSignup = () => {
+        setAuthError(''); setAuthSuccess('');
+        const { name, email, phone, password } = signupForm;
+        if (!name.trim()) return setAuthError('Please enter your full name.');
+        if (!email.trim() || !email.includes('@')) return setAuthError('Please enter a valid email address.');
+        if (!phone.trim()) return setAuthError('Please enter your phone number.');
+        if (password.length < 6) return setAuthError('Password must be at least 6 characters.');
+        const accounts = getAccounts();
+        if (accounts.find(a => a.email.toLowerCase() === email.toLowerCase())) {
+          return setAuthError('An account with this email already exists. Please sign in.');
+        }
+        const newUser = { name, email: email.toLowerCase(), phone, password, joinedAt: new Date().toLocaleDateString() };
+        saveAccounts([...accounts, newUser]);
+        setLoggedInUser(newUser);
+        localStorage.setItem('flare_user', JSON.stringify(newUser));
+        setAuthSuccess(`Welcome to FLARE, ${name.split(' ')[0]}! 🔥`);
+        setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setSignupForm({ name:'', email:'', phone:'', password:'' }); }, 1500);
+      };
+
+      const handleLogin = () => {
+        setAuthError(''); setAuthSuccess('');
+        const { email, password } = loginForm;
+        if (!email.trim()) return setAuthError('Please enter your email address.');
+        if (!password.trim()) return setAuthError('Please enter your password.');
+        const accounts = getAccounts();
+        const found = accounts.find(a => a.email.toLowerCase() === email.toLowerCase());
+        if (!found) return setAuthError('No account found with this email. Please sign up first.');
+        if (found.password !== password) return setAuthError('Incorrect password. Please try again.');
+        setLoggedInUser(found);
+        localStorage.setItem('flare_user', JSON.stringify(found));
+        setAuthSuccess(`Welcome back, ${found.name.split(' ')[0]}! 🔥`);
+        setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setLoginForm({ email:'', password:'' }); }, 1500);
+      };
+
+      const handleLogout = () => {
+        setLoggedInUser(null);
+        localStorage.removeItem('flare_user');
+      };
+
+      const [authRedirectMsg, setAuthRedirectMsg] = useState('');
+
+      // Gate any order action behind login
+      const requireAuth = (action, msg) => {
+        if (!loggedInUser) {
+          setAuthTab('login');
+          setAuthError('');
+          setAuthSuccess('');
+          setAuthRedirectMsg(msg || '');
+          setAuthOpen(true);
+          return false;
+        }
+        if (typeof action === 'function') action();
+        return true;
+      };
+
+      /* timers & scroll */
+      useEffect(() => {
+        const t = setInterval(() => {
+          setTimeLeft(prev => {
+            let { h,m,s } = prev;
+            s--; if(s<0){s=59;m--;} if(m<0){m=59;h--;} if(h<0){h=23;m=59;s=59;}
+            return {h,m,s};
+          });
+        }, 1000);
+        return () => clearInterval(t);
+      }, []);
+
+      useEffect(() => {
+        const fn = () => setScrolled(window.scrollY > 60);
+        window.addEventListener('scroll', fn);
+        return () => window.removeEventListener('scroll', fn);
+      }, []);
+
+      /* custom cursor */
+      useEffect(() => {
+        const move = (e) => {
+          cursorRef.current = { x: e.clientX, y: e.clientY };
+          setCursor({ x: e.clientX, y: e.clientY });
+        };
+        window.addEventListener('mousemove', move);
+        const anim = () => {
+          setFollower(p => ({
+            x: p.x + (cursorRef.current.x - p.x) * 0.12,
+            y: p.y + (cursorRef.current.y - p.y) * 0.12,
+          }));
+          requestAnimationFrame(anim);
+        };
+        requestAnimationFrame(anim);
+        return () => window.removeEventListener('mousemove', move);
+      }, []);
+
+      /* body scroll lock */
+      useEffect(() => {
+        document.body.style.overflow = (cartOpen || authOpen || custItem) ? 'hidden' : '';
+      }, [cartOpen, authOpen, custItem]);
+
+      /* cart helpers */
+      const addToCart = (item, customizations) => {
+        const entry = {
+          ...item,
+          cartId: Date.now() + Math.random(),
+          qty: 1,
+          customizations: customizations || null,
+          finalPrice: item.price + (customizations?.extraCost || 0),
+        };
+        setCart(prev => [...prev, entry]);
+        setToast(item.name);
+        setTimeout(() => setToast(null), 2500);
+      };
+
+      const updateQty = (cartId, delta) => {
+        setCart(prev => prev.map(i => i.cartId === cartId
+          ? { ...i, qty: Math.max(1, i.qty + delta) }
+          : i
+        ));
+      };
+      const removeItem = (cartId) => setCart(prev => prev.filter(i => i.cartId !== cartId));
+
+      const cartTotal = cart.reduce((s,i) => s + i.finalPrice * i.qty, 0);
+      const cartCount = cart.reduce((s,i) => s + i.qty, 0);
+
+      /* customizer helpers */
+      const openCustomizer = (item) => {
+        const cfg = customizerConfig[item.id];
+        if (!cfg) { addToCart(item); return; }
+        setCustItem(item);
+        setCustSelections({
+          size: cfg.sizes[0].id,
+          toppings: [],
+          removed: [],
+          spice: cfg.spice[1] || cfg.spice[0],
+        });
+      };
+      const toggleTopping = (tid) => {
+        setCustSelections(p => ({
+          ...p,
+          toppings: p.toppings.includes(tid)
+            ? p.toppings.filter(x => x !== tid)
+            : [...p.toppings, tid],
+        }));
+      };
+      const toggleRemove = (label) => {
+        setCustSelections(p => ({
+          ...p,
+          removed: p.removed.includes(label)
+            ? p.removed.filter(x => x !== label)
+            : [...p.removed, label],
+        }));
+      };
+      const getCustPrice = () => {
+        if (!custItem) return 0;
+        const cfg = customizerConfig[custItem.id];
+        const sizeExtra = cfg.sizes.find(s => s.id === custSelections.size)?.price || 0;
+        const toppingExtra = custSelections.toppings?.reduce((sum, tid) => {
+          return sum + (cfg.toppings.find(t => t.id === tid)?.price || 0);
+        }, 0) || 0;
+        return custItem.price + sizeExtra + toppingExtra;
+      };
+      const confirmCustomizer = () => {
+        const cfg = customizerConfig[custItem.id];
+        const sizeLabel = cfg.sizes.find(s => s.id === custSelections.size)?.label;
+        const addedToppings = custSelections.toppings.map(tid => cfg.toppings.find(t => t.id === tid)?.label);
+        const mods = [
+          sizeLabel !== 'Regular' ? sizeLabel : null,
+          ...addedToppings,
+          ...(custSelections.removed.map(r => `No ${r}`)),
+          `Spice: ${custSelections.spice}`,
+        ].filter(Boolean).join(' · ');
+        const sizeExtra = cfg.sizes.find(s => s.id === custSelections.size)?.price || 0;
+        const toppingExtra = custSelections.toppings.reduce((sum, tid) => sum + (cfg.toppings.find(t => t.id === tid)?.price || 0), 0);
+        addToCart(custItem, { mods, extraCost: sizeExtra + toppingExtra });
+        setCustItem(null);
+      };
+
+      const filters = ["All","Burgers","Chicken","Pizza","Sides","Grills"];
+      const filtered = activeFilter === "All" ? menuItems : menuItems.filter(i => i.category === activeFilter);
+
+      return (
+        <>
+          <div className="cursor" style={{ transform: `translate(${cursor.x-6}px, ${cursor.y-6}px)` }} />
+          <div className="cursor-follower" style={{ transform: `translate(${follower.x-18}px, ${follower.y-18}px)` }} />
+
+          {/* ── NAV ── */}
+          <nav className={scrolled ? 'scrolled' : ''}>
+            <a href="#" className="nav-logo">FL<span>A</span>RE</a>
+            <ul className="nav-links">
+              {['Menu','Deals','Eid 🌙','Specials','Blog','About'].map(l => (
+                <li key={l}><a href={`#${l.toLowerCase().replace(' 🌙','')}`} style={l.includes('Eid') ? {color:'var(--gold)'} : {}}>{l}</a></li>
+              ))}
+            </ul>
+            <div style={{display:'flex',gap:'12px',alignItems:'center'}}>
+              {loggedInUser ? (
+                <>
+                  <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+                    <div style={{width:34,height:34,borderRadius:'50%',background:'var(--fire)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:14,color:'white',flexShrink:0}}>
+                      {loggedInUser.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span style={{fontSize:13,fontWeight:600,color:'var(--cream)',letterSpacing:1}}>
+                      {loggedInUser.name.split(' ')[0]}
+                    </span>
+                  </div>
+                  <button className="nav-cta" style={{background:'transparent',border:'1px solid rgba(255,248,240,0.2)',color:'var(--muted)',fontSize:11}} onClick={handleLogout}>
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <button className="nav-cta" style={{background:'transparent',border:'1px solid rgba(255,248,240,0.2)',color:'var(--cream)'}} onClick={() => { setAuthTab('login'); setAuthOpen(true); setAuthError(''); }}>
+                  Sign In
+                </button>
+              )}
+              <button className="nav-cta" onClick={() => requireAuth(() => document.getElementById('menu').scrollIntoView({ behavior:'smooth' }), 'Please sign in to place an order.')}>
+                Order Now
+              </button>
+            </div>
+          </nav>
+
+          {/* ── HERO ── */}
+          <section className="hero" id="home">
+            <div className="hero-left">
+              <div className="hero-badge">
+                <div className="hero-badge-dot" />
+                <span>Now Delivering in 28 Min</span>
+              </div>
+              <h1 className="hero-title">
+                TASTE<br/>
+                <span className="hero-title-fire">THE FIRE</span>
+                <span className="hero-title-sub">— every single bite</span>
+              </h1>
+              <p className="hero-desc">Bold flavors crafted for those who refuse ordinary. Premium ingredients, signature sauces, and fire-kissed perfection — delivered to your door.</p>
+              <div className="hero-actions">
+                <button className="btn-primary" onClick={() => requireAuth(() => document.getElementById('menu').scrollIntoView({ behavior:'smooth' }), 'Sign in first to start ordering.')}>Explore Menu</button>
+                <button className="btn-ghost" onClick={() => { setAuthTab('signup'); setAuthOpen(true); setAuthError(''); }}>Join FLARE</button>
+              </div>
+              <div className="hero-stats">
+                {[['28+','Menu Items'],['4.9★','Avg Rating'],['50K+','Happy Eaters']].map(([n,l]) => (
+                  <div key={l}>
+                    <div className="stat-num">{n}</div>
+                    <div className="stat-label">{l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="hero-right">
+              <img className="hero-img-main" src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=900&q=85" alt="FLARE Signature Burger" />
+              <div className="hero-img-overlay" />
+              <div className="hero-float-card">
+                <span className="float-card-label">🔥 Today's Special</span>
+                <div className="float-card-name">SMASH BURGER</div>
+                <div className="float-card-price">PKR 899</div>
+              </div>
+            </div>
+          </section>
+
+          {/* ── MARQUEE ── */}
+          <div className="marquee-strip">
+            <div className="marquee-inner">
+              {[...Array(4)].map((_,i) => (
+                <React.Fragment key={i}>
+                  <span>SMASH BURGERS</span><span className="marquee-dot">✦</span>
+                  <span>CRISPY WINGS</span><span className="marquee-dot">✦</span>
+                  <span>LOADED FRIES</span><span className="marquee-dot">✦</span>
+                  <span>STONE OVEN PIZZA</span><span className="marquee-dot">✦</span>
+                  <span>BBQ RIBS</span><span className="marquee-dot">✦</span>
+                  <span>SIGNATURE DRINKS</span><span className="marquee-dot">✦</span>
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+
+          {/* ── CATEGORIES ── */}
+          <section className="section" id="about">
+            <div className="section-tag">Browse By Category</div>
+            <h2 className="section-title">WHAT ARE YOU<br/><em>craving?</em></h2>
+            <div className="categories-grid">
+              {categories.map(cat => (
+                <div key={cat.name} className="cat-card">
+                  <img src={cat.img} alt={cat.name} />
+                  <div className="cat-overlay" />
+                  <div className="cat-info">
+                    <span className="cat-name">{cat.name.toUpperCase()}</span>
+                    <span className="cat-count">{cat.count}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ── FEATURES ── */}
+          <div className="feature-strip">
+            {[
+              ['🔥','FIRE FRESH','Every order prepared fresh to order, never pre-made or reheated.'],
+              ['⚡','BLAZING FAST','28-minute average delivery time, or your next order is on us.'],
+              ['🌶️','BOLD FLAVORS','Signature spice blends and house-made sauces exclusive to FLARE.'],
+              ['📦','PREMIUM PACK','Insulated packaging keeps your food at perfect temperature.'],
+            ].map(([icon,title,desc]) => (
+              <div key={title} className="feature-item">
+                <span className="feature-icon">{icon}</span>
+                <div className="feature-title">{title}</div>
+                <div className="feature-desc">{desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── MENU ── */}
+          <section className="section menu-section" id="menu">
+            <div className="menu-header">
+              <div>
+                <div className="section-tag">Full Menu</div>
+                <h2 className="section-title">OUR<br/><em>signatures</em></h2>
+              </div>
+              <div className="menu-filters">
+                {filters.map(f => (
+                  <button key={f} className={`filter-btn ${activeFilter===f?'active':''}`} onClick={() => setActiveFilter(f)}>{f}</button>
+                ))}
+              </div>
+            </div>
+            <div className="menu-grid">
+              {filtered.map(item => (
+                <div key={item.id} className="menu-card">
+                  <div className="menu-img-wrap">
+                    <img src={item.img} alt={item.name} />
+                    {item.badge && <div className={`menu-badge ${item.badge==='spicy'?'spicy':item.badge==='new'?'new':item.badge==='veg'?'veg':''}`}>{item.badge}</div>}
+                    {customizerConfig[item.id] && (
+                      <div style={{position:'absolute',top:16,right:60,background:'rgba(10,8,5,0.85)',border:'1px solid rgba(255,215,0,0.4)',color:'var(--gold)',fontSize:'9px',letterSpacing:'2px',padding:'5px 10px',fontWeight:700,textTransform:'uppercase',opacity:0,transition:'opacity 0.3s'}} className="cust-hint">
+                        ✦ Customizable
+                      </div>
+                    )}
+                    <button className="menu-add-btn" onClick={() => requireAuth(() => openCustomizer(item), 'Sign in to add items to your cart.')}>
+                      {customizerConfig[item.id] ? '✦' : '+'}
+                    </button>
+                  </div>
+                  <div className="menu-info">
+                    <div className="menu-category">
+                      {item.category}
+                      {customizerConfig[item.id] && <span style={{color:'var(--gold)',fontSize:'10px',marginLeft:'8px',letterSpacing:'1px'}}>· CUSTOMIZABLE</span>}
+                    </div>
+                    <div className="menu-name">{item.name}</div>
+                    <div className="menu-desc">{item.desc}</div>
+                    <div className="menu-footer">
+                      <div className="menu-price">
+                        {item.oldPrice && <span>PKR {item.oldPrice}</span>}
+                        PKR {item.price}
+                      </div>
+                      <div className="menu-rating">
+                        <span className="stars">{'★'.repeat(Math.floor(item.rating))}</span>
+                        {item.rating} ({item.reviews.toLocaleString()})
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ── DEALS ── */}
+          <div className="deals-timer-bar" id="deals">
+            <span className="deals-timer-label">⚡ Limited Time Deals — Ends In</span>
+            <div className="deals-timer-boxes">
+              <div className="timer-box"><span className="timer-num">{String(timeLeft.h).padStart(2,'0')}</span><span className="timer-unit">Hours</span></div>
+              <span className="timer-colon">:</span>
+              <div className="timer-box"><span className="timer-num">{String(timeLeft.m).padStart(2,'0')}</span><span className="timer-unit">Mins</span></div>
+              <span className="timer-colon">:</span>
+              <div className="timer-box"><span className="timer-num">{String(timeLeft.s).padStart(2,'0')}</span><span className="timer-unit">Secs</span></div>
+            </div>
+          </div>
+
+          <section className="section deals-section">
+            <div style={{position:'relative',zIndex:1}}>
+              <div className="section-tag">Combo Deals</div>
+              <h2 className="section-title">MORE FOOD,<br/><em>less spend</em></h2>
+            </div>
+            <div className="deals-grid">
+              {deals.map(deal => (
+                <div key={deal.id} className={`deal-card ${deal.featured?'featured':''}`}>
+                  <div className="deal-header">
+                    <img className="deal-main-img" src={deal.img} alt={deal.name} />
+                    <div className="deal-header-overlay" />
+                    <div className="deal-savings-badge">{deal.savings}</div>
+                    <div className="deal-hot-tag"><span className="hot-dot"/>{deal.hot}</div>
+                  </div>
+                  <div className="deal-body">
+                    <div className="deal-category">{deal.category}</div>
+                    <div className="deal-name">{deal.name}</div>
+                    <div className="deal-tagline">{deal.tagline}</div>
+                    <div className="deal-items">
+                      {deal.items.map((item,idx) => (
+                        <React.Fragment key={idx}>
+                          <div className="deal-item-row">
+                            <img className="deal-item-img" src={item.img} alt={item.name} />
+                            <div className="deal-item-info">
+                              <div className="deal-item-name">{item.name}</div>
+                              <div className="deal-item-detail">{item.detail}</div>
+                            </div>
+                            <div className="deal-item-individual">PKR {item.individual}</div>
+                          </div>
+                          {idx < deal.items.length-1 && <div className="deal-plus">+</div>}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                    <div className="deal-footer">
+                      <div className="deal-pricing">
+                        <span className="deal-original">PKR {deal.originalPrice.toLocaleString()}</span>
+                        <div className="deal-price">PKR {deal.price.toLocaleString()}</div>
+                        <div className="deal-you-save">✓ You save PKR {deal.youSave.toLocaleString()}</div>
+                      </div>
+                      <button className="deal-order-btn" onClick={() => requireAuth(() => addToCart({ name:deal.name, price:deal.price, img:deal.img }), 'Sign in to add deals to your cart.')}>
+                        Add Deal
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="deals-banner">
+              <div className="banner-text-side">
+                <div className="banner-title">FIRST ORDER?<br/><span style={{color:'var(--fire)'}}>GET 15% OFF</span></div>
+                <div className="banner-subtitle">Use the code below on your first order and enjoy 15% discount on any deal above.</div>
+              </div>
+              <div className="banner-divider" />
+              <div className="banner-code-side">
+                <div className="banner-code-label">Your Promo Code</div>
+                <div className="banner-code">FLARE15</div>
+                <div className="banner-code-desc">Valid for new customers · One time use · All deals</div>
+              </div>
+            </div>
+          </section>
+
+          {/* ── EID SPECIAL SECTION ── */}
+          <section className="section eid-section" id="eid">
+            {/* Hero Banner */}
+            <div className="eid-hero-banner">
+              <div className="eid-banner-left">
+                <div className="eid-tag">
+                  <span className="eid-tag-dot" />
+                  <span className="eid-tag-text">☪ Eid Special — Limited Days Only</span>
+                </div>
+                <h2 className="eid-banner-title">
+                  EID <span className="eid-gold">MUBARAK</span><br/>
+                  <span className="eid-fire">50% OFF</span> EVERYTHING
+                </h2>
+                <p className="eid-banner-sub">
+                  Celebrate Eid with the people you love most — and let FLARE handle the feast. Our biggest discount of the year, only for Eid days. Eat together, save together.
+                </p>
+                <div className="eid-banner-note">
+                  ⏳ <strong>Offer valid Eid days only.</strong> No code needed — discount applied automatically at checkout.
+                </div>
+              </div>
+              <div className="eid-discount-pill">
+                <div className="eid-pill-num">50</div>
+                <span className="eid-pill-off">% OFF</span>
+                <span className="eid-pill-label">Eid Special</span>
+              </div>
+            </div>
+
+            {/* Group Deal Cards */}
+            <div style={{position:'relative',zIndex:1,marginBottom:40}}>
+              <div className="section-tag" style={{color:'var(--gold)'}}>Eid Group Deals</div>
+              <h2 className="section-title">FEAST FOR<br/><em style={{color:'var(--gold)'}}>everyone</em></h2>
+            </div>
+
+            <div className="eid-deals-grid">
+              {eidDeals.map(deal => (
+                <div key={deal.id} className="eid-card">
+                  <div className="eid-card-header">
+                    <img className="eid-card-img" src={deal.img} alt={deal.name} />
+                    <div className="eid-card-header-overlay" />
+                    <div className="eid-persons-badge">👥 {deal.persons} Persons</div>
+                    <div className="eid-half-off">50% OFF</div>
+                  </div>
+                  <div className="eid-card-body">
+                    <div className="eid-card-label">☪ Eid Special Deal</div>
+                    <div className="eid-card-name">{deal.name}</div>
+                    <div className="eid-card-tagline">{deal.tagline}</div>
+                    <div className="eid-items-list">
+                      {deal.items.map((item, idx) => (
+                        <div key={idx} className="eid-item-row">
+                          <img className="eid-item-img" src={item.img} alt={item.name} />
+                          <div>
+                            <div className="eid-item-name">{item.name}</div>
+                            <div className="eid-item-detail">{item.detail}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="eid-card-footer">
+                      <div className="eid-pricing">
+                        <span className="eid-original">PKR {deal.originalPrice.toLocaleString()}</span>
+                        <div className="eid-price">PKR {deal.eidPrice.toLocaleString()}</div>
+                        <div className="eid-you-save">✓ You save PKR {(deal.originalPrice - deal.eidPrice).toLocaleString()}</div>
+                      </div>
+                      <button className="eid-order-btn" onClick={() => requireAuth(() => addToCart({ name: deal.name, price: deal.eidPrice, img: deal.img }), 'Sign in to add Eid deals to your cart.')}>
+                        Order Now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Eid ends note */}
+            <div className="eid-ends-strip">
+              <span style={{fontSize:20}}>☪</span>
+              <span className="eid-ends-text">
+                <strong>Eid Mubarak from FLARE!</strong> — This offer is valid on Eid days only. Prices return to normal after Eid.
+              </span>
+              <span style={{fontSize:20}}>🌙</span>
+            </div>
+          </section>
+
+          {/* ── SPECIALS ── */}
+          <section className="section" id="specials">
+            <div className="section-tag">Limited Time</div>
+            <h2 className="section-title">CHEF'S<br/><em>specials</em></h2>
+            <div className="specials-grid">
+              {[
+                { name:"THE VOLCANO BOX", tag:"🌋 Ultimate Combo", price:"PKR 2,499", img:"https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=700&q=80" },
+                { name:"LOADED NACHOS", tag:"🧀 Fan Favourite", price:"PKR 649", img:"https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=700&q=80" },
+                { name:"SHAWARMA WRAP", tag:"🌯 Street Style", price:"PKR 599", img:"https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=700&q=80" },
+              ].map(s => (
+                <div key={s.name} className="special-card">
+                  <img src={s.img} alt={s.name} />
+                  <div className="special-overlay">
+                    <div className="special-tag">{s.tag}</div>
+                    <div className="special-name">{s.name}</div>
+                    <div className="special-price">{s.price}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ── BLOG ── */}
+          <section className="section blog-section" id="blog">
+            <div className="section-tag">Food Stories</div>
+            <h2 className="section-title">FROM THE<br/><em>kitchen</em></h2>
+            <div className="blog-grid">
+              {blogPosts.map(post => (
+                <div key={post.id} className={`blog-card ${post.featured?'featured':''}`}>
+                  <div className="blog-img-wrap">
+                    <img className="blog-img" src={post.img} alt={post.title} />
+                    <div className="blog-cat-tag">{post.category}</div>
+                  </div>
+                  <div className="blog-body">
+                    <div className="blog-meta">{post.meta}</div>
+                    <div className="blog-title">{post.title}</div>
+                    {post.featured && <p className="blog-excerpt">{post.excerpt}</p>}
+                    <a href="#" className="blog-read-more">Read Story →</a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ── TESTIMONIALS ── */}
+          <section className="section testimonials-section">
+            <div className="section-tag">Real Reviews</div>
+            <h2 className="section-title">THE PEOPLE<br/><em>have spoken</em></h2>
+            <div className="testimonials-grid">
+              {testimonials.map(t => (
+                <div key={t.name} className="testimonial-card">
+                  <p className="testimonial-text">{t.text}</p>
+                  <div className="testimonial-author">
+                    <img src={t.avatar} alt={t.name} className="author-avatar" />
+                    <div>
+                      <div className="author-name">{t.name}</div>
+                      <div className="author-role">{t.role}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ── CTA ── */}
+          <section className="cta-section">
+            <div className="cta-bg" />
+            <div className="cta-content">
+              <h2 className="cta-title">HUNGRY?<br/><em>We thought so.</em></h2>
+              <p className="cta-subtitle">Order now and experience fire-kissed flavors delivered to your door in under 30 minutes.</p>
+              <div className="cta-actions">
+                <button className="btn-primary" style={{fontSize:'16px',padding:'20px 56px'}} onClick={() => setCartOpen(true)}>View My Cart</button>
+                <button className="btn-ghost" style={{fontSize:'16px',padding:'20px 56px'}} onClick={() => { setAuthTab('signup'); setAuthOpen(true); setAuthError(''); }}>Create Account</button>
+              </div>
+            </div>
+          </section>
+
+          {/* ── FOOTER ── */}
+          <footer>
+            <div className="footer-grid">
+              <div>
+                <div className="footer-brand-name">FL<span>A</span>RE</div>
+                <p className="footer-desc">Bold flavors. Fearless food. FLARE is where fast food grows up and tastes like something worth remembering.</p>
+                <div className="footer-social">
+                  {['𝕏','ig','fb','yt'].map(s => (
+                    <a key={s} href="#" className="social-btn">{s}</a>
+                  ))}
+                </div>
+              </div>
+              {[
+                ['MENU',['Burgers','Chicken','Pizza','Sides','Drinks','Combos']],
+                ['COMPANY',['About Us','Careers','Press','Franchise','Blog']],
+                ['SUPPORT',['Track Order','Locations','Contact Us','FAQs','Returns']],
+              ].map(([title,links]) => (
+                <div key={title}>
+                  <div className="footer-col-title">{title}</div>
+                  <ul className="footer-links">
+                    {links.map(l => <li key={l}><a href="#">{l}</a></li>)}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <div className="footer-bottom">
+              <div className="footer-copy">© 2025 FLARE Restaurant. All rights reserved.</div>
+              <div className="footer-copy">Privacy Policy · Terms · Cookies</div>
+            </div>
+          </footer>
+
+          {/* ── CART BUBBLE ── */}
+          <div className="cart-bubble" onClick={() => requireAuth(() => setCartOpen(true), 'Sign in to view your cart.')}>
+            🛒
+            {cartCount > 0 && <div className="cart-count">{cartCount}</div>}
+          </div>
+
+          {/* ── TOAST ── */}
+          {toast && (
+            <div className="toast">
+              <span className="toast-icon">🔥</span>
+              <span className="toast-text">{toast} added to cart!</span>
+            </div>
+          )}
+
+          {/* ── CART DRAWER ── */}
+          {cartOpen && (
+            <>
+              <div className="overlay" onClick={() => setCartOpen(false)} />
+              <div className="cart-drawer">
+                <div className="cart-drawer-head">
+                  <div className="cart-drawer-title">YOUR <span>ORDER</span></div>
+                  <button className="drawer-close" onClick={() => setCartOpen(false)}>✕</button>
+                </div>
+                <div className="cart-items-list">
+                  {cart.length === 0 ? (
+                    <div className="cart-empty">
+                      <span className="cart-empty-icon">🍔</span>
+                      <div className="cart-empty-msg">YOUR CART IS EMPTY</div>
+                      <div className="cart-empty-sub">Add some fire to your order above.</div>
+                    </div>
+                  ) : cart.map(item => (
+                    <div key={item.cartId} className="cart-item">
+                      <img className="cart-item-img" src={item.img || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=120&q=80'} alt={item.name} />
+                      <div className="cart-item-body">
+                        <div className="cart-item-name">{item.name}</div>
+                        {item.customizations?.mods && (
+                          <div className="cart-item-mods">{item.customizations.mods}</div>
+                        )}
+                        <div className="cart-item-qty">
+                          <button className="qty-btn" onClick={() => updateQty(item.cartId, -1)}>−</button>
+                          <span className="qty-num">{item.qty}</span>
+                          <button className="qty-btn" onClick={() => updateQty(item.cartId, 1)}>+</button>
+                          <button className="cart-item-remove" onClick={() => removeItem(item.cartId)}>🗑</button>
+                        </div>
+                      </div>
+                      <div className="cart-item-price">PKR {(item.finalPrice * item.qty).toLocaleString()}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="cart-drawer-foot">
+                  <div className="cart-subtotal-row"><span>Subtotal</span><span>PKR {cartTotal.toLocaleString()}</span></div>
+                  <div className="cart-subtotal-row"><span>Delivery</span><span style={{color:'#27ae60'}}>FREE</span></div>
+                  <div className="cart-total-row">
+                    <span className="cart-total-label">TOTAL</span>
+                    <span className="cart-total-price">PKR {cartTotal.toLocaleString()}</span>
+                  </div>
+                  <button className="checkout-btn" onClick={() => requireAuth(() => alert('Proceeding to checkout...'), 'Sign in to complete your order.')}>
+                    Proceed to Checkout →
+                  </button>
+                  <div className="cart-note">🔒 Secure checkout · Free delivery on all orders</div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ── AUTH MODAL ── */}
+          {authOpen && (
+            <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget) { setAuthOpen(false); setAuthError(''); setAuthSuccess(''); setAuthRedirectMsg(''); } }}>
+              <div className="auth-modal">
+                <div className="auth-modal-top">
+                  <div className="auth-modal-logo">FL<span>A</span>RE</div>
+                  <div className="auth-modal-tagline">
+                    {authTab === 'login' ? 'Sign in to your FLARE account.' : 'Join the fire. Unlock exclusive deals & rewards.'}
+                  </div>
+                  <button className="modal-close" onClick={() => { setAuthOpen(false); setAuthError(''); setAuthSuccess(''); setAuthRedirectMsg(''); }}>✕</button>
+                </div>
+                <div className="auth-tabs">
+                  <button className={`auth-tab ${authTab==='login'?'active':''}`} onClick={() => { setAuthTab('login'); setAuthError(''); setAuthSuccess(''); }}>Sign In</button>
+                  <button className={`auth-tab ${authTab==='signup'?'active':''}`} onClick={() => { setAuthTab('signup'); setAuthError(''); setAuthSuccess(''); }}>Create Account</button>
+                </div>
+                <div className="auth-body">
+
+                  {/* REDIRECT HINT */}
+                  {authRedirectMsg && !authSuccess && (
+                    <div style={{background:'rgba(255,69,0,0.1)',border:'1px solid rgba(255,69,0,0.35)',padding:'12px 16px',marginBottom:20,display:'flex',alignItems:'center',gap:10,borderRadius:0}}>
+                      <span style={{fontSize:18}}>🔒</span>
+                      <span style={{fontSize:13,color:'var(--ember)',fontWeight:500}}>{authRedirectMsg}</span>
+                    </div>
+                  )}
+
+                  {/* SUCCESS MESSAGE */}
+                  {authSuccess && (
+                    <div style={{background:'rgba(39,174,96,0.12)',border:'1px solid rgba(39,174,96,0.4)',padding:'12px 16px',marginBottom:20,display:'flex',alignItems:'center',gap:10}}>
+                      <span style={{fontSize:18}}>✅</span>
+                      <span style={{fontSize:14,fontWeight:600,color:'#2ecc71'}}>{authSuccess}</span>
+                    </div>
+                  )}
+
+                  {/* ERROR MESSAGE */}
+                  {authError && (
+                    <div style={{background:'rgba(231,76,60,0.12)',border:'1px solid rgba(231,76,60,0.4)',padding:'12px 16px',marginBottom:20,display:'flex',alignItems:'center',gap:10}}>
+                      <span style={{fontSize:18}}>⚠️</span>
+                      <span style={{fontSize:13,color:'#e74c3c'}}>{authError}</span>
+                    </div>
+                  )}
+
+                  {/* ── SIGN UP FORM ── */}
+                  {authTab === 'signup' && (
+                    <>
+                      <div className="auth-perks">
+                        {[['🔥','Exclusive deals'],['⭐','Earn reward points'],['🚀','Faster checkout'],['🎁','Birthday surprise']].map(([icon,label]) => (
+                          <div key={label} className="auth-perk"><span className="auth-perk-icon">{icon}</span>{label}</div>
+                        ))}
+                      </div>
+                      <div className="auth-field">
+                        <label className="auth-label">Full Name</label>
+                        <input className="auth-input" type="text" placeholder="Your full name"
+                          value={signupForm.name}
+                          onChange={e => setSignupForm(p=>({...p, name:e.target.value}))} />
+                      </div>
+                      <div className="auth-field">
+                        <label className="auth-label">Email Address</label>
+                        <input className="auth-input" type="email" placeholder="you@example.com"
+                          value={signupForm.email}
+                          onChange={e => setSignupForm(p=>({...p, email:e.target.value}))} />
+                      </div>
+                      <div className="auth-field">
+                        <label className="auth-label">Password</label>
+                        <input className="auth-input" type="password" placeholder="Min. 6 characters"
+                          value={signupForm.password}
+                          onChange={e => setSignupForm(p=>({...p, password:e.target.value}))} />
+                      </div>
+                      <div className="auth-field">
+                        <label className="auth-label">Phone Number</label>
+                        <input className="auth-input" type="tel" placeholder="+92 300 0000000"
+                          value={signupForm.phone}
+                          onChange={e => setSignupForm(p=>({...p, phone:e.target.value}))} />
+                      </div>
+                      <button className="auth-submit" onClick={handleSignup}>
+                        Create My Account
+                      </button>
+                      <div className="auth-switch">
+                        Already have an account? <span onClick={() => { setAuthTab('login'); setAuthError(''); }}>Sign in</span>
+                      </div>
+                    </>
+                  )}
+
+                  {/* ── SIGN IN FORM ── */}
+                  {authTab === 'login' && (
+                    <>
+                      <div className="auth-field">
+                        <label className="auth-label">Email Address</label>
+                        <input className="auth-input" type="email" placeholder="you@example.com"
+                          value={loginForm.email}
+                          onChange={e => setLoginForm(p=>({...p, email:e.target.value}))}
+                          onKeyDown={e => e.key==='Enter' && handleLogin()} />
+                      </div>
+                      <div className="auth-field">
+                        <label className="auth-label">Password</label>
+                        <input className="auth-input" type="password" placeholder="••••••••"
+                          value={loginForm.password}
+                          onChange={e => setLoginForm(p=>({...p, password:e.target.value}))}
+                          onKeyDown={e => e.key==='Enter' && handleLogin()} />
+                      </div>
+                      <button className="auth-submit" onClick={handleLogin}>
+                        Sign In to FLARE
+                      </button>
+                      <div style={{textAlign:'center',marginTop:12}}>
+                        <span style={{fontSize:12,color:'var(--fire)',cursor:'none',fontWeight:600,letterSpacing:1}}>Forgot password?</span>
+                      </div>
+                      <div className="auth-switch" style={{marginTop:16}}>
+                        New to FLARE? <span onClick={() => { setAuthTab('signup'); setAuthError(''); }}>Create an account</span>
+                      </div>
+                      <div style={{marginTop:20,padding:'14px 16px',background:'rgba(255,248,240,0.03)',border:'1px solid rgba(255,248,240,0.07)'}}>
+                        <div style={{fontSize:11,color:'var(--smoke)',letterSpacing:2,textTransform:'uppercase',marginBottom:8,fontWeight:600}}>🔐 Registered Accounts</div>
+                        {getAccounts().length === 0 ? (
+                          <div style={{fontSize:12,color:'var(--smoke)'}}>No accounts yet. <span style={{color:'var(--fire)',cursor:'none'}} onClick={() => setAuthTab('signup')}>Sign up first →</span></div>
+                        ) : getAccounts().map(a => (
+                          <div key={a.email} style={{fontSize:12,color:'var(--muted)',padding:'4px 0',borderBottom:'1px solid rgba(255,248,240,0.04)',display:'flex',alignItems:'center',gap:8}}>
+                            <span style={{width:22,height:22,borderRadius:'50%',background:'var(--ash)',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'var(--fire)',flexShrink:0}}>{a.name.charAt(0).toUpperCase()}</span>
+                            <span style={{fontWeight:500}}>{a.name}</span>
+                            <span style={{color:'var(--smoke)',marginLeft:'auto'}}>{a.email}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── CUSTOMIZER MODAL ── */}
+          {custItem && customizerConfig[custItem.id] && (
+            <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget) setCustItem(null); }}>
+              <div className="customizer-modal">
+                <img className="cust-img" src={custItem.img} alt={custItem.name} />
+                <button className="modal-close" style={{position:'absolute',top:16,right:16,background:'rgba(0,0,0,0.6)',border:'none',color:'white',width:36,height:36,cursor:'none',fontSize:18,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={() => setCustItem(null)}>✕</button>
+                <div className="cust-head">
+                  <div className="cust-name">{custItem.name}</div>
+                  <div className="cust-base-price">Base price: PKR {custItem.price} · Customise below</div>
+                </div>
+                <div className="cust-body">
+                  {/* SIZE */}
+                  <div className="cust-section">
+                    <div className="cust-section-title">SIZE <span className="cust-section-note">choose one</span></div>
+                    <div className="cust-options">
+                      {customizerConfig[custItem.id].sizes.map(s => (
+                        <button key={s.id} className={`cust-option ${custSelections.size===s.id?'selected':''}`} onClick={() => setCustSelections(p=>({...p,size:s.id}))}>
+                          {s.label}{s.price > 0 && <span className="cust-option-price">+{s.price}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* TOPPINGS */}
+                  <div className="cust-section">
+                    <div className="cust-section-title">ADD TOPPINGS <span className="cust-section-note">optional</span></div>
+                    <div className="cust-options">
+                      {customizerConfig[custItem.id].toppings.map(t => (
+                        <button key={t.id} className={`cust-option ${custSelections.toppings?.includes(t.id)?'selected':''}`} onClick={() => toggleTopping(t.id)}>
+                          {t.label}<span className="cust-option-price">+{t.price}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* REMOVE */}
+                  <div className="cust-section">
+                    <div className="cust-section-title">REMOVE INGREDIENTS <span className="cust-section-note">optional</span></div>
+                    <div className="cust-options">
+                      {customizerConfig[custItem.id].removables.map(r => (
+                        <button key={r} className={`cust-option ${custSelections.removed?.includes(r)?'removed':''}`} onClick={() => toggleRemove(r)}>
+                          {custSelections.removed?.includes(r) ? '✕ ' : ''}{r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* SPICE */}
+                  <div className="cust-section">
+                    <div className="cust-section-title">SPICE LEVEL <span className="cust-section-note">choose one</span></div>
+                    <div className="cust-options">
+                      {customizerConfig[custItem.id].spice.map(sp => (
+                        <button key={sp} className={`cust-option ${custSelections.spice===sp?'selected':''}`} onClick={() => setCustSelections(p=>({...p,spice:sp}))}>
+                          {sp}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="cust-foot">
+                  <div className="cust-total">
+                    <div className="cust-total-label">Your Total</div>
+                    <div className="cust-total-price">PKR {getCustPrice().toLocaleString()}</div>
+                  </div>
+                  <button className="cust-add-btn" onClick={confirmCustomizer}>Add to Cart →</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
