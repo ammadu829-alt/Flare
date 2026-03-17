@@ -7,6 +7,8 @@
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>emailjs.init('OV3RYf_E_Jak1ElyH');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
@@ -2298,62 +2300,111 @@
     .tracker-item-name { font-size: 13px; font-weight: 500; }
     .tracker-item-qty { font-size: 11px; color: var(--muted); }
     .tracker-foot {
-      padding: 20px 32px;
+      padding: 0;
       border-top: 1px solid rgba(255,248,240,0.07);
       flex-shrink: 0;
+      overflow: hidden;
+    }
+    .tracker-support-panel {
+      padding: 20px 28px 22px;
     }
     .tracker-support-label {
       font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
-      color: var(--smoke); font-weight: 600; margin-bottom: 14px;
-      display: flex; align-items: center; gap: 8px;
+      color: var(--smoke); font-weight: 700; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
     }
     .tracker-support-label::before, .tracker-support-label::after {
       content: ''; flex: 1; height: 1px; background: rgba(255,248,240,0.06);
     }
-    .tracker-support-btns { display: flex; gap: 10px; }
+
+    /* Pro call card */
+    .tracker-call-card {
+      background: linear-gradient(135deg, #1a0e08 0%, var(--ash) 100%);
+      border: 1px solid rgba(255,69,0,0.25);
+      padding: 18px 20px;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .tracker-call-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--fire);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0; position: relative;
+      box-shadow: 0 0 0 0 rgba(255,69,0,0.4);
+      animation: callRing 2.5s ease-out infinite;
+    }
+    @keyframes callRing {
+      0%   { box-shadow: 0 0 0 0 rgba(255,69,0,0.5); }
+      70%  { box-shadow: 0 0 0 14px rgba(255,69,0,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,69,0,0); }
+    }
+    .tracker-call-info { flex: 1; min-width: 0; }
+    .tracker-call-name {
+      font-family: var(--font-display); font-size: 18px;
+      letter-spacing: 2px; line-height: 1; margin-bottom: 3px;
+    }
+    .tracker-call-number {
+      font-size: 13px; color: var(--muted); letter-spacing: 1px;
+    }
+    .tracker-call-status {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 5px;
+    }
+    .tracker-call-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #27ae60;
+      animation: pulse 1.5s infinite;
+    }
+    .tracker-call-status-text {
+      font-size: 10px; letter-spacing: 2px;
+      text-transform: uppercase; color: #27ae60; font-weight: 700;
+    }
+
+    /* Action buttons row */
+    .tracker-support-btns { display: flex; gap: 8px; }
     .tracker-call-btn {
-      flex: 1.4; background: var(--fire); color: white; border: none;
-      padding: 14px 16px; font-family: var(--font-body); font-weight: 700;
+      flex: 1.5; background: var(--fire); color: white; border: none;
+      padding: 14px 12px; font-family: var(--font-body); font-weight: 800;
       font-size: 13px; cursor: none; transition: all 0.3s;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       text-decoration: none; letter-spacing: 1px;
-      box-shadow: 0 4px 20px rgba(255,69,0,0.35);
+      box-shadow: 0 4px 20px rgba(255,69,0,0.4);
+      position: relative; overflow: hidden;
     }
-    .tracker-call-btn:hover { background: var(--ember); transform: translateY(-1px); box-shadow: 0 8px 28px rgba(255,69,0,0.5); }
+    .tracker-call-btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(255,255,255,0.12);
+      transform: translateX(-100%);
+      transition: transform 0.4s;
+    }
+    .tracker-call-btn:hover::before { transform: translateX(100%); }
+    .tracker-call-btn:hover { background: var(--ember); transform: translateY(-2px); box-shadow: 0 10px 32px rgba(255,69,0,0.55); }
+
     .tracker-whatsapp-btn {
-      flex: 1; background: #25D366; color: white; border: none;
-      padding: 14px 16px; font-family: var(--font-body); font-weight: 700;
+      flex: 1; background: #128C7E; color: white; border: none;
+      padding: 14px 12px; font-family: var(--font-body); font-weight: 700;
       font-size: 13px; cursor: none; transition: all 0.3s;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      text-decoration: none; letter-spacing: 1px;
-      box-shadow: 0 4px 20px rgba(37,211,102,0.25);
-    }
-    .tracker-whatsapp-btn:hover { background: #1ebe5d; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(37,211,102,0.45); }
-    .tracker-receipt-btn {
-      flex: 1; background: transparent; border: 1px solid rgba(255,248,240,0.12);
-      color: var(--muted); padding: 14px 16px; font-family: var(--font-body);
-      font-weight: 600; font-size: 12px; cursor: none; transition: all 0.2s;
       display: flex; align-items: center; justify-content: center; gap: 6px;
+      text-decoration: none; letter-spacing: 1px;
+      box-shadow: 0 4px 16px rgba(18,140,126,0.3);
+    }
+    .tracker-whatsapp-btn:hover { background: #075E54; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(18,140,126,0.5); }
+
+    .tracker-receipt-btn {
+      flex: 0.8; background: transparent;
+      border: 1px solid rgba(255,215,0,0.2);
+      color: var(--muted); padding: 14px 10px; font-family: var(--font-body);
+      font-weight: 600; font-size: 12px; cursor: none; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
       letter-spacing: 1px;
     }
-    .tracker-receipt-btn:hover { border-color: var(--gold); color: var(--gold); }
-    .tracker-phone-strip {
-      margin-top: 12px; padding: 10px 14px;
-      background: rgba(255,69,0,0.06); border: 1px solid rgba(255,69,0,0.15);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .tracker-phone-num {
-      font-family: var(--font-display); font-size: 17px;
-      letter-spacing: 2px; color: var(--cream);
-    }
-    .tracker-phone-tag {
-      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-      color: var(--fire); font-weight: 700;
-    }
+    .tracker-receipt-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.05); }
+
     @media (max-width: 600px) {
-      .tracker-foot { padding: 14px 20px; }
+      .tracker-support-panel { padding: 16px 18px 18px; }
       .tracker-support-btns { flex-wrap: wrap; }
-      .tracker-call-btn, .tracker-whatsapp-btn { flex: 1; }
+      .tracker-call-btn { flex: 1; }
+      .tracker-whatsapp-btn { flex: 1; }
       .tracker-receipt-btn { flex: 100%; }
     }
 
@@ -2976,6 +3027,40 @@
         const freshDisc  = promoApplied ? Math.round(freshTotal * 0.15) : 0;
         const freshGrand = freshTotal + freshFee - freshDisc;
         setConfirmedTotal(freshGrand);
+
+        // Build items string for email
+        const itemsText = cart.map(item =>
+          `• ${item.name} x${item.qty} — PKR ${((Number(item.finalPrice)||0) * (Number(item.qty)||1)).toLocaleString()}` +
+          (item.customizations?.mods ? `\n  (${item.customizations.mods})` : '')
+        ).join('\n');
+
+        // Send EmailJS notification to restaurant owner
+        const address = deliveryType === 'pickup'
+          ? 'Self Pickup — Branch'
+          : `${deliveryForm.address}, ${deliveryForm.area}, ${deliveryForm.city}`;
+
+        emailjs.send('service_42wuj4i', 'template_67kpqkc', {
+          order_id:       orderId,
+          customer_name:  deliveryForm.name,
+          customer_phone: deliveryForm.phone,
+          customer_email: deliveryForm.email,
+          address:        address,
+          payment:        paymentMethod === 'cod' ? 'Cash on Delivery'
+                          : paymentMethod === 'card' ? 'Credit/Debit Card'
+                          : paymentMethod === 'easypaisa' ? 'EasyPaisa'
+                          : 'JazzCash',
+          items:          itemsText,
+          subtotal:       freshTotal.toLocaleString(),
+          discount:       freshDisc > 0 ? freshDisc.toLocaleString() : '0',
+          total:          freshGrand.toLocaleString(),
+          time:           new Date().toLocaleString('en-PK', { timeZone: 'Asia/Karachi' }),
+        }).then(() => {
+          console.log('Order notification sent!');
+        }).catch((err) => {
+          console.error('Email failed:', err);
+        });
+
+        // Save order to localStorage history
         const order = {
           id: orderId, date: new Date().toLocaleString(),
           items: cart, total: freshGrand,
@@ -2986,7 +3071,8 @@
           const history = JSON.parse(localStorage.getItem('flare_orders') || '[]');
           localStorage.setItem('flare_orders', JSON.stringify([order, ...history]));
         } catch(e) {}
-        setOrderedItems([...cart]);   // ← snapshot before clearing
+
+        setOrderedItems([...cart]);
         setCart([]);
         setTrackerStep(0);
         setOrderPlaced(true);
@@ -4055,21 +4141,37 @@
                     )}
                   </div>
                   <div className="tracker-foot">
-                    <div className="tracker-support-label">Need Help?</div>
-                    <div className="tracker-support-btns">
-                      <a className="tracker-call-btn" href="tel:+923261369791">
-                        📞 Call Us
-                      </a>
-                      <a className="tracker-whatsapp-btn" href="https://wa.me/923261369791?text=Hi%20FLARE!%20I%20need%20help%20with%20my%20order%20%23" target="_blank" rel="noopener noreferrer">
-                        💬 WhatsApp
-                      </a>
-                      <button className="tracker-receipt-btn" onClick={() => { setTrackerOpen(false); setCheckoutOpen(true); setCheckoutStep(4); }}>
-                        🧾 Receipt
-                      </button>
-                    </div>
-                    <div className="tracker-phone-strip">
-                      <span className="tracker-phone-num">+92 326 1369791</span>
-                      <span className="tracker-phone-tag">⚡ Available 11am – 2am</span>
+                    <div className="tracker-support-panel">
+                      <div className="tracker-support-label">Support</div>
+
+                      {/* Pro call card */}
+                      <div className="tracker-call-card">
+                        <div className="tracker-call-avatar">📞</div>
+                        <div className="tracker-call-info">
+                          <div className="tracker-call-name">FLARE SUPPORT</div>
+                          <div className="tracker-call-number">+92 326 1369791</div>
+                          <div className="tracker-call-status">
+                            <span className="tracker-call-dot" />
+                            <span className="tracker-call-status-text">Available Now · 11am – 2am</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="tracker-support-btns">
+                        <a className="tracker-call-btn" href="tel:+923261369791">
+                          📞 Call Now
+                        </a>
+                        <a className="tracker-whatsapp-btn"
+                          href={`https://wa.me/923261369791?text=Hi%20FLARE!%20I%20need%20help%20with%20my%20order%20%23${placedOrderId}`}
+                          target="_blank" rel="noopener noreferrer">
+                          💬 WhatsApp
+                        </a>
+                        <button className="tracker-receipt-btn"
+                          onClick={() => { setTrackerOpen(false); setCheckoutOpen(true); setCheckoutStep(4); }}>
+                          🧾 Receipt
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
