@@ -2804,6 +2804,7 @@
       const [promoError, setPromoError]   = useState('');
       const [coErrors, setCoErrors]       = useState({});
       const [placedOrderId, setPlacedOrderId] = useState('');
+      const [confirmedTotal, setConfirmedTotal] = useState(0);
 
       // Flash Sale state
       const [flashOpen, setFlashOpen]   = useState(false);
@@ -2927,10 +2928,14 @@
       const placeOrder = () => {
         const orderId = 'FLR-' + Math.floor(100000 + Math.random() * 900000);
         setPlacedOrderId(orderId);
-        // Save order to localStorage history
+        const freshTotal = cart.reduce((s,i) => s + (Number(i.finalPrice)||0) * (Number(i.qty)||1), 0);
+        const freshFee   = deliveryType === 'pickup' ? 0 : 300;
+        const freshDisc  = promoApplied ? Math.round(freshTotal * 0.15) : 0;
+        const freshGrand = freshTotal + freshFee - freshDisc;
+        setConfirmedTotal(freshGrand);
         const order = {
           id: orderId, date: new Date().toLocaleString(),
-          items: cart, total: grandTotal,
+          items: cart, total: freshGrand,
           delivery: deliveryForm, payment: paymentMethod,
           status: 'confirmed'
         };
@@ -3054,10 +3059,10 @@
       const cartTotal = cart.reduce((s,i) => s + (Number(i.finalPrice) || 0) * (Number(i.qty) || 1), 0);
       const cartCount = cart.reduce((s,i) => s + (Number(i.qty) || 1), 0);
 
-      // Checkout price calculations — must come after cartTotal
+      // Always compute fresh — no stale references
+      const deliveryFee = deliveryType === 'pickup' ? 0 : 300;
       const discount    = promoApplied ? Math.round(cartTotal * 0.15) : 0;
-      const deliveryFee = 0;
-      const grandTotal  = cartTotal - discount + deliveryFee;
+      const grandTotal  = cartTotal + deliveryFee - discount;
 
       /* customizer helpers */
       const openCustomizer = (item) => {
@@ -3647,10 +3652,10 @@
                 </div>
                 <div className="cart-drawer-foot">
                   <div className="cart-subtotal-row"><span>Subtotal</span><span>PKR {cartTotal.toLocaleString()}</span></div>
-                  <div className="cart-subtotal-row"><span>Delivery</span><span style={{color:'#27ae60'}}>FREE</span></div>
+                  <div className="cart-subtotal-row"><span>Delivery Fee</span><span style={{color:'var(--cream)'}}>PKR 300</span></div>
                   <div className="cart-total-row">
                     <span className="cart-total-label">TOTAL</span>
-                    <span className="cart-total-price">PKR {cartTotal.toLocaleString()}</span>
+                    <span className="cart-total-price">PKR {(cartTotal + 300).toLocaleString()}</span>
                   </div>
                   <button className="checkout-btn" onClick={() => requireAuth(() => { if(cart.length===0){return;} openCheckout(); }, 'Sign in to complete your order.')}>
                     Proceed to Checkout →
@@ -4106,7 +4111,7 @@
                         </div>
                         <div className="co-divider" />
                         <div className="co-line"><span>Subtotal</span><span>PKR {cartTotal.toLocaleString()}</span></div>
-                        <div className="co-line"><span>Delivery</span><span style={{color:'#27ae60'}}>FREE</span></div>
+                        <div className="co-line"><span>Delivery</span><span style={{color: deliveryType==='pickup' ? '#27ae60' : 'var(--cream)'}}>{ deliveryType==='pickup' ? 'FREE (Pickup)' : 'PKR 300'}</span></div>
                         {promoApplied && <div className="co-line discount"><span>Promo (FLARE15)</span><span>−PKR {discount.toLocaleString()}</span></div>}
                         <div className="co-divider" />
                         <div className="co-line total"><span>Total</span><span className="co-line-val">PKR {grandTotal.toLocaleString()}</span></div>
@@ -4212,7 +4217,7 @@
                         </div>
                         <div className="co-divider"/>
                         <div className="co-line"><span>Subtotal</span><span>PKR {cartTotal.toLocaleString()}</span></div>
-                        <div className="co-line"><span>Delivery</span><span style={{color:'#27ae60'}}>FREE</span></div>
+                        <div className="co-line"><span>Delivery</span><span style={{color: deliveryType==='pickup' ? '#27ae60' : 'var(--cream)'}}>{ deliveryType==='pickup' ? 'FREE (Pickup)' : 'PKR 300'}</span></div>
                         {promoApplied && <div className="co-line discount"><span>Promo (FLARE15)</span><span>−PKR {discount.toLocaleString()}</span></div>}
                         <div className="co-divider"/>
                         <div className="co-line total"><span>Total</span><span className="co-line-val">PKR {grandTotal.toLocaleString()}</span></div>
@@ -4280,7 +4285,7 @@
                       <div className="co-right">
                         <div className="co-summary-title">Final Bill</div>
                         <div className="co-line"><span>Subtotal ({cart.reduce((s,i)=>s+i.qty,0)} items)</span><span>PKR {cartTotal.toLocaleString()}</span></div>
-                        <div className="co-line"><span>Delivery Fee</span><span style={{color:'#27ae60'}}>FREE 🎉</span></div>
+                        <div className="co-line"><span>Delivery Fee</span><span style={{color: deliveryType==='pickup' ? '#27ae60' : 'var(--cream)'}}>{deliveryType==='pickup' ? 'FREE (Pickup)' : 'PKR 300'}</span></div>
                         {promoApplied && <div className="co-line discount"><span>Promo (FLARE15)</span><span>−PKR {discount.toLocaleString()}</span></div>}
                         <div className="co-divider"/>
                         <div className="co-line total"><span>Grand Total</span><span className="co-line-val">PKR {grandTotal.toLocaleString()}</span></div>
@@ -4313,7 +4318,7 @@
                     <div className="co-confirm-id">{placedOrderId}</div>
                     <div className="co-confirm-details">
                       <div className="co-confirm-detail">
-                        <span className="co-confirm-detail-val">PKR {grandTotal.toLocaleString()}</span>
+                        <span className="co-confirm-detail-val">PKR {confirmedTotal.toLocaleString()}</span>
                         <span className="co-confirm-detail-label">Amount Paid</span>
                       </div>
                       <div className="co-confirm-detail">
