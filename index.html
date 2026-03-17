@@ -2812,8 +2812,9 @@
       const flashShownRef               = useRef(false);
 
       // Order Tracker state
-      const [trackerOpen, setTrackerOpen] = useState(false);
-      const [trackerStep, setTrackerStep] = useState(0); // 0-4 live cycling
+      const [trackerOpen, setTrackerOpen]   = useState(false);
+      const [trackerStep, setTrackerStep]   = useState(0);
+      const [orderPlaced, setOrderPlaced]   = useState(false);
       const [activeOrderId] = useState(() => 'FLR-' + Math.floor(100000 + Math.random() * 900000));
 
       // Auth system state
@@ -2944,6 +2945,8 @@
           localStorage.setItem('flare_orders', JSON.stringify([order, ...history]));
         } catch(e) {}
         setCart([]);
+        setTrackerStep(0);
+        setOrderPlaced(true);
         setCheckoutStep(4);
       };
       const requireAuth = (action, msg) => {
@@ -3860,9 +3863,9 @@
               </div>
             </div>
           )}
-          {/* ── TRACK ORDER FAB ── */}
-          {loggedInUser && (
-            <button className="track-fab" onClick={() => { setTrackerStep(0); setTrackerOpen(true); }}>
+          {/* ── TRACK ORDER FAB — only visible after order is placed ── */}
+          {loggedInUser && orderPlaced && (
+            <button className="track-fab" onClick={() => setTrackerOpen(true)}>
               <span className="track-fab-dot" />
               Track Order
             </button>
@@ -3938,7 +3941,7 @@
                   <div className="tracker-head">
                     <div className="tracker-head-left">
                       <div className="tracker-title">TRACK <span>ORDER</span></div>
-                      <div className="tracker-order-id">Order #{activeOrderId}</div>
+                      <div className="tracker-order-id">Order #{placedOrderId}</div>
                     </div>
                     <button className="drawer-close" onClick={() => setTrackerOpen(false)}>✕</button>
                   </div>
@@ -4331,7 +4334,7 @@
                       </div>
                     </div>
                     <div className="co-confirm-actions">
-                      <button className="btn-primary" onClick={() => { setTrackerStep(0); setCheckoutOpen(false); setTrackerOpen(true); }}>
+                      <button className="btn-primary" onClick={() => { setCheckoutOpen(false); setTrackerOpen(true); }}>
                         🚴 Track My Order
                       </button>
                       <button className="btn-ghost" onClick={() => setCheckoutOpen(false)}>
