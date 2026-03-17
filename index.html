@@ -3056,9 +3056,28 @@
           total:          freshGrand.toLocaleString(),
           time:           new Date().toLocaleString('en-PK', { timeZone: 'Asia/Karachi' }),
         }).then(() => {
-          console.log('Order notification sent!');
+          console.log('Owner notification sent!');
         }).catch((err) => {
-          console.error('Email failed:', err);
+          console.error('Owner email failed:', err);
+        });
+
+        // Send confirmation email to customer
+        emailjs.send('service_42wuj4i', 'template_ocgu6s5', {
+          order_id:       orderId,
+          customer_name:  deliveryForm.name,
+          customer_email: deliveryForm.email,
+          address:        address,
+          payment:        paymentMethod === 'cod' ? 'Cash on Delivery'
+                          : paymentMethod === 'card' ? 'Credit/Debit Card'
+                          : paymentMethod === 'easypaisa' ? 'EasyPaisa'
+                          : 'JazzCash',
+          items:          itemsText,
+          total:          freshGrand.toLocaleString(),
+          time:           new Date().toLocaleString('en-PK', { timeZone: 'Asia/Karachi' }),
+        }).then(() => {
+          console.log('Customer confirmation sent!');
+        }).catch((err) => {
+          console.error('Customer email failed:', err);
         });
 
         // Save order to localStorage history
