@@ -2803,8 +2803,9 @@
       const [promoApplied, setPromoApplied] = useState(false);
       const [promoError, setPromoError]   = useState('');
       const [coErrors, setCoErrors]       = useState({});
-      const [placedOrderId, setPlacedOrderId] = useState('');
-      const [confirmedTotal, setConfirmedTotal] = useState(0);
+      const [placedOrderId, setPlacedOrderId]   = useState('');
+      const [confirmedTotal, setConfirmedTotal]  = useState(0);
+      const [orderedItems, setOrderedItems]      = useState([]);
 
       // Flash Sale state
       const [flashOpen, setFlashOpen]   = useState(false);
@@ -2944,6 +2945,7 @@
           const history = JSON.parse(localStorage.getItem('flare_orders') || '[]');
           localStorage.setItem('flare_orders', JSON.stringify([order, ...history]));
         } catch(e) {}
+        setOrderedItems([...cart]);   // ← snapshot before clearing
         setCart([]);
         setTrackerStep(0);
         setOrderPlaced(true);
@@ -3630,9 +3632,18 @@
                 <div className="cart-items-list">
                   {cart.length === 0 ? (
                     <div className="cart-empty">
-                      <span className="cart-empty-icon">🍔</span>
-                      <div className="cart-empty-msg">YOUR CART IS EMPTY</div>
-                      <div className="cart-empty-sub">Add some fire to your order above.</div>
+                      <span className="cart-empty-icon">{orderPlaced ? '✅' : '🍔'}</span>
+                      <div className="cart-empty-msg">{orderPlaced ? 'ORDER PLACED!' : 'YOUR CART IS EMPTY'}</div>
+                      <div className="cart-empty-sub">
+                        {orderPlaced
+                          ? `Order #${placedOrderId} is being prepared. Use Track Order to follow your delivery.`
+                          : 'Add some fire to your order above.'}
+                      </div>
+                      {orderPlaced && (
+                        <button className="nav-cta" style={{marginTop:24,background:'var(--fire)'}} onClick={() => { setCartOpen(false); setTrackerOpen(true); }}>
+                          🚴 Track My Order
+                        </button>
+                      )}
                     </div>
                   ) : cart.map(item => (
                     <div key={item.cartId} className="cart-item">
@@ -3654,16 +3665,26 @@
                   ))}
                 </div>
                 <div className="cart-drawer-foot">
-                  <div className="cart-subtotal-row"><span>Subtotal</span><span>PKR {cartTotal.toLocaleString()}</span></div>
-                  <div className="cart-subtotal-row"><span>Delivery Fee</span><span style={{color:'var(--cream)'}}>PKR 300</span></div>
-                  <div className="cart-total-row">
-                    <span className="cart-total-label">TOTAL</span>
-                    <span className="cart-total-price">PKR {(cartTotal + 300).toLocaleString()}</span>
-                  </div>
-                  <button className="checkout-btn" onClick={() => requireAuth(() => { if(cart.length===0){return;} openCheckout(); }, 'Sign in to complete your order.')}>
-                    Proceed to Checkout →
-                  </button>
-                  <div className="cart-note">🔒 Secure checkout · Free delivery on all orders</div>
+                  {cart.length > 0 ? (<>
+                    <div className="cart-subtotal-row"><span>Subtotal</span><span>PKR {cartTotal.toLocaleString()}</span></div>
+                    <div className="cart-subtotal-row"><span>Delivery Fee</span><span style={{color:'var(--cream)'}}>PKR 300</span></div>
+                    <div className="cart-total-row">
+                      <span className="cart-total-label">TOTAL</span>
+                      <span className="cart-total-price">PKR {(cartTotal + 300).toLocaleString()}</span>
+                    </div>
+                    <button className="checkout-btn" onClick={() => requireAuth(() => { if(cart.length===0){return;} openCheckout(); }, 'Sign in to complete your order.')}>
+                      Proceed to Checkout →
+                    </button>
+                    <div className="cart-note">🔒 Secure checkout · Free delivery on all orders</div>
+                  </>) : orderPlaced ? (
+                    <div style={{textAlign:'center',padding:'8px 0'}}>
+                      <div style={{fontSize:12,color:'var(--smoke)',marginBottom:12,letterSpacing:1}}>Your last order total</div>
+                      <div style={{fontFamily:'var(--font-display)',fontSize:28,color:'var(--gold)',letterSpacing:2}}>PKR {confirmedTotal.toLocaleString()}</div>
+                      <div style={{fontSize:11,color:'var(--smoke)',marginTop:4}}>Order #{placedOrderId}</div>
+                    </div>
+                  ) : (
+                    <div className="cart-note" style={{textAlign:'center',padding:'8px 0'}}>Add items to start your order</div>
+                  )}
                 </div>
               </div>
             </>
@@ -3976,25 +3997,25 @@
                     </div>
 
                     {/* Order items preview */}
-                    {cart.length > 0 && (
+                    {orderedItems.length > 0 && (
                       <div className="tracker-items-preview">
                         <div className="tracker-items-label">Your Order</div>
-                        {cart.slice(0,3).map((item, idx) => (
+                        {orderedItems.slice(0,3).map((item, idx) => (
                           <div key={idx} className="tracker-item-row">
                             <img className="tracker-item-img" src={item.img || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&q=70'} alt={item.name} />
                             <div>
                               <div className="tracker-item-name">{item.name}</div>
-                              <div className="tracker-item-qty">× {item.qty} · PKR {(item.finalPrice * item.qty).toLocaleString()}</div>
+                              <div className="tracker-item-qty">× {item.qty} · PKR {((Number(item.finalPrice)||0) * (Number(item.qty)||1)).toLocaleString()}</div>
                             </div>
                           </div>
                         ))}
-                        {cart.length > 3 && <div style={{fontSize:12,color:'var(--muted)',marginTop:8}}>+{cart.length-3} more items</div>}
+                        {orderedItems.length > 3 && <div style={{fontSize:12,color:'var(--muted)',marginTop:8}}>+{orderedItems.length-3} more items</div>}
                       </div>
                     )}
                   </div>
                   <div className="tracker-foot">
                     <button className="tracker-support-btn" onClick={() => alert('Connecting to support...')}>📞 Call Support</button>
-                    <button className="tracker-reorder-btn" onClick={() => { setTrackerOpen(false); setCartOpen(true); }}>View Cart →</button>
+                    <button className="tracker-reorder-btn" onClick={() => { setTrackerOpen(false); setCheckoutOpen(true); setCheckoutStep(4); }}>View Receipt →</button>
                   </div>
                 </div>
               </div>
