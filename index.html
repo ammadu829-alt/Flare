@@ -2869,11 +2869,6 @@
 
       const [authRedirectMsg, setAuthRedirectMsg] = useState('');
 
-      // Checkout helpers
-      const discount = promoApplied ? Math.round(cartTotal * 0.15) : 0;
-      const deliveryFee = deliveryType === 'delivery' ? 0 : 0;
-      const grandTotal = cartTotal - discount + deliveryFee;
-
       const openCheckout = () => {
         setCheckoutStep(1);
         setCoErrors({});
@@ -3034,12 +3029,14 @@
 
       /* cart helpers */
       const addToCart = (item, customizations) => {
+        const basePrice = Number(item.price) || 0;
+        const extraCost = Number(customizations?.extraCost) || 0;
         const entry = {
           ...item,
           cartId: Date.now() + Math.random(),
           qty: 1,
           customizations: customizations || null,
-          finalPrice: item.price + (customizations?.extraCost || 0),
+          finalPrice: basePrice + extraCost,
         };
         setCart(prev => [...prev, entry]);
         setToast(item.name);
@@ -3054,8 +3051,13 @@
       };
       const removeItem = (cartId) => setCart(prev => prev.filter(i => i.cartId !== cartId));
 
-      const cartTotal = cart.reduce((s,i) => s + i.finalPrice * i.qty, 0);
-      const cartCount = cart.reduce((s,i) => s + i.qty, 0);
+      const cartTotal = cart.reduce((s,i) => s + (Number(i.finalPrice) || 0) * (Number(i.qty) || 1), 0);
+      const cartCount = cart.reduce((s,i) => s + (Number(i.qty) || 1), 0);
+
+      // Checkout price calculations — must come after cartTotal
+      const discount    = promoApplied ? Math.round(cartTotal * 0.15) : 0;
+      const deliveryFee = 0;
+      const grandTotal  = cartTotal - discount + deliveryFee;
 
       /* customizer helpers */
       const openCustomizer = (item) => {
