@@ -2298,23 +2298,64 @@
     .tracker-item-name { font-size: 13px; font-weight: 500; }
     .tracker-item-qty { font-size: 11px; color: var(--muted); }
     .tracker-foot {
-      padding: 18px 32px;
+      padding: 20px 32px;
       border-top: 1px solid rgba(255,248,240,0.07);
-      display: flex; gap: 12px; flex-shrink: 0;
+      flex-shrink: 0;
     }
-    .tracker-support-btn {
-      flex: 1; background: transparent; border: 1px solid rgba(255,248,240,0.15);
-      color: var(--muted); padding: 13px; font-family: var(--font-body);
-      font-size: 12px; letter-spacing: 1px; cursor: none; transition: all 0.2s;
+    .tracker-support-label {
+      font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--smoke); font-weight: 600; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
     }
-    .tracker-support-btn:hover { border-color: var(--fire); color: var(--fire); }
-    .tracker-reorder-btn {
-      flex: 1; background: var(--fire); color: white; border: none;
-      padding: 13px; font-family: var(--font-body); font-weight: 700;
-      font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
-      cursor: none; transition: all 0.2s;
+    .tracker-support-label::before, .tracker-support-label::after {
+      content: ''; flex: 1; height: 1px; background: rgba(255,248,240,0.06);
     }
-    .tracker-reorder-btn:hover { background: var(--ember); }
+    .tracker-support-btns { display: flex; gap: 10px; }
+    .tracker-call-btn {
+      flex: 1.4; background: var(--fire); color: white; border: none;
+      padding: 14px 16px; font-family: var(--font-body); font-weight: 700;
+      font-size: 13px; cursor: none; transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      text-decoration: none; letter-spacing: 1px;
+      box-shadow: 0 4px 20px rgba(255,69,0,0.35);
+    }
+    .tracker-call-btn:hover { background: var(--ember); transform: translateY(-1px); box-shadow: 0 8px 28px rgba(255,69,0,0.5); }
+    .tracker-whatsapp-btn {
+      flex: 1; background: #25D366; color: white; border: none;
+      padding: 14px 16px; font-family: var(--font-body); font-weight: 700;
+      font-size: 13px; cursor: none; transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      text-decoration: none; letter-spacing: 1px;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.25);
+    }
+    .tracker-whatsapp-btn:hover { background: #1ebe5d; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(37,211,102,0.45); }
+    .tracker-receipt-btn {
+      flex: 1; background: transparent; border: 1px solid rgba(255,248,240,0.12);
+      color: var(--muted); padding: 14px 16px; font-family: var(--font-body);
+      font-weight: 600; font-size: 12px; cursor: none; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      letter-spacing: 1px;
+    }
+    .tracker-receipt-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .tracker-phone-strip {
+      margin-top: 12px; padding: 10px 14px;
+      background: rgba(255,69,0,0.06); border: 1px solid rgba(255,69,0,0.15);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .tracker-phone-num {
+      font-family: var(--font-display); font-size: 17px;
+      letter-spacing: 2px; color: var(--cream);
+    }
+    .tracker-phone-tag {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--fire); font-weight: 700;
+    }
+    @media (max-width: 600px) {
+      .tracker-foot { padding: 14px 20px; }
+      .tracker-support-btns { flex-wrap: wrap; }
+      .tracker-call-btn, .tracker-whatsapp-btn { flex: 1; }
+      .tracker-receipt-btn { flex: 100%; }
+    }
 
     /* Track Order FAB — floating button next to cart */
     .track-fab {
@@ -4014,8 +4055,22 @@
                     )}
                   </div>
                   <div className="tracker-foot">
-                    <button className="tracker-support-btn" onClick={() => alert('Connecting to support...')}>📞 Call Support</button>
-                    <button className="tracker-reorder-btn" onClick={() => { setTrackerOpen(false); setCheckoutOpen(true); setCheckoutStep(4); }}>View Receipt →</button>
+                    <div className="tracker-support-label">Need Help?</div>
+                    <div className="tracker-support-btns">
+                      <a className="tracker-call-btn" href="tel:+923261369791">
+                        📞 Call Us
+                      </a>
+                      <a className="tracker-whatsapp-btn" href="https://wa.me/923261369791?text=Hi%20FLARE!%20I%20need%20help%20with%20my%20order%20%23" target="_blank" rel="noopener noreferrer">
+                        💬 WhatsApp
+                      </a>
+                      <button className="tracker-receipt-btn" onClick={() => { setTrackerOpen(false); setCheckoutOpen(true); setCheckoutStep(4); }}>
+                        🧾 Receipt
+                      </button>
+                    </div>
+                    <div className="tracker-phone-strip">
+                      <span className="tracker-phone-num">+92 326 1369791</span>
+                      <span className="tracker-phone-tag">⚡ Available 11am – 2am</span>
+                    </div>
                   </div>
                 </div>
               </div>
