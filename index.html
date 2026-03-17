@@ -2340,6 +2340,231 @@
       .flash-title { font-size: 30px; }
     }
 
+    /* ======================================================
+       FULL CHECKOUT SYSTEM
+    ====================================================== */
+    .checkout-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.82);
+      backdrop-filter: blur(8px);
+      z-index: 800;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fadeOverlay 0.3s ease;
+    }
+    .checkout-modal {
+      background: var(--charcoal);
+      width: 100%; max-width: 860px;
+      max-height: 92vh;
+      border: 1px solid rgba(255,69,0,0.2);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      animation: modalPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    /* Progress bar */
+    .co-progress {
+      display: flex; align-items: center;
+      padding: 20px 32px;
+      background: var(--ash);
+      border-bottom: 1px solid rgba(255,248,240,0.06);
+      flex-shrink: 0; gap: 0;
+    }
+    .co-step-pill {
+      display: flex; align-items: center; gap: 10px;
+      flex: 1; position: relative;
+    }
+    .co-step-pill:not(:last-child)::after {
+      content: '';
+      position: absolute; left: calc(100% - 20px); top: 50%;
+      transform: translateY(-50%);
+      width: 40px; height: 2px;
+      background: rgba(255,248,240,0.08);
+      z-index: 0;
+    }
+    .co-step-pill.done:not(:last-child)::after { background: var(--fire); }
+    .co-step-num {
+      width: 32px; height: 32px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+      background: var(--smoke); color: var(--muted);
+      border: 2px solid transparent; transition: all 0.3s; position: relative; z-index: 1;
+    }
+    .co-step-pill.active .co-step-num { background: var(--fire); color: white; border-color: var(--fire); box-shadow: 0 0 16px rgba(255,69,0,0.5); }
+    .co-step-pill.done .co-step-num { background: var(--fire); color: white; border-color: var(--fire); }
+    .co-step-label { font-size: 11px; letter-spacing: 1px; font-weight: 600; color: var(--smoke); text-transform: uppercase; }
+    .co-step-pill.active .co-step-label { color: var(--cream); }
+    .co-step-pill.done .co-step-label { color: var(--muted); }
+
+    /* Shared layout */
+    .co-body {
+      display: grid; grid-template-columns: 1fr 360px;
+      flex: 1; overflow: hidden;
+    }
+    .co-left { padding: 32px; overflow-y: auto; border-right: 1px solid rgba(255,248,240,0.06); }
+    .co-left::-webkit-scrollbar { width: 3px; }
+    .co-left::-webkit-scrollbar-thumb { background: var(--fire); }
+    .co-right { padding: 24px; overflow-y: auto; background: var(--ash); }
+    .co-right::-webkit-scrollbar { width: 3px; }
+    .co-right::-webkit-scrollbar-thumb { background: var(--fire); }
+
+    .co-section-title {
+      font-family: var(--font-display); font-size: 22px;
+      letter-spacing: 2px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .co-section-title span { color: var(--fire); }
+
+    /* Fields */
+    .co-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .co-row.full { grid-template-columns: 1fr; }
+    .co-field { display: flex; flex-direction: column; gap: 6px; }
+    .co-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .co-input {
+      background: var(--ash); border: 1px solid rgba(255,248,240,0.1);
+      color: var(--cream); font-family: var(--font-body); font-size: 14px;
+      padding: 13px 16px; outline: none; transition: border-color 0.2s; width: 100%;
+    }
+    .co-input:focus { border-color: var(--fire); }
+    .co-input::placeholder { color: var(--smoke); }
+    .co-input.error { border-color: #e74c3c; }
+    .co-select {
+      background: var(--ash); border: 1px solid rgba(255,248,240,0.1);
+      color: var(--cream); font-family: var(--font-body); font-size: 14px;
+      padding: 13px 16px; outline: none; width: 100%; cursor: none;
+      transition: border-color 0.2s; appearance: none;
+    }
+    .co-select:focus { border-color: var(--fire); }
+
+    /* Delivery type toggle */
+    .co-delivery-toggle { display: flex; gap: 12px; margin-bottom: 24px; }
+    .co-delivery-opt {
+      flex: 1; padding: 16px; border: 1px solid rgba(255,248,240,0.1);
+      background: transparent; color: var(--muted); cursor: none;
+      font-family: var(--font-body); text-align: left; transition: all 0.2s;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .co-delivery-opt.active { border-color: var(--fire); background: rgba(255,69,0,0.08); color: var(--cream); }
+    .co-delivery-icon { font-size: 22px; }
+    .co-delivery-label { font-size: 13px; font-weight: 600; display: block; }
+    .co-delivery-sub { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
+
+    /* Payment cards */
+    .co-payment-opts { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .co-payment-opt {
+      border: 1px solid rgba(255,248,240,0.1); padding: 16px 18px;
+      background: transparent; cursor: none; display: flex;
+      align-items: center; gap: 14px; transition: all 0.2s; width: 100%;
+      font-family: var(--font-body); color: var(--muted);
+    }
+    .co-payment-opt.active { border-color: var(--fire); background: rgba(255,69,0,0.08); color: var(--cream); }
+    .co-payment-radio {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid rgba(255,248,240,0.2); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .co-payment-opt.active .co-payment-radio { border-color: var(--fire); }
+    .co-payment-radio-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fire); }
+    .co-payment-icon { font-size: 22px; flex-shrink: 0; }
+    .co-payment-info { flex: 1; text-align: left; }
+    .co-payment-name { font-size: 14px; font-weight: 600; display: block; }
+    .co-payment-desc { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
+
+    /* Card input group */
+    .co-card-fields { margin-top: 16px; padding: 16px; background: rgba(255,248,240,0.02); border: 1px solid rgba(255,248,240,0.06); }
+    .co-card-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; }
+
+    /* Promo code */
+    .co-promo-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .co-promo-input { flex: 1; }
+    .co-promo-btn {
+      background: transparent; border: 1px solid rgba(255,248,240,0.15);
+      color: var(--muted); padding: 0 20px; font-family: var(--font-body);
+      font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: none; transition: all 0.2s; white-space: nowrap;
+    }
+    .co-promo-btn:hover { border-color: var(--fire); color: var(--fire); }
+    .co-promo-success { font-size: 12px; color: #27ae60; margin-top: -12px; margin-bottom: 14px; }
+
+    /* Order summary (right panel) */
+    .co-summary-title { font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; margin-bottom: 16px; }
+    .co-summary-items { margin-bottom: 16px; max-height: 240px; overflow-y: auto; }
+    .co-summary-items::-webkit-scrollbar { width: 2px; }
+    .co-summary-items::-webkit-scrollbar-thumb { background: var(--fire); }
+    .co-summary-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,248,240,0.05); align-items: center; }
+    .co-summary-item:last-child { border-bottom: none; }
+    .co-summary-img { width: 46px; height: 46px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,248,240,0.07); }
+    .co-summary-item-name { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+    .co-summary-item-mod { font-size: 10px; color: var(--smoke); line-height: 1.4; }
+    .co-summary-item-qty { font-size: 11px; color: var(--muted); }
+    .co-summary-item-price { font-size: 13px; font-weight: 700; color: var(--gold); flex-shrink: 0; margin-left: auto; }
+
+    .co-divider { height: 1px; background: rgba(255,248,240,0.06); margin: 12px 0; }
+    .co-line { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .co-line.total { color: var(--cream); font-weight: 700; font-size: 16px; margin-top: 4px; }
+    .co-line.total .co-line-val { color: var(--gold); font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; }
+    .co-line.discount .co-line-val { color: #27ae60; }
+    .co-security { font-size: 11px; color: var(--smoke); text-align: center; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+    /* Footer */
+    .co-footer {
+      padding: 18px 32px; border-top: 1px solid rgba(255,248,240,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0; background: var(--charcoal);
+    }
+    .co-back-btn {
+      background: transparent; border: 1px solid rgba(255,248,240,0.12);
+      color: var(--muted); padding: 14px 28px; font-family: var(--font-body);
+      font-size: 13px; letter-spacing: 1px; cursor: none; transition: all 0.2s;
+    }
+    .co-back-btn:hover { border-color: var(--fire); color: var(--fire); }
+    .co-next-btn {
+      background: var(--fire); color: white; border: none;
+      padding: 14px 40px; font-family: var(--font-body);
+      font-weight: 800; font-size: 14px; letter-spacing: 2px;
+      text-transform: uppercase; cursor: none; transition: all 0.3s;
+    }
+    .co-next-btn:hover { background: var(--ember); transform: translateY(-1px); box-shadow: 0 8px 28px rgba(255,69,0,0.45); }
+    .co-next-btn:disabled { background: var(--smoke); cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* Confirmation screen */
+    .co-confirm-screen {
+      padding: 48px 40px; text-align: center; flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .co-confirm-icon {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: rgba(39,174,96,0.15); border: 2px solid #27ae60;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; margin: 0 auto 24px;
+      animation: confirmPop 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes confirmPop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+    .co-confirm-title { font-family: var(--font-display); font-size: 44px; letter-spacing: 3px; margin-bottom: 10px; }
+    .co-confirm-sub { font-size: 15px; color: var(--muted); margin-bottom: 32px; font-weight: 300; line-height: 1.7; max-width: 420px; }
+    .co-confirm-id { font-family: var(--font-display); font-size: 22px; letter-spacing: 4px; color: var(--gold); background: rgba(255,215,0,0.08); border: 1px dashed rgba(255,215,0,0.3); padding: 12px 28px; display: inline-block; margin-bottom: 32px; }
+    .co-confirm-details { display: flex; gap: 40px; justify-content: center; margin-bottom: 36px; }
+    .co-confirm-detail { text-align: center; }
+    .co-confirm-detail-val { font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; color: var(--fire); display: block; }
+    .co-confirm-detail-label { font-size: 10px; color: var(--smoke); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+    .co-confirm-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+    .co-error-msg { font-size: 12px; color: #e74c3c; margin-top: 4px; }
+
+    @media (max-width: 700px) {
+      .co-body { grid-template-columns: 1fr; }
+      .co-right { border-top: 1px solid rgba(255,248,240,0.06); border-right: none; }
+      .co-left { padding: 20px; }
+      .co-right { padding: 20px; }
+      .co-row { grid-template-columns: 1fr; }
+      .co-card-row { grid-template-columns: 1fr 1fr; }
+      .co-progress { padding: 14px 20px; gap: 4px; }
+      .co-step-label { display: none; }
+      .co-footer { padding: 14px 20px; }
+      .checkout-modal { max-height: 98vh; border-radius: 0; }
+      .co-confirm-details { gap: 20px; }
+      .co-confirm-actions { flex-direction: column; align-items: center; }
+    }
+
   </style>
 </head>
 <body>
@@ -2565,6 +2790,21 @@
       const [custSelections, setCustSelections] = useState({});
       const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+      // Checkout state
+      const [checkoutOpen, setCheckoutOpen] = useState(false);
+      const [checkoutStep, setCheckoutStep] = useState(1); // 1=Delivery, 2=Payment, 3=Review, 4=Confirmed
+      const [deliveryType, setDeliveryType] = useState('delivery');
+      const [deliveryForm, setDeliveryForm] = useState({
+        name: '', phone: '', email: '', address: '', city: '', area: '', notes: ''
+      });
+      const [paymentMethod, setPaymentMethod] = useState('cod');
+      const [cardForm, setCardForm] = useState({ number:'', name:'', expiry:'', cvv:'' });
+      const [promoCode, setPromoCode] = useState('');
+      const [promoApplied, setPromoApplied] = useState(false);
+      const [promoError, setPromoError]   = useState('');
+      const [coErrors, setCoErrors]       = useState({});
+      const [placedOrderId, setPlacedOrderId] = useState('');
+
       // Flash Sale state
       const [flashOpen, setFlashOpen]   = useState(false);
       const [flashTimer, setFlashTimer] = useState({ m: 9, s: 59 });
@@ -2629,7 +2869,84 @@
 
       const [authRedirectMsg, setAuthRedirectMsg] = useState('');
 
-      // Gate any order action behind login
+      // Checkout helpers
+      const discount = promoApplied ? Math.round(cartTotal * 0.15) : 0;
+      const deliveryFee = deliveryType === 'delivery' ? 0 : 0;
+      const grandTotal = cartTotal - discount + deliveryFee;
+
+      const openCheckout = () => {
+        setCheckoutStep(1);
+        setCoErrors({});
+        setPromoApplied(false);
+        setPromoCode('');
+        setPromoError('');
+        // Pre-fill from logged in user
+        if (loggedInUser) {
+          setDeliveryForm(p => ({
+            ...p,
+            name: loggedInUser.name || '',
+            phone: loggedInUser.phone || '',
+            email: loggedInUser.email || '',
+          }));
+        }
+        setCartOpen(false);
+        setCheckoutOpen(true);
+      };
+
+      const validateDelivery = () => {
+        const errs = {};
+        if (!deliveryForm.name.trim()) errs.name = 'Required';
+        if (!deliveryForm.phone.trim()) errs.phone = 'Required';
+        if (!deliveryForm.email.trim() || !deliveryForm.email.includes('@')) errs.email = 'Valid email required';
+        if (deliveryType === 'delivery') {
+          if (!deliveryForm.address.trim()) errs.address = 'Required';
+          if (!deliveryForm.city.trim()) errs.city = 'Required';
+          if (!deliveryForm.area.trim()) errs.area = 'Required';
+        }
+        setCoErrors(errs);
+        return Object.keys(errs).length === 0;
+      };
+
+      const validatePayment = () => {
+        if (paymentMethod !== 'card') return true;
+        const errs = {};
+        if (cardForm.number.replace(/\s/g,'').length < 16) errs.cardNumber = 'Enter valid 16-digit card number';
+        if (!cardForm.name.trim()) errs.cardName = 'Required';
+        if (!cardForm.expiry.trim()) errs.expiry = 'Required';
+        if (cardForm.cvv.length < 3) errs.cvv = 'Required';
+        setCoErrors(errs);
+        return Object.keys(errs).length === 0;
+      };
+
+      const applyPromo = () => {
+        setPromoError('');
+        if (promoCode.trim().toUpperCase() === 'FLARE15') {
+          setPromoApplied(true);
+        } else {
+          setPromoError('Invalid promo code. Try FLARE15');
+        }
+      };
+
+      const formatCard = (val) => val.replace(/\D/g,'').slice(0,16).replace(/(.{4})/g,'$1 ').trim();
+      const formatExpiry = (val) => { const v = val.replace(/\D/g,'').slice(0,4); return v.length > 2 ? v.slice(0,2)+'/'+v.slice(2) : v; };
+
+      const placeOrder = () => {
+        const orderId = 'FLR-' + Math.floor(100000 + Math.random() * 900000);
+        setPlacedOrderId(orderId);
+        // Save order to localStorage history
+        const order = {
+          id: orderId, date: new Date().toLocaleString(),
+          items: cart, total: grandTotal,
+          delivery: deliveryForm, payment: paymentMethod,
+          status: 'confirmed'
+        };
+        try {
+          const history = JSON.parse(localStorage.getItem('flare_orders') || '[]');
+          localStorage.setItem('flare_orders', JSON.stringify([order, ...history]));
+        } catch(e) {}
+        setCart([]);
+        setCheckoutStep(4);
+      };
       const requireAuth = (action, msg) => {
         if (!loggedInUser) {
           setAuthTab('login');
@@ -2713,8 +3030,8 @@
 
       /* body scroll lock */
       useEffect(() => {
-        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen) ? 'hidden' : '';
-      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen]);
+        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen) ? 'hidden' : '';
+      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen]);
 
       /* cart helpers */
       const addToCart = (item, customizations) => {
@@ -3311,7 +3628,7 @@
                     <span className="cart-total-label">TOTAL</span>
                     <span className="cart-total-price">PKR {cartTotal.toLocaleString()}</span>
                   </div>
-                  <button className="checkout-btn" onClick={() => requireAuth(() => alert('Proceeding to checkout...'), 'Sign in to complete your order.')}>
+                  <button className="checkout-btn" onClick={() => requireAuth(() => { if(cart.length===0){return;} openCheckout(); }, 'Sign in to complete your order.')}>
                     Proceed to Checkout →
                   </button>
                   <div className="cart-note">🔒 Secure checkout · Free delivery on all orders</div>
@@ -3651,6 +3968,353 @@
               </div>
             );
           })()}
+
+          {/* ══════════ FULL CHECKOUT MODAL ══════════ */}
+          {checkoutOpen && (
+            <div className="checkout-overlay" onClick={e => { if(e.target===e.currentTarget && checkoutStep!==4) setCheckoutOpen(false); }}>
+              <div className="checkout-modal">
+
+                {/* ── PROGRESS BAR ── */}
+                {checkoutStep < 4 && (
+                  <div className="co-progress">
+                    {[['1','Delivery'],['2','Payment'],['3','Review']].map(([n,label]) => (
+                      <div key={n} className={`co-step-pill ${checkoutStep > +n ? 'done' : checkoutStep === +n ? 'active' : ''}`}>
+                        <div className="co-step-num">{checkoutStep > +n ? '✓' : n}</div>
+                        <span className="co-step-label">{label}</span>
+                      </div>
+                    ))}
+                    <button className="drawer-close" style={{marginLeft:'auto',flexShrink:0}} onClick={() => setCheckoutOpen(false)}>✕</button>
+                  </div>
+                )}
+
+                {/* ════ STEP 1: DELIVERY ════ */}
+                {checkoutStep === 1 && (
+                  <>
+                    <div className="co-body">
+                      <div className="co-left">
+                        <div className="co-section-title">📍 <span>Delivery</span> Details</div>
+
+                        {/* Delivery type */}
+                        <div className="co-delivery-toggle">
+                          {[['delivery','🚴','Home Delivery','28–35 min · Free'],['pickup','🏪','Self Pickup','Ready in 15 min']].map(([val,icon,label,sub]) => (
+                            <button key={val} className={`co-delivery-opt ${deliveryType===val?'active':''}`} onClick={() => setDeliveryType(val)}>
+                              <span className="co-delivery-icon">{icon}</span>
+                              <div><span className="co-delivery-label">{label}</span><span className="co-delivery-sub">{sub}</span></div>
+                            </button>
+                          ))}
+                        </div>
+
+                        <div className="co-row">
+                          <div className="co-field">
+                            <label className="co-label">Full Name *</label>
+                            <input className={`co-input ${coErrors.name?'error':''}`} value={deliveryForm.name} onChange={e=>setDeliveryForm(p=>({...p,name:e.target.value}))} placeholder="Your full name" />
+                            {coErrors.name && <span className="co-error-msg">{coErrors.name}</span>}
+                          </div>
+                          <div className="co-field">
+                            <label className="co-label">Phone Number *</label>
+                            <input className={`co-input ${coErrors.phone?'error':''}`} value={deliveryForm.phone} onChange={e=>setDeliveryForm(p=>({...p,phone:e.target.value}))} placeholder="+92 300 0000000" />
+                            {coErrors.phone && <span className="co-error-msg">{coErrors.phone}</span>}
+                          </div>
+                        </div>
+
+                        <div className="co-row full">
+                          <div className="co-field">
+                            <label className="co-label">Email Address *</label>
+                            <input className={`co-input ${coErrors.email?'error':''}`} value={deliveryForm.email} onChange={e=>setDeliveryForm(p=>({...p,email:e.target.value}))} placeholder="you@example.com" />
+                            {coErrors.email && <span className="co-error-msg">{coErrors.email}</span>}
+                          </div>
+                        </div>
+
+                        {deliveryType === 'delivery' && (<>
+                          <div className="co-row full">
+                            <div className="co-field">
+                              <label className="co-label">Street Address *</label>
+                              <input className={`co-input ${coErrors.address?'error':''}`} value={deliveryForm.address} onChange={e=>setDeliveryForm(p=>({...p,address:e.target.value}))} placeholder="House/Flat no., Street, Block" />
+                              {coErrors.address && <span className="co-error-msg">{coErrors.address}</span>}
+                            </div>
+                          </div>
+                          <div className="co-row">
+                            <div className="co-field">
+                              <label className="co-label">City *</label>
+                              <select className={`co-select ${coErrors.city?'error':''}`} value={deliveryForm.city} onChange={e=>setDeliveryForm(p=>({...p,city:e.target.value}))}>
+                                <option value="">Select city</option>
+                                {['Karachi','Lahore','Islamabad','Rawalpindi','Peshawar','Quetta','Faisalabad','Multan'].map(c=><option key={c} value={c}>{c}</option>)}
+                              </select>
+                              {coErrors.city && <span className="co-error-msg">{coErrors.city}</span>}
+                            </div>
+                            <div className="co-field">
+                              <label className="co-label">Area / Sector *</label>
+                              <input className={`co-input ${coErrors.area?'error':''}`} value={deliveryForm.area} onChange={e=>setDeliveryForm(p=>({...p,area:e.target.value}))} placeholder="e.g. DHA Phase 5, Gulshan" />
+                              {coErrors.area && <span className="co-error-msg">{coErrors.area}</span>}
+                            </div>
+                          </div>
+                          <div className="co-row full">
+                            <div className="co-field">
+                              <label className="co-label">Delivery Notes (Optional)</label>
+                              <input className="co-input" value={deliveryForm.notes} onChange={e=>setDeliveryForm(p=>({...p,notes:e.target.value}))} placeholder="Ring the bell, leave at door, etc." />
+                            </div>
+                          </div>
+                        </>)}
+
+                        {deliveryType === 'pickup' && (
+                          <div style={{background:'rgba(255,69,0,0.07)',border:'1px solid rgba(255,69,0,0.2)',padding:'16px',marginTop:8}}>
+                            <div style={{fontFamily:'var(--font-display)',fontSize:16,letterSpacing:2,marginBottom:6}}>📍 FLARE PICKUP LOCATION</div>
+                            <div style={{fontSize:13,color:'var(--muted)',lineHeight:1.7}}>Shop #14, Food Street, Main Boulevard<br/>DHA Phase 2, Lahore · Open 11am–2am</div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right: Order Summary */}
+                      <div className="co-right">
+                        <div className="co-summary-title">Your Order</div>
+                        <div className="co-summary-items">
+                          {cart.map((item,i) => (
+                            <div key={i} className="co-summary-item">
+                              <img className="co-summary-img" src={item.img||'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&q=70'} alt={item.name} />
+                              <div style={{flex:1,minWidth:0}}>
+                                <div className="co-summary-item-name">{item.name}</div>
+                                {item.customizations?.mods && <div className="co-summary-item-mod">{item.customizations.mods}</div>}
+                                <div className="co-summary-item-qty">× {item.qty}</div>
+                              </div>
+                              <div className="co-summary-item-price">PKR {(item.finalPrice*item.qty).toLocaleString()}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="co-divider" />
+                        <div className="co-line"><span>Subtotal</span><span>PKR {cartTotal.toLocaleString()}</span></div>
+                        <div className="co-line"><span>Delivery</span><span style={{color:'#27ae60'}}>FREE</span></div>
+                        {promoApplied && <div className="co-line discount"><span>Promo (FLARE15)</span><span>−PKR {discount.toLocaleString()}</span></div>}
+                        <div className="co-divider" />
+                        <div className="co-line total"><span>Total</span><span className="co-line-val">PKR {grandTotal.toLocaleString()}</span></div>
+                        <div className="co-security">🔒 Encrypted & secure checkout</div>
+                      </div>
+                    </div>
+                    <div className="co-footer">
+                      <button className="co-back-btn" onClick={() => { setCheckoutOpen(false); setCartOpen(true); }}>← Back to Cart</button>
+                      <button className="co-next-btn" onClick={() => { if(validateDelivery()) setCheckoutStep(2); }}>Continue to Payment →</button>
+                    </div>
+                  </>
+                )}
+
+                {/* ════ STEP 2: PAYMENT ════ */}
+                {checkoutStep === 2 && (
+                  <>
+                    <div className="co-body">
+                      <div className="co-left">
+                        <div className="co-section-title">💳 <span>Payment</span> Method</div>
+                        <div className="co-payment-opts">
+                          {[
+                            ['cod','💵','Cash on Delivery','Pay in cash when your order arrives'],
+                            ['card','💳','Credit / Debit Card','Visa, Mastercard, UnionPay'],
+                            ['easypaisa','📱','EasyPaisa','Pay via EasyPaisa wallet'],
+                            ['jazzcash','🎵','JazzCash','Pay via JazzCash wallet'],
+                          ].map(([val,icon,name,desc]) => (
+                            <button key={val} className={`co-payment-opt ${paymentMethod===val?'active':''}`} onClick={() => setPaymentMethod(val)}>
+                              <div className="co-payment-radio">{paymentMethod===val && <div className="co-payment-radio-dot"/>}</div>
+                              <span className="co-payment-icon">{icon}</span>
+                              <div className="co-payment-info"><span className="co-payment-name">{name}</span><span className="co-payment-desc">{desc}</span></div>
+                            </button>
+                          ))}
+                        </div>
+
+                        {paymentMethod === 'card' && (
+                          <div className="co-card-fields">
+                            <div style={{fontSize:11,letterSpacing:2,color:'var(--muted)',textTransform:'uppercase',marginBottom:14,fontWeight:600}}>Card Details</div>
+                            <div className="co-row full" style={{marginBottom:12}}>
+                              <div className="co-field">
+                                <label className="co-label">Card Number *</label>
+                                <input className={`co-input ${coErrors.cardNumber?'error':''}`} value={cardForm.number} onChange={e=>setCardForm(p=>({...p,number:formatCard(e.target.value)}))} placeholder="0000 0000 0000 0000" maxLength={19} />
+                                {coErrors.cardNumber && <span className="co-error-msg">{coErrors.cardNumber}</span>}
+                              </div>
+                            </div>
+                            <div className="co-row full" style={{marginBottom:12}}>
+                              <div className="co-field">
+                                <label className="co-label">Name on Card *</label>
+                                <input className={`co-input ${coErrors.cardName?'error':''}`} value={cardForm.name} onChange={e=>setCardForm(p=>({...p,name:e.target.value}))} placeholder="As on your card" />
+                                {coErrors.cardName && <span className="co-error-msg">{coErrors.cardName}</span>}
+                              </div>
+                            </div>
+                            <div className="co-card-row">
+                              <div className="co-field" style={{gridColumn:'span 1'}}>
+                                <label className="co-label">Expiry *</label>
+                                <input className={`co-input ${coErrors.expiry?'error':''}`} value={cardForm.expiry} onChange={e=>setCardForm(p=>({...p,expiry:formatExpiry(e.target.value)}))} placeholder="MM/YY" maxLength={5} />
+                                {coErrors.expiry && <span className="co-error-msg">{coErrors.expiry}</span>}
+                              </div>
+                              <div className="co-field">
+                                <label className="co-label">CVV *</label>
+                                <input className={`co-input ${coErrors.cvv?'error':''}`} value={cardForm.cvv} onChange={e=>setCardForm(p=>({...p,cvv:e.target.value.replace(/\D/g,'').slice(0,4)}))} placeholder="•••" maxLength={4} type="password" />
+                                {coErrors.cvv && <span className="co-error-msg">{coErrors.cvv}</span>}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {(paymentMethod==='easypaisa'||paymentMethod==='jazzcash') && (
+                          <div style={{background:'rgba(255,69,0,0.07)',border:'1px solid rgba(255,69,0,0.2)',padding:'18px',marginTop:4}}>
+                            <div style={{fontFamily:'var(--font-display)',fontSize:16,letterSpacing:2,marginBottom:8}}>📲 PAYMENT INSTRUCTIONS</div>
+                            <div style={{fontSize:13,color:'var(--muted)',lineHeight:1.8}}>
+                              Send payment to: <strong style={{color:'var(--cream)'}}>0300-1234567</strong><br/>
+                              Account Name: <strong style={{color:'var(--cream)'}}>FLARE Restaurant</strong><br/>
+                              Amount: <strong style={{color:'var(--gold)'}}>PKR {grandTotal.toLocaleString()}</strong><br/>
+                              <span style={{fontSize:11,color:'var(--smoke)'}}>Screenshot will be verified on delivery.</span>
+                            </div>
+                          </div>
+                        )}
+
+                        <div style={{marginTop:24}}>
+                          <div style={{fontSize:11,letterSpacing:2,color:'var(--muted)',textTransform:'uppercase',fontWeight:600,marginBottom:10}}>Promo Code</div>
+                          <div className="co-promo-row">
+                            <input className="co-input co-promo-input" value={promoCode} onChange={e=>{ setPromoCode(e.target.value.toUpperCase()); setPromoError(''); setPromoApplied(false); }} placeholder="e.g. FLARE15" disabled={promoApplied} />
+                            <button className="co-promo-btn" onClick={applyPromo} disabled={promoApplied}>{promoApplied ? '✓ Applied' : 'Apply'}</button>
+                          </div>
+                          {promoApplied && <div className="co-promo-success">✓ FLARE15 applied — 15% off! You save PKR {discount.toLocaleString()}</div>}
+                          {promoError && <div className="co-error-msg">{promoError}</div>}
+                        </div>
+                      </div>
+
+                      <div className="co-right">
+                        <div className="co-summary-title">Order Summary</div>
+                        <div className="co-summary-items">
+                          {cart.map((item,i) => (
+                            <div key={i} className="co-summary-item">
+                              <img className="co-summary-img" src={item.img||'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&q=70'} alt={item.name} />
+                              <div style={{flex:1,minWidth:0}}>
+                                <div className="co-summary-item-name">{item.name}</div>
+                                <div className="co-summary-item-qty">× {item.qty}</div>
+                              </div>
+                              <div className="co-summary-item-price">PKR {(item.finalPrice*item.qty).toLocaleString()}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="co-divider"/>
+                        <div className="co-line"><span>Subtotal</span><span>PKR {cartTotal.toLocaleString()}</span></div>
+                        <div className="co-line"><span>Delivery</span><span style={{color:'#27ae60'}}>FREE</span></div>
+                        {promoApplied && <div className="co-line discount"><span>Promo (FLARE15)</span><span>−PKR {discount.toLocaleString()}</span></div>}
+                        <div className="co-divider"/>
+                        <div className="co-line total"><span>Total</span><span className="co-line-val">PKR {grandTotal.toLocaleString()}</span></div>
+                        <div style={{marginTop:16,padding:'12px',background:'rgba(255,248,240,0.03)',border:'1px solid rgba(255,248,240,0.06)'}}>
+                          <div style={{fontSize:11,color:'var(--smoke)',marginBottom:6,letterSpacing:1}}>📍 DELIVERING TO</div>
+                          <div style={{fontSize:12,color:'var(--muted)',lineHeight:1.7}}>{deliveryForm.name}<br/>{deliveryForm.phone}<br/>{deliveryType==='pickup'?'Self Pickup — DHA Phase 2, Lahore':`${deliveryForm.address}, ${deliveryForm.area}, ${deliveryForm.city}`}</div>
+                        </div>
+                        <div className="co-security">🔒 Encrypted & secure checkout</div>
+                      </div>
+                    </div>
+                    <div className="co-footer">
+                      <button className="co-back-btn" onClick={() => { setCheckoutStep(1); setCoErrors({}); }}>← Back</button>
+                      <button className="co-next-btn" onClick={() => { if(validatePayment()) setCheckoutStep(3); }}>Review Order →</button>
+                    </div>
+                  </>
+                )}
+
+                {/* ════ STEP 3: REVIEW ════ */}
+                {checkoutStep === 3 && (
+                  <>
+                    <div className="co-body">
+                      <div className="co-left">
+                        <div className="co-section-title">🔍 <span>Review</span> Your Order</div>
+
+                        {/* Delivery summary */}
+                        <div style={{background:'var(--ash)',padding:'18px',marginBottom:16,border:'1px solid rgba(255,248,240,0.06)'}}>
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+                            <span style={{fontFamily:'var(--font-display)',fontSize:16,letterSpacing:2}}>{deliveryType==='delivery'?'🚴 HOME DELIVERY':'🏪 SELF PICKUP'}</span>
+                            <button style={{background:'none',border:'none',color:'var(--fire)',fontSize:12,cursor:'none',letterSpacing:1,fontWeight:600}} onClick={()=>setCheckoutStep(1)}>Edit</button>
+                          </div>
+                          <div style={{fontSize:13,color:'var(--muted)',lineHeight:1.8}}>
+                            <strong style={{color:'var(--cream)'}}>{deliveryForm.name}</strong> · {deliveryForm.phone}<br/>
+                            {deliveryType==='delivery' ? `${deliveryForm.address}, ${deliveryForm.area}, ${deliveryForm.city}` : 'Shop #14, Food Street, DHA Phase 2, Lahore'}<br/>
+                            {deliveryForm.notes && <span style={{fontSize:11,color:'var(--smoke)'}}>Note: {deliveryForm.notes}</span>}
+                          </div>
+                        </div>
+
+                        {/* Payment summary */}
+                        <div style={{background:'var(--ash)',padding:'18px',marginBottom:16,border:'1px solid rgba(255,248,240,0.06)'}}>
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                            <span style={{fontFamily:'var(--font-display)',fontSize:16,letterSpacing:2}}>
+                              {paymentMethod==='cod'?'💵 CASH ON DELIVERY':paymentMethod==='card'?'💳 CARD PAYMENT':paymentMethod==='easypaisa'?'📱 EASYPAISA':'🎵 JAZZCASH'}
+                            </span>
+                            <button style={{background:'none',border:'none',color:'var(--fire)',fontSize:12,cursor:'none',letterSpacing:1,fontWeight:600}} onClick={()=>setCheckoutStep(2)}>Edit</button>
+                          </div>
+                          {paymentMethod==='card' && <div style={{fontSize:12,color:'var(--muted)'}}>Card ending in {cardForm.number.slice(-4) || '••••'}</div>}
+                          {paymentMethod==='cod' && <div style={{fontSize:12,color:'var(--muted)'}}>Pay PKR {grandTotal.toLocaleString()} in cash on delivery</div>}
+                        </div>
+
+                        {/* Items list */}
+                        <div style={{fontFamily:'var(--font-display)',fontSize:16,letterSpacing:2,marginBottom:12}}>🛒 ORDER ITEMS ({cart.reduce((s,i)=>s+i.qty,0)} items)</div>
+                        {cart.map((item,i) => (
+                          <div key={i} style={{display:'flex',gap:12,padding:'10px 0',borderBottom:'1px solid rgba(255,248,240,0.05)',alignItems:'center'}}>
+                            <img style={{width:48,height:48,objectFit:'cover',flexShrink:0}} src={item.img||'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&q=70'} alt={item.name}/>
+                            <div style={{flex:1}}>
+                              <div style={{fontWeight:600,fontSize:13,marginBottom:2}}>{item.name}</div>
+                              {item.customizations?.mods && <div style={{fontSize:11,color:'var(--smoke)'}}>{item.customizations.mods}</div>}
+                              <div style={{fontSize:11,color:'var(--muted)'}}>× {item.qty}</div>
+                            </div>
+                            <div style={{fontWeight:700,color:'var(--gold)',fontSize:14}}>PKR {(item.finalPrice*item.qty).toLocaleString()}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="co-right">
+                        <div className="co-summary-title">Final Bill</div>
+                        <div className="co-line"><span>Subtotal ({cart.reduce((s,i)=>s+i.qty,0)} items)</span><span>PKR {cartTotal.toLocaleString()}</span></div>
+                        <div className="co-line"><span>Delivery Fee</span><span style={{color:'#27ae60'}}>FREE 🎉</span></div>
+                        {promoApplied && <div className="co-line discount"><span>Promo (FLARE15)</span><span>−PKR {discount.toLocaleString()}</span></div>}
+                        <div className="co-divider"/>
+                        <div className="co-line total"><span>Grand Total</span><span className="co-line-val">PKR {grandTotal.toLocaleString()}</span></div>
+                        <div style={{marginTop:20,padding:'14px',background:'rgba(255,69,0,0.07)',border:'1px solid rgba(255,69,0,0.2)'}}>
+                          <div style={{fontSize:11,color:'var(--fire)',fontWeight:700,letterSpacing:2,marginBottom:6,textTransform:'uppercase'}}>🕐 Estimated Time</div>
+                          <div style={{fontFamily:'var(--font-display)',fontSize:28,letterSpacing:2,color:'var(--cream)'}}>{deliveryType==='delivery'?'28–35 MIN':'15 MIN'}</div>
+                          <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{deliveryType==='delivery'?'Home delivery from order confirmation':'Ready for pickup at our branch'}</div>
+                        </div>
+                        <div className="co-security" style={{marginTop:16}}>🔒 By placing order you agree to our terms</div>
+                      </div>
+                    </div>
+                    <div className="co-footer">
+                      <button className="co-back-btn" onClick={() => setCheckoutStep(2)}>← Back</button>
+                      <button className="co-next-btn" style={{background:'#27ae60',fontSize:15,padding:'16px 44px'}} onClick={placeOrder}>
+                        ✓ Place Order — PKR {grandTotal.toLocaleString()}
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* ════ STEP 4: ORDER CONFIRMED ════ */}
+                {checkoutStep === 4 && (
+                  <div className="co-confirm-screen">
+                    <div className="co-confirm-icon">🎉</div>
+                    <div className="co-confirm-title">ORDER PLACED!</div>
+                    <p className="co-confirm-sub">
+                      Your order has been confirmed and our kitchen is already on it.<br/>
+                      You'll receive an SMS update on <strong>{deliveryForm.phone}</strong>.
+                    </p>
+                    <div className="co-confirm-id">{placedOrderId}</div>
+                    <div className="co-confirm-details">
+                      <div className="co-confirm-detail">
+                        <span className="co-confirm-detail-val">PKR {grandTotal.toLocaleString()}</span>
+                        <span className="co-confirm-detail-label">Amount Paid</span>
+                      </div>
+                      <div className="co-confirm-detail">
+                        <span className="co-confirm-detail-val">{deliveryType==='delivery'?'~30 MIN':'~15 MIN'}</span>
+                        <span className="co-confirm-detail-label">Estimated Time</span>
+                      </div>
+                      <div className="co-confirm-detail">
+                        <span className="co-confirm-detail-val">{paymentMethod==='cod'?'COD':paymentMethod.toUpperCase()}</span>
+                        <span className="co-confirm-detail-label">Payment</span>
+                      </div>
+                    </div>
+                    <div className="co-confirm-actions">
+                      <button className="btn-primary" onClick={() => { setTrackerStep(0); setCheckoutOpen(false); setTrackerOpen(true); }}>
+                        🚴 Track My Order
+                      </button>
+                      <button className="btn-ghost" onClick={() => setCheckoutOpen(false)}>
+                        Continue Browsing
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            </div>
+          )}
 
         </>
       );
