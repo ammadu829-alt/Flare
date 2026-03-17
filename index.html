@@ -3028,11 +3028,12 @@
         const freshGrand = freshTotal + freshFee - freshDisc;
         setConfirmedTotal(freshGrand);
 
-        // Build items string for email
-        const itemsText = cart.map(item =>
-          `• ${item.name} x${item.qty} — PKR ${((Number(item.finalPrice)||0) * (Number(item.qty)||1)).toLocaleString()}` +
-          (item.customizations?.mods ? `\n  (${item.customizations.mods})` : '')
-        ).join('\n');
+        // Build items string for email — use pipe separator for EmailJS compatibility
+        const itemsText = cart.map((item, idx) => {
+          const price = ((Number(item.finalPrice)||0) * (Number(item.qty)||1)).toLocaleString();
+          const mods = item.customizations?.mods ? ` [${item.customizations.mods}]` : '';
+          return `${idx+1}. ${item.name}${mods} x${item.qty} = PKR ${price}`;
+        }).join(' | ');
 
         // Send EmailJS notification to restaurant owner
         const address = deliveryType === 'pickup'
