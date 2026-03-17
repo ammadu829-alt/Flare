@@ -2084,6 +2084,262 @@
       .nav-logo { font-size: 26px; }
     }
 
+    /* ======================================================
+       FLASH SALE POPUP
+    ====================================================== */
+    .flash-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      z-index: 700;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fadeOverlay 0.4s ease;
+    }
+    .flash-popup {
+      width: 100%; max-width: 520px;
+      background: var(--charcoal);
+      border: 1px solid rgba(255,69,0,0.3);
+      position: relative;
+      overflow: hidden;
+      animation: modalPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .flash-popup::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(255,69,0,0.18) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .flash-header {
+      background: linear-gradient(135deg, var(--fire) 0%, #c0392b 100%);
+      padding: 28px 32px 22px;
+      text-align: center;
+      position: relative;
+    }
+    .flash-close {
+      position: absolute; top: 12px; right: 14px;
+      background: rgba(255,255,255,0.15); border: none;
+      color: white; width: 30px; height: 30px;
+      font-size: 16px; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .flash-close:hover { background: rgba(255,255,255,0.3); }
+    .flash-emoji { font-size: 44px; display: block; margin-bottom: 8px; animation: wiggle 0.6s ease infinite alternate; }
+    @keyframes wiggle { from { transform: rotate(-8deg) scale(1); } to { transform: rotate(8deg) scale(1.1); } }
+    .flash-title {
+      font-family: var(--font-display);
+      font-size: 38px; letter-spacing: 4px; color: white; line-height: 1;
+    }
+    .flash-subtitle { font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 6px; font-weight: 300; letter-spacing: 1px; }
+    .flash-body { padding: 28px 32px; }
+    .flash-deal-row {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--ash); padding: 14px 16px; margin-bottom: 10px;
+      border: 1px solid rgba(255,248,240,0.05);
+      transition: border-color 0.2s;
+    }
+    .flash-deal-row:hover { border-color: rgba(255,69,0,0.3); }
+    .flash-deal-img { width: 56px; height: 56px; object-fit: cover; flex-shrink: 0; }
+    .flash-deal-info { flex: 1; }
+    .flash-deal-name { font-family: var(--font-display); font-size: 18px; letter-spacing: 1px; margin-bottom: 2px; }
+    .flash-deal-desc { font-size: 11px; color: var(--muted); font-weight: 300; }
+    .flash-deal-prices { text-align: right; flex-shrink: 0; }
+    .flash-old-price { font-size: 12px; color: var(--smoke); text-decoration: line-through; display: block; }
+    .flash-new-price { font-family: var(--font-display); font-size: 22px; color: var(--gold); letter-spacing: 1px; }
+    .flash-add-btn {
+      background: transparent; border: 1px solid rgba(255,69,0,0.4);
+      color: var(--fire); width: 34px; height: 34px;
+      font-size: 20px; cursor: none; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .flash-add-btn:hover { background: var(--fire); color: white; border-color: var(--fire); }
+    .flash-timer-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; margin: 18px 0 20px;
+      padding: 14px; background: rgba(255,69,0,0.07);
+      border: 1px solid rgba(255,69,0,0.15);
+    }
+    .flash-timer-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .flash-timer-boxes { display: flex; gap: 6px; align-items: center; }
+    .flash-tbox { background: var(--dark); padding: 5px 10px; text-align: center; min-width: 44px; }
+    .flash-tnum { font-family: var(--font-display); font-size: 22px; color: var(--fire); display: block; line-height: 1; }
+    .flash-tunit { font-size: 8px; letter-spacing: 2px; color: var(--smoke); text-transform: uppercase; }
+    .flash-tcolon { font-family: var(--font-display); font-size: 18px; color: var(--smoke); margin-bottom: 2px; }
+    .flash-cta {
+      width: 100%; background: var(--fire); color: white; border: none;
+      padding: 16px; font-family: var(--font-body); font-weight: 800;
+      font-size: 14px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: none; transition: all 0.3s;
+    }
+    .flash-cta:hover { background: var(--ember); transform: translateY(-1px); box-shadow: 0 8px 28px rgba(255,69,0,0.45); }
+    .flash-skip { text-align: center; margin-top: 12px; font-size: 12px; color: var(--smoke); cursor: none; }
+    .flash-skip span { color: var(--muted); text-decoration: underline; cursor: none; }
+    .flash-skip span:hover { color: var(--cream); }
+
+    /* ======================================================
+       LIVE ORDER TRACKER MODAL
+    ====================================================== */
+    .tracker-modal {
+      background: var(--charcoal);
+      width: 100%; max-width: 560px;
+      max-height: 90vh;
+      border: 1px solid rgba(255,69,0,0.2);
+      overflow: hidden; display: flex; flex-direction: column;
+      animation: modalPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .tracker-head {
+      padding: 28px 32px 20px;
+      border-bottom: 1px solid rgba(255,248,240,0.07);
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-shrink: 0;
+    }
+    .tracker-head-left {}
+    .tracker-title { font-family: var(--font-display); font-size: 28px; letter-spacing: 3px; }
+    .tracker-title span { color: var(--fire); }
+    .tracker-order-id { font-size: 11px; color: var(--smoke); letter-spacing: 2px; margin-top: 4px; }
+    .tracker-body { padding: 24px 32px; overflow-y: auto; flex: 1; }
+    .tracker-body::-webkit-scrollbar { width: 3px; }
+    .tracker-body::-webkit-scrollbar-thumb { background: var(--fire); }
+
+    /* animated map strip */
+    .tracker-map {
+      height: 140px; background: var(--ash);
+      border: 1px solid rgba(255,248,240,0.07);
+      margin-bottom: 28px; position: relative; overflow: hidden;
+    }
+    .tracker-map-bg {
+      position: absolute; inset: 0;
+      background:
+        repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(255,248,240,0.03) 28px, rgba(255,248,240,0.03) 29px),
+        repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(255,248,240,0.03) 28px, rgba(255,248,240,0.03) 29px);
+    }
+    .tracker-rider {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      font-size: 28px;
+      animation: rideAcross 4s ease-in-out infinite alternate;
+      filter: drop-shadow(0 0 8px rgba(255,69,0,0.6));
+    }
+    @keyframes rideAcross {
+      from { left: 10%; }
+      to   { left: 75%; }
+    }
+    .tracker-dest {
+      position: absolute; right: 12%; top: 50%; transform: translateY(-50%);
+      font-size: 28px;
+    }
+    .tracker-road {
+      position: absolute; bottom: 36%; left: 0; right: 0;
+      height: 2px; background: rgba(255,69,0,0.3);
+    }
+    .tracker-road-dot {
+      position: absolute; top: -4px;
+      width: 10px; height: 10px;
+      background: var(--fire); border-radius: 50%;
+      animation: dotPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes dotPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.6)} }
+    .tracker-eta {
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      background: var(--dark); border: 1px solid rgba(255,69,0,0.3);
+      padding: 6px 16px; white-space: nowrap;
+    }
+    .tracker-eta-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+    .tracker-eta-time { font-family: var(--font-display); font-size: 18px; color: var(--fire); letter-spacing: 2px; }
+
+    /* steps */
+    .tracker-steps { display: flex; flex-direction: column; gap: 0; }
+    .tracker-step {
+      display: flex; gap: 20px; position: relative; padding-bottom: 28px;
+    }
+    .tracker-step:last-child { padding-bottom: 0; }
+    .tracker-step-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+    .tracker-step-icon {
+      width: 44px; height: 44px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+      border: 2px solid rgba(255,248,240,0.1);
+      background: var(--ash); transition: all 0.5s;
+      position: relative; z-index: 1;
+    }
+    .tracker-step.done .tracker-step-icon {
+      background: var(--fire); border-color: var(--fire);
+      box-shadow: 0 0 20px rgba(255,69,0,0.5);
+    }
+    .tracker-step.active .tracker-step-icon {
+      background: rgba(255,69,0,0.15); border-color: var(--fire);
+      animation: stepPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes stepPulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,69,0,0.4)} 50%{box-shadow:0 0 0 10px rgba(255,69,0,0)} }
+    .tracker-step-line {
+      width: 2px; flex: 1; margin: 4px 0;
+      background: rgba(255,248,240,0.07); min-height: 20px;
+    }
+    .tracker-step.done .tracker-step-line { background: var(--fire); }
+    .tracker-step-right { padding-top: 8px; }
+    .tracker-step-name { font-family: var(--font-display); font-size: 18px; letter-spacing: 1px; margin-bottom: 4px; }
+    .tracker-step.done .tracker-step-name { color: var(--cream); }
+    .tracker-step.pending .tracker-step-name { color: var(--smoke); }
+    .tracker-step.active .tracker-step-name { color: var(--fire); }
+    .tracker-step-desc { font-size: 12px; color: var(--muted); font-weight: 300; line-height: 1.5; }
+    .tracker-step-time { font-size: 11px; color: var(--fire); font-weight: 600; margin-top: 4px; }
+    .tracker-step.pending .tracker-step-time { color: var(--smoke); }
+
+    .tracker-items-preview {
+      margin-top: 24px; padding: 16px;
+      background: var(--ash); border: 1px solid rgba(255,248,240,0.06);
+    }
+    .tracker-items-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 12px; }
+    .tracker-item-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .tracker-item-row:last-child { margin-bottom: 0; }
+    .tracker-item-img { width: 40px; height: 40px; object-fit: cover; border: 1px solid rgba(255,248,240,0.07); flex-shrink: 0; }
+    .tracker-item-name { font-size: 13px; font-weight: 500; }
+    .tracker-item-qty { font-size: 11px; color: var(--muted); }
+    .tracker-foot {
+      padding: 18px 32px;
+      border-top: 1px solid rgba(255,248,240,0.07);
+      display: flex; gap: 12px; flex-shrink: 0;
+    }
+    .tracker-support-btn {
+      flex: 1; background: transparent; border: 1px solid rgba(255,248,240,0.15);
+      color: var(--muted); padding: 13px; font-family: var(--font-body);
+      font-size: 12px; letter-spacing: 1px; cursor: none; transition: all 0.2s;
+    }
+    .tracker-support-btn:hover { border-color: var(--fire); color: var(--fire); }
+    .tracker-reorder-btn {
+      flex: 1; background: var(--fire); color: white; border: none;
+      padding: 13px; font-family: var(--font-body); font-weight: 700;
+      font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: none; transition: all 0.2s;
+    }
+    .tracker-reorder-btn:hover { background: var(--ember); }
+
+    /* Track Order FAB — floating button next to cart */
+    .track-fab {
+      position: fixed; bottom: 40px; right: 110px;
+      background: var(--charcoal);
+      border: 1px solid rgba(255,69,0,0.3);
+      color: var(--cream); padding: 0 18px;
+      height: 52px; display: flex; align-items: center; gap: 8px;
+      cursor: none; z-index: 200;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      transition: all 0.3s; font-size: 13px; font-weight: 600;
+    }
+    .track-fab:hover { border-color: var(--fire); background: rgba(255,69,0,0.1); }
+    .track-fab-dot { width: 8px; height: 8px; background: #27ae60; border-radius: 50%; animation: pulse 1.5s infinite; flex-shrink: 0; }
+
+    @media (max-width: 600px) {
+      .track-fab { right: 84px; bottom: 20px; padding: 0 12px; height: 44px; font-size: 11px; }
+      .tracker-head { padding: 20px; }
+      .tracker-body { padding: 16px 20px; }
+      .tracker-foot { padding: 14px 20px; flex-direction: column; }
+      .flash-body { padding: 20px; }
+      .flash-header { padding: 22px 20px 18px; }
+      .flash-title { font-size: 30px; }
+    }
+
   </style>
 </head>
 <body>
@@ -2309,6 +2565,16 @@
       const [custSelections, setCustSelections] = useState({});
       const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+      // Flash Sale state
+      const [flashOpen, setFlashOpen]   = useState(false);
+      const [flashTimer, setFlashTimer] = useState({ m: 9, s: 59 });
+      const flashShownRef               = useRef(false);
+
+      // Order Tracker state
+      const [trackerOpen, setTrackerOpen] = useState(false);
+      const [trackerStep, setTrackerStep] = useState(0); // 0-4 live cycling
+      const [activeOrderId] = useState(() => 'FLR-' + Math.floor(100000 + Math.random() * 900000));
+
       // Auth system state
       const [loggedInUser, setLoggedInUser] = useState(() => {
         try { return JSON.parse(localStorage.getItem('flare_user')) || null; } catch { return null; }
@@ -2389,6 +2655,38 @@
         return () => clearInterval(t);
       }, []);
 
+      // Flash sale — appear after 8s, once per session
+      useEffect(() => {
+        const t = setTimeout(() => {
+          if (!flashShownRef.current && !sessionStorage.getItem('flare_flash_seen')) {
+            setFlashOpen(true);
+            flashShownRef.current = true;
+          }
+        }, 8000);
+        return () => clearTimeout(t);
+      }, []);
+
+      // Flash countdown timer
+      useEffect(() => {
+        if (!flashOpen) return;
+        const t = setInterval(() => {
+          setFlashTimer(prev => {
+            let { m, s } = prev;
+            s--; if(s<0){ s=59; m--; } if(m<0){ return { m:0, s:0 }; }
+            return { m, s };
+          });
+        }, 1000);
+        return () => clearInterval(t);
+      }, [flashOpen]);
+
+      // Order tracker — auto-advance steps every 6s when open
+      useEffect(() => {
+        if (!trackerOpen) return;
+        if (trackerStep >= 3) return;
+        const t = setTimeout(() => setTrackerStep(p => Math.min(p+1, 3)), 6000);
+        return () => clearTimeout(t);
+      }, [trackerOpen, trackerStep]);
+
       useEffect(() => {
         const fn = () => setScrolled(window.scrollY > 60);
         window.addEventListener('scroll', fn);
@@ -2415,8 +2713,8 @@
 
       /* body scroll lock */
       useEffect(() => {
-        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen) ? 'hidden' : '';
-      }, [cartOpen, authOpen, custItem, mobileMenuOpen]);
+        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen) ? 'hidden' : '';
+      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen]);
 
       /* cart helpers */
       const addToCart = (item, customizations) => {
@@ -3216,6 +3514,144 @@
               </div>
             </div>
           )}
+          {/* ── TRACK ORDER FAB ── */}
+          {loggedInUser && (
+            <button className="track-fab" onClick={() => { setTrackerStep(0); setTrackerOpen(true); }}>
+              <span className="track-fab-dot" />
+              Track Order
+            </button>
+          )}
+
+          {/* ── FLASH SALE POPUP ── */}
+          {flashOpen && (
+            <div className="flash-overlay" onClick={e => { if(e.target===e.currentTarget){ setFlashOpen(false); sessionStorage.setItem('flare_flash_seen','1'); } }}>
+              <div className="flash-popup">
+                <div className="flash-header">
+                  <button className="flash-close" onClick={() => { setFlashOpen(false); sessionStorage.setItem('flare_flash_seen','1'); }}>✕</button>
+                  <span className="flash-emoji">⚡</span>
+                  <div className="flash-title">FLASH SALE!</div>
+                  <div className="flash-subtitle">Surprise deals — only for the next few minutes</div>
+                </div>
+                <div className="flash-body">
+                  {/* Countdown */}
+                  <div className="flash-timer-row">
+                    <span className="flash-timer-label">Ends in</span>
+                    <div className="flash-timer-boxes">
+                      <div className="flash-tbox"><span className="flash-tnum">{String(flashTimer.m).padStart(2,'0')}</span><span className="flash-tunit">Min</span></div>
+                      <span className="flash-tcolon">:</span>
+                      <div className="flash-tbox"><span className="flash-tnum">{String(flashTimer.s).padStart(2,'0')}</span><span className="flash-tunit">Sec</span></div>
+                    </div>
+                  </div>
+
+                  {/* Flash deals */}
+                  {[
+                    { name:'SMASH BURGER', desc:'Double patty + secret sauce', oldPrice:899, newPrice:449, img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=120&q=80', item:{ name:'SMASH BURGER', price:449, img:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80' } },
+                    { name:'CRISPY ZINGER', desc:'Buttermilk fried, sriracha mayo', oldPrice:699, newPrice:349, img:'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=120&q=80', item:{ name:'CRISPY ZINGER', price:349, img:'https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600&q=80' } },
+                    { name:'TRUFFLE FRIES', desc:'Black truffle, parmesan, aioli', oldPrice:449, newPrice:199, img:'https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=120&q=80', item:{ name:'TRUFFLE FRIES', price:199, img:'https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=600&q=80' } },
+                  ].map(fd => (
+                    <div key={fd.name} className="flash-deal-row">
+                      <img className="flash-deal-img" src={fd.img} alt={fd.name} />
+                      <div className="flash-deal-info">
+                        <div className="flash-deal-name">{fd.name}</div>
+                        <div className="flash-deal-desc">{fd.desc}</div>
+                      </div>
+                      <div className="flash-deal-prices">
+                        <span className="flash-old-price">PKR {fd.oldPrice}</span>
+                        <span className="flash-new-price">PKR {fd.newPrice}</span>
+                      </div>
+                      <button className="flash-add-btn" onClick={() => requireAuth(() => { addToCart(fd.item); }, 'Sign in to grab flash deals.')}>+</button>
+                    </div>
+                  ))}
+
+                  <button className="flash-cta" onClick={() => {
+                    requireAuth(() => { document.getElementById('menu').scrollIntoView({ behavior:'smooth' }); setFlashOpen(false); sessionStorage.setItem('flare_flash_seen','1'); }, 'Sign in to access flash deals.');
+                  }}>
+                    🔥 Grab All Flash Deals Now
+                  </button>
+                  <div className="flash-skip">
+                    <span onClick={() => { setFlashOpen(false); sessionStorage.setItem('flare_flash_seen','1'); }}>No thanks, I'll pay full price</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── LIVE ORDER TRACKER ── */}
+          {trackerOpen && (() => {
+            const steps = [
+              { icon:'✅', name:'ORDER RECEIVED', desc:'We got your order and are confirming it with our kitchen.', time:'Just now', status: trackerStep >= 0 ? (trackerStep > 0 ? 'done' : 'active') : 'pending' },
+              { icon:'👨‍🍳', name:'PREPARING YOUR FOOD', desc:'Our chefs are cooking your order fresh. Smells amazing already!', time: trackerStep >= 1 ? '~5 min ago' : 'Pending', status: trackerStep > 1 ? 'done' : trackerStep === 1 ? 'active' : 'pending' },
+              { icon:'📦', name:'PACKED & READY', desc:'Your order is packed hot and handed to the delivery rider.', time: trackerStep >= 2 ? '~2 min ago' : 'Pending', status: trackerStep > 2 ? 'done' : trackerStep === 2 ? 'active' : 'pending' },
+              { icon:'🚴', name:'OUT FOR DELIVERY', desc:'Your rider is on the way! Estimated arrival in 12-18 minutes.', time: trackerStep >= 3 ? 'En route' : 'Pending', status: trackerStep === 3 ? 'active' : trackerStep > 3 ? 'done' : 'pending' },
+              { icon:'🎉', name:'DELIVERED!', desc:'Your FLARE order has arrived. Enjoy every bite!', time: trackerStep >= 4 ? 'Delivered' : 'Pending', status: trackerStep >= 4 ? 'done' : 'pending' },
+            ];
+            const etaMins = Math.max(2, 18 - trackerStep * 4);
+            return (
+              <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget) setTrackerOpen(false); }}>
+                <div className="tracker-modal">
+                  <div className="tracker-head">
+                    <div className="tracker-head-left">
+                      <div className="tracker-title">TRACK <span>ORDER</span></div>
+                      <div className="tracker-order-id">Order #{activeOrderId}</div>
+                    </div>
+                    <button className="drawer-close" onClick={() => setTrackerOpen(false)}>✕</button>
+                  </div>
+                  <div className="tracker-body">
+                    {/* Animated map */}
+                    <div className="tracker-map">
+                      <div className="tracker-map-bg" />
+                      <div className="tracker-road"><div className="tracker-road-dot" style={{left:`${10 + trackerStep * 16}%`}} /></div>
+                      <div className="tracker-rider" style={{left:`${8 + trackerStep * 15}%`}}>🚴</div>
+                      <div className="tracker-dest">🏠</div>
+                      <div className="tracker-eta">
+                        <div className="tracker-eta-label">Est. Arrival</div>
+                        <div className="tracker-eta-time">{trackerStep >= 4 ? 'Arrived! 🎉' : `~${etaMins} min`}</div>
+                      </div>
+                    </div>
+
+                    {/* Steps */}
+                    <div className="tracker-steps">
+                      {steps.map((step, idx) => (
+                        <div key={idx} className={`tracker-step ${step.status}`}>
+                          <div className="tracker-step-left">
+                            <div className="tracker-step-icon">{step.status === 'done' ? '✓' : step.icon}</div>
+                            {idx < steps.length - 1 && <div className="tracker-step-line" />}
+                          </div>
+                          <div className="tracker-step-right">
+                            <div className="tracker-step-name">{step.name}</div>
+                            <div className="tracker-step-desc">{step.desc}</div>
+                            <div className="tracker-step-time">{step.time}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Order items preview */}
+                    {cart.length > 0 && (
+                      <div className="tracker-items-preview">
+                        <div className="tracker-items-label">Your Order</div>
+                        {cart.slice(0,3).map((item, idx) => (
+                          <div key={idx} className="tracker-item-row">
+                            <img className="tracker-item-img" src={item.img || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&q=70'} alt={item.name} />
+                            <div>
+                              <div className="tracker-item-name">{item.name}</div>
+                              <div className="tracker-item-qty">× {item.qty} · PKR {(item.finalPrice * item.qty).toLocaleString()}</div>
+                            </div>
+                          </div>
+                        ))}
+                        {cart.length > 3 && <div style={{fontSize:12,color:'var(--muted)',marginTop:8}}>+{cart.length-3} more items</div>}
+                      </div>
+                    )}
+                  </div>
+                  <div className="tracker-foot">
+                    <button className="tracker-support-btn" onClick={() => alert('Connecting to support...')}>📞 Call Support</button>
+                    <button className="tracker-reorder-btn" onClick={() => { setTrackerOpen(false); setCartOpen(true); }}>View Cart →</button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
         </>
       );
     }
