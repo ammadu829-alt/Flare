@@ -9,6 +9,9 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script>emailjs.init('OV3RYf_E_Jak1ElyH');</script>
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
@@ -32,13 +35,14 @@
 
     html { scroll-behavior: smooth; }
 
-    body {
-      background: var(--dark);
-      color: var(--cream);
-      font-family: var(--font-body);
-      overflow-x: hidden;
-      cursor: none;
-    }
+    /* ── Bootstrap override — keep FLARE design intact ── */
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--font-body) !important; background: var(--dark) !important; color: var(--cream) !important; overflow-x: hidden; cursor: none; }
+    .container, .container-fluid, .container-sm, .container-md, .container-lg, .container-xl { padding-left: 0 !important; padding-right: 0 !important; }
+    h1,h2,h3,h4,h5,h6 { font-family: var(--font-display) !important; color: var(--cream) !important; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: var(--font-body); }
+    img { max-width: 100%; }
 
     /* Custom cursor */
     .cursor {
@@ -2657,6 +2661,92 @@
       .co-confirm-actions { flex-direction: column; align-items: center; }
     }
 
+    /* ── Bootstrap breakpoint enhancements ── */
+
+    /* xs: 0–575px (Bootstrap's xs) */
+    @media (max-width: 575.98px) {
+      .section { padding: 52px 16px !important; }
+      nav { padding: 14px 16px !important; }
+      nav.scrolled { padding: 10px 16px !important; }
+      .hero-left { padding: 90px 16px 52px !important; }
+      .hero-stats { flex-wrap: wrap; gap: 16px !important; }
+      .stat-num { font-size: 28px !important; }
+      .menu-filters { gap: 4px !important; }
+      .filter-btn { padding: 6px 10px !important; font-size: 10px !important; }
+      .deal-body, .eid-card-body { padding: 14px !important; }
+      .cta-section { padding: 64px 16px !important; }
+      footer { padding: 40px 16px 24px !important; }
+      .cart-drawer-head, .cart-items-list, .cart-drawer-foot { padding: 14px 16px !important; }
+      .auth-body { padding: 16px !important; }
+      .co-left, .co-right { padding: 16px !important; }
+      .tracker-support-panel { padding: 14px 16px 16px !important; }
+      .flash-body { padding: 16px !important; }
+      .flash-header { padding: 18px 16px 14px !important; }
+    }
+
+    /* sm: 576px–767px (Bootstrap's sm) */
+    @media (min-width: 576px) and (max-width: 767.98px) {
+      .categories-grid { grid-template-columns: repeat(3, 1fr) !important; }
+      .menu-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .deals-grid { grid-template-columns: 1fr !important; }
+      .eid-deals-grid { grid-template-columns: 1fr !important; }
+      .blog-grid { grid-template-columns: 1fr !important; }
+      .testimonials-grid { grid-template-columns: 1fr !important; }
+      .section { padding: 64px 24px !important; }
+      .hero-title { font-size: clamp(48px, 12vw, 72px) !important; }
+    }
+
+    /* md: 768px–991px (Bootstrap's md) */
+    @media (min-width: 768px) and (max-width: 991.98px) {
+      .categories-grid { grid-template-columns: repeat(3, 1fr) !important; }
+      .menu-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .deals-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .eid-deals-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .blog-grid { grid-template-columns: 1fr 1fr !important; }
+      .blog-card.featured { grid-column: span 2 !important; }
+      .testimonials-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
+      .feature-strip { grid-template-columns: repeat(2, 1fr) !important; }
+      .section { padding: 72px 28px !important; }
+      .co-body { grid-template-columns: 1fr !important; }
+    }
+
+    /* lg: 992px–1199px (Bootstrap's lg) */
+    @media (min-width: 992px) and (max-width: 1199.98px) {
+      .categories-grid { grid-template-columns: repeat(5, 1fr) !important; }
+      .menu-grid { grid-template-columns: repeat(3, 1fr) !important; }
+      .deals-grid { grid-template-columns: repeat(3, 1fr) !important; }
+      .eid-deals-grid { grid-template-columns: repeat(3, 1fr) !important; }
+      .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr !important; }
+      nav { padding: 20px 40px !important; }
+      nav.scrolled { padding: 14px 40px !important; }
+      .section { padding: 80px 40px !important; }
+    }
+
+    /* xl: 1200px+ (Bootstrap's xl) */
+    @media (min-width: 1200px) {
+      .section { padding: 100px 60px !important; }
+      nav { padding: 24px 60px !important; }
+      .menu-grid { grid-template-columns: repeat(3, 1fr) !important; }
+      .deals-grid { grid-template-columns: repeat(3, 1fr) !important; }
+      .eid-deals-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    }
+
+    /* Touch device improvements */
+    @media (hover: none) and (pointer: coarse) {
+      body { cursor: auto !important; }
+      .cursor, .cursor-follower { display: none !important; }
+      .menu-add-btn { opacity: 1 !important; transform: translateY(0) !important; }
+      .nav-cta, .btn-primary, .btn-ghost,
+      .checkout-btn, .co-next-btn, .co-back-btn,
+      .filter-btn, .deal-order-btn, .eid-order-btn { cursor: pointer !important; }
+      a, button { cursor: pointer !important; }
+      .menu-card:hover { transform: none; }
+      .deal-card:hover { transform: none; }
+      .eid-card:hover { transform: none; }
+      .blog-card:hover { transform: none; }
+    }
+
   </style>
 </head>
 <body>
@@ -3348,7 +3438,7 @@
                 <span className="hero-title-sub">— every single bite</span>
               </h1>
               <p className="hero-desc">Bold flavors crafted for those who refuse ordinary. Premium ingredients, signature sauces, and fire-kissed perfection — delivered to your door.</p>
-              <div className="hero-actions">
+              <div className="hero-actions d-flex flex-column flex-sm-row gap-2 gap-sm-3">
                 <button className="btn-primary" onClick={() => requireAuth(() => document.getElementById('menu').scrollIntoView({ behavior:'smooth' }), 'Sign in first to start ordering.')}>Explore Menu</button>
                 <button className="btn-ghost" onClick={() => { setAuthTab('signup'); setAuthOpen(true); setAuthError(''); }}>Join FLARE</button>
               </div>
@@ -3392,7 +3482,7 @@
           <section className="section" id="about">
             <div className="section-tag">Browse By Category</div>
             <h2 className="section-title">WHAT ARE YOU<br/><em>craving?</em></h2>
-            <div className="categories-grid">
+            <div className="categories-grid row g-2 g-md-3">
               {categories.map(cat => (
                 <div key={cat.name} className="cat-card">
                   <img src={cat.img} alt={cat.name} />
@@ -3424,18 +3514,18 @@
 
           {/* ── MENU ── */}
           <section className="section menu-section" id="menu">
-            <div className="menu-header">
+            <div className="menu-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3">
               <div>
                 <div className="section-tag">Full Menu</div>
                 <h2 className="section-title">OUR<br/><em>signatures</em></h2>
               </div>
-              <div className="menu-filters">
+              <div className="menu-filters d-flex flex-wrap gap-2">
                 {filters.map(f => (
                   <button key={f} className={`filter-btn ${activeFilter===f?'active':''}`} onClick={() => setActiveFilter(f)}>{f}</button>
                 ))}
               </div>
             </div>
-            <div className="menu-grid">
+            <div className="menu-grid row g-3 g-md-4">
               {filtered.map(item => (
                 <div key={item.id} className="menu-card">
                   <div className="menu-img-wrap">
@@ -3490,7 +3580,7 @@
               <div className="section-tag">Combo Deals</div>
               <h2 className="section-title">MORE FOOD,<br/><em>less spend</em></h2>
             </div>
-            <div className="deals-grid">
+            <div className="deals-grid row g-3 g-md-4">
               {deals.map(deal => (
                 <div key={deal.id} className={`deal-card ${deal.featured?'featured':''}`}>
                   <div className="deal-header">
@@ -3579,7 +3669,7 @@
               <h2 className="section-title">FEAST FOR<br/><em style={{color:'var(--gold)'}}>everyone</em></h2>
             </div>
 
-            <div className="eid-deals-grid">
+            <div className="eid-deals-grid row g-3 g-md-4">
               {eidDeals.map(deal => (
                 <div key={deal.id} className="eid-card">
                   <div className="eid-card-header">
@@ -3654,7 +3744,7 @@
           <section className="section blog-section" id="blog">
             <div className="section-tag">Food Stories</div>
             <h2 className="section-title">FROM THE<br/><em>kitchen</em></h2>
-            <div className="blog-grid">
+            <div className="blog-grid row g-3 g-md-4">
               {blogPosts.map(post => (
                 <div key={post.id} className={`blog-card ${post.featured?'featured':''}`}>
                   <div className="blog-img-wrap">
@@ -3676,7 +3766,7 @@
           <section className="section testimonials-section">
             <div className="section-tag">Real Reviews</div>
             <h2 className="section-title">THE PEOPLE<br/><em>have spoken</em></h2>
-            <div className="testimonials-grid">
+            <div className="testimonials-grid row g-3 g-md-4">
               {testimonials.map(t => (
                 <div key={t.name} className="testimonial-card">
                   <p className="testimonial-text">{t.text}</p>
@@ -3698,7 +3788,7 @@
             <div className="cta-content">
               <h2 className="cta-title">HUNGRY?<br/><em>We thought so.</em></h2>
               <p className="cta-subtitle">Order now and experience fire-kissed flavors delivered to your door in under 30 minutes.</p>
-              <div className="cta-actions">
+              <div className="cta-actions d-flex flex-column flex-sm-row justify-content-center gap-3">
                 <button className="btn-primary" style={{fontSize:'16px',padding:'20px 56px'}} onClick={() => requireAuth(() => { if(cart.length > 0) { openCheckout(); } else { setCartOpen(true); } }, 'Sign in to checkout.')}>
                   {cart.length > 0 ? `✓ Checkout — PKR ${cartTotal.toLocaleString()}` : 'View My Cart'}
                 </button>
@@ -3709,7 +3799,7 @@
 
           {/* ── FOOTER ── */}
           <footer>
-            <div className="footer-grid">
+            <div className="footer-grid row g-4 g-md-5">
               <div>
                 <div className="footer-brand-name">FL<span>A</span>RE</div>
                 <p className="footer-desc">Bold flavors. Fearless food. FLARE is where fast food grows up and tastes like something worth remembering.</p>
