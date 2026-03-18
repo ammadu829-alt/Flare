@@ -3776,11 +3776,24 @@
         setHistoryOpen(false);
         setCartOpen(true);
       };
+
+      // Computed for tracker modal
+      const trackerSteps = [
+        { icon:'✅', name:'ORDER RECEIVED', desc:'We got your order and are confirming it with our kitchen.', time:'Just now', status: trackerStep >= 0 ? (trackerStep > 0 ? 'done' : 'active') : 'pending' },
+        { icon:'👨‍🍳', name:'PREPARING YOUR FOOD', desc:'Our chefs are cooking your order fresh. Smells amazing already!', time: trackerStep >= 1 ? '~5 min ago' : 'Pending', status: trackerStep > 1 ? 'done' : trackerStep === 1 ? 'active' : 'pending' },
+        { icon:'📦', name:'PACKED & READY', desc:'Your order is packed hot and handed to the delivery rider.', time: trackerStep >= 2 ? '~2 min ago' : 'Pending', status: trackerStep > 2 ? 'done' : trackerStep === 2 ? 'active' : 'pending' },
+        { icon:'🚴', name:'OUT FOR DELIVERY', desc:'Your rider is on the way! Estimated arrival in 12-18 minutes.', time: trackerStep >= 3 ? 'En route' : 'Pending', status: trackerStep === 3 ? 'active' : trackerStep > 3 ? 'done' : 'pending' },
+        { icon:'🎉', name:'DELIVERED!', desc:'Your FLARE order has arrived. Enjoy every bite!', time: trackerStep >= 4 ? 'Delivered' : 'Pending', status: trackerStep >= 4 ? 'done' : 'pending' },
+      ];
+      const trackerEtaMins = Math.max(2, 18 - trackerStep * 4);
+      const orderHistoryList = getOrderHistory();
+      const orderHistoryTotal = orderHistoryList.reduce((s,o)=>s+(Number(o.total)||0),0);
+
+      const copyReferral = () => {
         const code = getReferralCode();
         navigator.clipboard?.writeText(code).catch(() => {});
         setReferralCopied(true);
         setTimeout(() => setReferralCopied(false), 2000);
-        // Increment sent count
         const updated = { ...referralStats, sent: referralStats.sent + 1 };
         setReferralStats(updated);
         localStorage.setItem('flare_referral_stats', JSON.stringify(updated));
@@ -5110,16 +5123,7 @@
           )}
 
           {/* ── LIVE ORDER TRACKER ── */}
-          {trackerOpen && (() => {
-            const steps = [
-              { icon:'✅', name:'ORDER RECEIVED', desc:'We got your order and are confirming it with our kitchen.', time:'Just now', status: trackerStep >= 0 ? (trackerStep > 0 ? 'done' : 'active') : 'pending' },
-              { icon:'👨‍🍳', name:'PREPARING YOUR FOOD', desc:'Our chefs are cooking your order fresh. Smells amazing already!', time: trackerStep >= 1 ? '~5 min ago' : 'Pending', status: trackerStep > 1 ? 'done' : trackerStep === 1 ? 'active' : 'pending' },
-              { icon:'📦', name:'PACKED & READY', desc:'Your order is packed hot and handed to the delivery rider.', time: trackerStep >= 2 ? '~2 min ago' : 'Pending', status: trackerStep > 2 ? 'done' : trackerStep === 2 ? 'active' : 'pending' },
-              { icon:'🚴', name:'OUT FOR DELIVERY', desc:'Your rider is on the way! Estimated arrival in 12-18 minutes.', time: trackerStep >= 3 ? 'En route' : 'Pending', status: trackerStep === 3 ? 'active' : trackerStep > 3 ? 'done' : 'pending' },
-              { icon:'🎉', name:'DELIVERED!', desc:'Your FLARE order has arrived. Enjoy every bite!', time: trackerStep >= 4 ? 'Delivered' : 'Pending', status: trackerStep >= 4 ? 'done' : 'pending' },
-            ];
-            const etaMins = Math.max(2, 18 - trackerStep * 4);
-            return (
+          {trackerOpen && (
               <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget) setTrackerOpen(false); }}>
                 <div className="tracker-modal">
                   <div className="tracker-head">
@@ -5138,13 +5142,13 @@
                       <div className="tracker-dest">🏠</div>
                       <div className="tracker-eta">
                         <div className="tracker-eta-label">Est. Arrival</div>
-                        <div className="tracker-eta-time">{trackerStep >= 4 ? 'Arrived! 🎉' : `~${etaMins} min`}</div>
+                        <div className="tracker-eta-time">{trackerStep >= 4 ? 'Arrived! 🎉' : `~${trackerEtaMins} min`}</div>
                       </div>
                     </div>
 
                     {/* Steps */}
                     <div className="tracker-steps">
-                      {steps.map((step, idx) => (
+                      {trackerSteps.map((step, idx) => (
                         <div key={idx} className={`tracker-step ${step.status}`}>
                           <div className="tracker-step-left">
                             <div className="tracker-step-icon">{step.status === 'done' ? '✓' : step.icon}</div>
@@ -5212,8 +5216,7 @@
                   </div>
                 </div>
               </div>
-            );
-          })()}
+          )}
 
           {/* ══════════ FULL CHECKOUT MODAL ══════════ */}
           {checkoutOpen && (
@@ -5692,141 +5695,121 @@
           )}
 
           {/* ── ORDER HISTORY MODAL ── */}
-          {historyOpen && (() => {
-            const orders = getOrderHistory();
-            const totalSpent = orders.reduce((s,o) => s + (Number(o.total)||0), 0);
-            return (
-              <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget) setHistoryOpen(false); }}>
-                <div className="history-modal">
-                  {/* Head */}
-                  <div className="history-head">
-                    <div>
-                      <div className="history-title">MY <span>ORDERS</span></div>
-                      <div className="history-count">{orders.length} order{orders.length !== 1 ? 's' : ''} placed</div>
-                    </div>
-                    <button className="drawer-close" onClick={() => setHistoryOpen(false)}>✕</button>
+          {historyOpen && (
+            <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget) setHistoryOpen(false); }}>
+              <div className="history-modal">
+                {/* Head */}
+                <div className="history-head">
+                  <div>
+                    <div className="history-title">MY <span>ORDERS</span></div>
+                    <div className="history-count">{orderHistoryList.length} order{orderHistoryList.length !== 1 ? 's' : ''} placed</div>
                   </div>
+                  <button className="drawer-close" onClick={() => setHistoryOpen(false)}>✕</button>
+                </div>
 
-                  {/* Body */}
-                  <div className="history-body">
-                    {orders.length === 0 ? (
-                      <div className="history-empty">
-                        <span className="history-empty-icon">🍔</span>
-                        <div className="history-empty-title">NO ORDERS YET</div>
-                        <div className="history-empty-sub">Your order history will appear here after you place your first order.</div>
-                        <button className="btn-primary" style={{marginTop:24,padding:'12px 32px'}} onClick={() => { setHistoryOpen(false); requireAuth(() => document.getElementById('menu').scrollIntoView({behavior:'smooth'}), 'Sign in to order.'); }}>
-                          Start Ordering 🔥
-                        </button>
-                      </div>
-                    ) : orders.map((order, idx) => (
-                      <div key={order.id || idx} className="history-order-card">
-                        {/* Order header — clickable to expand */}
-                        <div className="history-order-head" onClick={() => setExpandedOrder(expandedOrder === idx ? null : idx)}>
-                          <div>
-                            <div className="history-order-id">#{order.id || 'FLR-XXXXX'}</div>
-                            <div className="history-order-date">📅 {order.date}</div>
-                          </div>
-                          <div className="history-order-right">
-                            <div className="history-order-total">PKR {Number(order.total).toLocaleString()}</div>
-                            <div className="history-order-status confirmed">
-                              <span className="history-order-status-dot"/>
-                              Confirmed
-                            </div>
-                          </div>
-                          <span className={`history-order-chevron ${expandedOrder===idx?'open':''}`}>▼</span>
-                        </div>
-
-                        {/* Expanded details */}
-                        {expandedOrder === idx && (
-                          <div className="history-order-body">
-                            {/* Items */}
-                            <div className="history-items-list">
-                              {(order.items || []).map((item, i) => (
-                                <div key={i} className="history-item-row">
-                                  <img className="history-item-img"
-                                    src={item.img || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&q=70'}
-                                    alt={item.name} />
-                                  <div style={{flex:1,minWidth:0}}>
-                                    <div className="history-item-name">{item.name}</div>
-                                    {item.customizations?.mods && <div className="history-item-mods">{item.customizations.mods}</div>}
-                                    <div className="history-item-qty">× {item.qty || 1}</div>
-                                  </div>
-                                  <div className="history-item-price">
-                                    PKR {((Number(item.finalPrice)||0) * (Number(item.qty)||1)).toLocaleString()}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-
-                            {/* Meta info */}
-                            <div className="history-order-meta">
-                              <div className="history-meta-item">
-                                <div className="history-meta-label">Payment</div>
-                                <div className="history-meta-value">{order.payment === 'cod' ? 'Cash on Delivery' : order.payment?.toUpperCase?.() || 'COD'}</div>
-                              </div>
-                              <div className="history-meta-item">
-                                <div className="history-meta-label">Delivery</div>
-                                <div className="history-meta-value">{order.delivery?.area ? `${order.delivery.area}, ${order.delivery.city}` : 'Home Delivery'}</div>
-                              </div>
-                              <div className="history-meta-item">
-                                <div className="history-meta-label">Total Items</div>
-                                <div className="history-meta-value">{(order.items||[]).reduce((s,i)=>s+(Number(i.qty)||1),0)} items</div>
-                              </div>
-                              <div className="history-meta-item">
-                                <div className="history-meta-label">Order Total</div>
-                                <div className="history-meta-value" style={{color:'var(--gold)'}}>PKR {Number(order.total).toLocaleString()}</div>
-                              </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="history-order-actions">
-                              <button className="history-reorder-btn" onClick={() => reorderItems(order)}>
-                                🔁 Reorder
-                              </button>
-                              <a className="history-support-btn"
-                                href={`https://wa.me/923261369791?text=Hi%20FLARE!%20I%20have%20a%20question%20about%20my%20order%20%23${order.id}`}
-                                target="_blank" rel="noopener noreferrer">
-                                💬 Support
-                              </a>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-      
-       {/* Footer stats */}            
-                  {orders.length > 0 && (
-                    <div className="history-foot">
-                      <div className="history-stats">
-                        <div style={{textAlign:'center'}}>
-                          <div className="history-stat-num">{orders.length}</div>
-                          <div className="history-stat-label">Orders</div>
-                        </div>
-                        <div style={{textAlign:'center'}}>
-                          <div className="history-stat-num">PKR {totalSpent.toLocaleString()}</div>
-                          <div className="history-stat-label">Total Spent</div>
-                        </div>
-                        <div style={{textAlign:'center'}}>
-                          <div className="history-stat-num">{orders.reduce((s,o)=>s+(o.items?.length||0),0)}</div>
-                          <div className="history-stat-label">Items</div>
-                        </div>
-                      </div>
-                      <button className="btn-primary" style={{padding:'10px 24px',fontSize:12}} onClick={() => { setHistoryOpen(false); requireAuth(() => document.getElementById('menu').scrollIntoView({behavior:'smooth'}), ''); }}>
-                        Order Again 🔥
+                {/* Body */}
+                <div className="history-body">
+                  {orderHistoryList.length === 0 ? (
+                    <div className="history-empty">
+                      <span className="history-empty-icon">🍔</span>
+                      <div className="history-empty-title">NO ORDERS YET</div>
+                      <div className="history-empty-sub">Your order history will appear here after you place your first order.</div>
+                      <button className="btn-primary" style={{marginTop:24,padding:'12px 32px'}} onClick={() => { setHistoryOpen(false); requireAuth(() => document.getElementById('menu').scrollIntoView({behavior:'smooth'}), 'Sign in to order.'); }}>
+                        Start Ordering 🔥
                       </button>
                     </div>
-                  )}
+                  ) : orderHistoryList.map((order, idx) => (
+                    <div key={order.id || idx} className="history-order-card">
+                      {/* Order header */}
+                      <div className="history-order-head" onClick={() => setExpandedOrder(expandedOrder === idx ? null : idx)}>
+                        <div>
+                          <div className="history-order-id">#{order.id || 'FLR-XXXXX'}</div>
+                          <div className="history-order-date">📅 {order.date}</div>
+                        </div>
+                        <div className="history-order-right">
+                          <div className="history-order-total">PKR {Number(order.total).toLocaleString()}</div>
+                          <div className="history-order-status confirmed">
+                            <span className="history-order-status-dot"/>Confirmed
+                          </div>
+                        </div>
+                        <span className={`history-order-chevron ${expandedOrder===idx?'open':''}`}>▼</span>
+                      </div>
+
+                      {/* Expanded details */}
+                      {expandedOrder === idx && (
+                        <div className="history-order-body">
+                          <div className="history-items-list">
+                            {(order.items || []).map((item, i) => (
+                              <div key={i} className="history-item-row">
+                                <img className="history-item-img" src={item.img || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=80&q=70'} alt={item.name} />
+                                <div style={{flex:1,minWidth:0}}>
+                                  <div className="history-item-name">{item.name}</div>
+                                  {item.customizations?.mods && <div className="history-item-mods">{item.customizations.mods}</div>}
+                                  <div className="history-item-qty">× {item.qty || 1}</div>
+                                </div>
+                                <div className="history-item-price">PKR {((Number(item.finalPrice)||0)*(Number(item.qty)||1)).toLocaleString()}</div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="history-order-meta">
+                            <div className="history-meta-item">
+                              <div className="history-meta-label">Payment</div>
+                              <div className="history-meta-value">{order.payment === 'cod' ? 'Cash on Delivery' : (order.payment?.toUpperCase?.() || 'COD')}</div>
+                            </div>
+                            <div className="history-meta-item">
+                              <div className="history-meta-label">Delivery</div>
+                              <div className="history-meta-value">{order.delivery?.area ? `${order.delivery.area}, ${order.delivery.city}` : 'Home Delivery'}</div>
+                            </div>
+                            <div className="history-meta-item">
+                              <div className="history-meta-label">Total Items</div>
+                              <div className="history-meta-value">{(order.items||[]).reduce((s,i)=>s+(Number(i.qty)||1),0)} items</div>
+                            </div>
+                            <div className="history-meta-item">
+                              <div className="history-meta-label">Order Total</div>
+                              <div className="history-meta-value" style={{color:'var(--gold)'}}>PKR {Number(order.total).toLocaleString()}</div>
+                            </div>
+                          </div>
+                          <div className="history-order-actions">
+                            <button className="history-reorder-btn" onClick={() => reorderItems(order)}>🔁 Reorder</button>
+                            <a className="history-support-btn"
+                              href={`https://wa.me/923261369791?text=Hi%20FLARE!%20Question%20about%20order%20%23${order.id}`}
+                              target="_blank" rel="noopener noreferrer">💬 Support</a>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
+
+                {/* Footer */}
+                {orderHistoryList.length > 0 && (
+                  <div className="history-foot">
+                    <div className="history-stats">
+                      <div style={{textAlign:'center'}}>
+                        <div className="history-stat-num">{orderHistoryList.length}</div>
+                        <div className="history-stat-label">Orders</div>
+                      </div>
+                      <div style={{textAlign:'center'}}>
+                        <div className="history-stat-num">PKR {orderHistoryTotal.toLocaleString()}</div>
+                        <div className="history-stat-label">Total Spent</div>
+                      </div>
+                      <div style={{textAlign:'center'}}>
+                        <div className="history-stat-num">{orderHistoryList.reduce((s,o)=>s+(o.items?.length||0),0)}</div>
+                        <div className="history-stat-label">Items</div>
+                      </div>
+                    </div>
+                    <button className="btn-primary" style={{padding:'10px 24px',fontSize:12}} onClick={() => { setHistoryOpen(false); document.getElementById('menu')?.scrollIntoView({behavior:'smooth'}); }}>
+                      Order Again 🔥
+                    </button>
+                  </div>
+                )}
               </div>
-            );
-          })()}
+            </div>
+          )}
 
         </>
       );
     }
-    
-        
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
