@@ -2624,25 +2624,43 @@
 
     /* Confirmation screen */
     .co-confirm-screen {
-      padding: 48px 40px; text-align: center; flex: 1;
+      padding: 36px 24px; text-align: center; flex: 1;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
+      overflow-y: auto;
     }
     .co-confirm-icon {
-      width: 90px; height: 90px; border-radius: 50%;
+      width: 80px; height: 80px; border-radius: 50%;
       background: rgba(39,174,96,0.15); border: 2px solid #27ae60;
       display: flex; align-items: center; justify-content: center;
-      font-size: 40px; margin: 0 auto 24px;
+      font-size: 36px; margin: 0 auto 20px;
       animation: confirmPop 0.6s cubic-bezier(0.34,1.56,0.64,1);
     }
     @keyframes confirmPop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-    .co-confirm-title { font-family: var(--font-display); font-size: 44px; letter-spacing: 3px; margin-bottom: 10px; }
-    .co-confirm-sub { font-size: 15px; color: var(--muted); margin-bottom: 32px; font-weight: 300; line-height: 1.7; max-width: 420px; }
-    .co-confirm-id { font-family: var(--font-display); font-size: 22px; letter-spacing: 4px; color: var(--gold); background: rgba(255,215,0,0.08); border: 1px dashed rgba(255,215,0,0.3); padding: 12px 28px; display: inline-block; margin-bottom: 32px; }
-    .co-confirm-details { display: flex; gap: 40px; justify-content: center; margin-bottom: 36px; }
-    .co-confirm-detail { text-align: center; }
-    .co-confirm-detail-val { font-family: var(--font-display); font-size: 22px; letter-spacing: 1px; color: var(--fire); display: block; }
-    .co-confirm-detail-label { font-size: 10px; color: var(--smoke); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
-    .co-confirm-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .co-confirm-title { font-family: var(--font-display); font-size: clamp(32px,7vw,48px); letter-spacing: 3px; margin-bottom: 10px; line-height:1.1; }
+    .co-confirm-sub { font-size: 14px; color: var(--muted); margin-bottom: 24px; font-weight: 300; line-height: 1.7; max-width: 380px; }
+    .co-confirm-id {
+      font-family: var(--font-display); font-size: clamp(18px,5vw,24px);
+      letter-spacing: 4px; color: var(--gold);
+      background: rgba(255,215,0,0.08); border: 1px dashed rgba(255,215,0,0.3);
+      padding: 10px 20px; display: inline-block; margin-bottom: 24px;
+      word-break: break-all;
+    }
+    .co-confirm-details {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 0; width: 100%; max-width: 400px;
+      margin-bottom: 28px;
+      border: 1px solid rgba(255,248,240,0.08);
+    }
+    .co-confirm-detail {
+      text-align: center; padding: 14px 8px;
+      border-right: 1px solid rgba(255,248,240,0.08);
+    }
+    .co-confirm-detail:last-child { border-right: none; }
+    .co-confirm-detail-val { font-family: var(--font-display); font-size: clamp(16px,4vw,22px); letter-spacing: 1px; color: var(--fire); display: block; line-height:1.2; }
+    .co-confirm-detail-label { font-size: 9px; color: var(--smoke); letter-spacing: 1px; text-transform: uppercase; margin-top: 5px; display: block; line-height:1.4; }
+    .co-confirm-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 400px; }
+    .co-confirm-actions .btn-primary,
+    .co-confirm-actions .btn-ghost { flex: 1; min-width: 140px; padding: 14px 16px; font-size: 12px; text-align: center; }
 
     .co-error-msg { font-size: 12px; color: #e74c3c; margin-top: 4px; }
 
@@ -2656,9 +2674,12 @@
       .co-progress { padding: 14px 20px; gap: 4px; }
       .co-step-label { display: none; }
       .co-footer { padding: 14px 20px; }
-      .checkout-modal { max-height: 98vh; border-radius: 0; }
-      .co-confirm-details { gap: 20px; }
-      .co-confirm-actions { flex-direction: column; align-items: center; }
+      .checkout-modal { max-height: 100svh; border-radius: 0; }
+      .co-confirm-screen { padding: 24px 16px; justify-content: flex-start; padding-top: 32px; }
+      .co-confirm-details { gap: 0; }
+      .co-confirm-actions { flex-direction: row; width: 100%; }
+      .co-confirm-sub { font-size: 13px; margin-bottom: 18px; }
+      .co-confirm-id { font-size: 18px; letter-spacing: 2px; padding: 8px 16px; margin-bottom: 18px; }
     }
 
     /* ── Bootstrap + Mobile Fixes ── */
@@ -5384,32 +5405,32 @@
                 {checkoutStep === 4 && (
                   <div className="co-confirm-screen">
                     <div className="co-confirm-icon">🎉</div>
-                    <div className="co-confirm-title">ORDER PLACED!</div>
+                    <div className="co-confirm-title">ORDER<br/>PLACED!</div>
                     <p className="co-confirm-sub">
-                      Your order has been confirmed and our kitchen is already on it.<br/>
-                      You'll receive an SMS update on <strong>{deliveryForm.phone}</strong>.
+                      Confirmed! Our kitchen is already on it.<br/>
+                      Updates sent to <strong style={{color:'var(--cream)'}}>{deliveryForm.phone || 'your phone'}</strong>.
                     </p>
                     <div className="co-confirm-id">{placedOrderId}</div>
                     <div className="co-confirm-details">
                       <div className="co-confirm-detail">
                         <span className="co-confirm-detail-val">PKR {confirmedTotal.toLocaleString()}</span>
-                        <span className="co-confirm-detail-label">Amount Paid</span>
+                        <span className="co-confirm-detail-label">Amount<br/>Paid</span>
                       </div>
                       <div className="co-confirm-detail">
-                        <span className="co-confirm-detail-val">{deliveryType==='delivery'?'~30 MIN':'~15 MIN'}</span>
-                        <span className="co-confirm-detail-label">Estimated Time</span>
+                        <span className="co-confirm-detail-val">{selectedZone?.eta || (deliveryType==='delivery'?'~30 MIN':'~15 MIN')}</span>
+                        <span className="co-confirm-detail-label">Est.<br/>Time</span>
                       </div>
                       <div className="co-confirm-detail">
-                        <span className="co-confirm-detail-val">{paymentMethod==='cod'?'COD':paymentMethod.toUpperCase()}</span>
-                        <span className="co-confirm-detail-label">Payment</span>
+                        <span className="co-confirm-detail-val">{paymentMethod==='cod'?'COD':paymentMethod==='card'?'CARD':paymentMethod.toUpperCase()}</span>
+                        <span className="co-confirm-detail-label">Payment<br/>Method</span>
                       </div>
                     </div>
                     <div className="co-confirm-actions">
                       <button className="btn-primary" onClick={() => { setCheckoutOpen(false); setTrackerOpen(true); }}>
-                        🚴 Track My Order
+                        🚴 Track Order
                       </button>
                       <button className="btn-ghost" onClick={() => setCheckoutOpen(false)}>
-                        Continue Browsing
+                        Continue
                       </button>
                     </div>
                   </div>
