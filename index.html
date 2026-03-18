@@ -3039,6 +3039,33 @@
       50% { box-shadow: 0 0 20px rgba(255,215,0,0.8); }
     }
 
+    /* Mobile-only spin floating button */
+    .spin-mobile-fab {
+      display: none;
+      position: fixed;
+      bottom: 90px; left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--gold) 0%, #f0c800 100%);
+      color: var(--dark);
+      border: none;
+      padding: 12px 28px;
+      font-family: var(--font-body);
+      font-weight: 800; font-size: 13px; letter-spacing: 1px;
+      text-transform: uppercase;
+      z-index: 199;
+      white-space: nowrap;
+      cursor: none;
+      box-shadow: 0 4px 24px rgba(255,215,0,0.5);
+      animation: spinGlow 2s ease-in-out infinite, fabBounce 3s ease-in-out infinite;
+    }
+    @keyframes fabBounce {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-4px); }
+    }
+    @media (max-width: 767.98px) {
+      .spin-mobile-fab { display: flex; align-items: center; gap: 8px; }
+    }
+
     /* ======================================================
        REFERRAL PROGRAM
     ====================================================== */
@@ -4015,6 +4042,15 @@
                   style={l==='Eid'?{color:'var(--gold)'}:{}}
                   onClick={() => setMobileMenuOpen(false)}>{l}</a>
               ))}
+
+              {/* Spin & Win inside mobile menu */}
+              {loggedInUser && !spinUsed && (
+                <button className="spin-nav-btn" style={{width:'100%',justifyContent:'center',padding:'14px',fontSize:14,marginTop:8}}
+                  onClick={() => { setSpinOpen(true); setMobileMenuOpen(false); }}>
+                  🎡 Spin & Win — Free Discount!
+                </button>
+              )}
+
               <div className="mobile-nav-actions">
                 {loggedInUser ? (
                   <button className="nav-cta" style={{background:'transparent',border:'1px solid rgba(255,248,240,0.2)',color:'var(--muted)'}} onClick={() => { handleLogout(); setMobileMenuOpen(false); }}>Sign Out ({loggedInUser.name.split(' ')[0]})</button>
@@ -4516,6 +4552,13 @@
             🛒
             {cartCount > 0 && <div className="cart-count">{cartCount}</div>}
           </div>
+
+          {/* ── MOBILE SPIN FAB — visible only on mobile ── */}
+          {loggedInUser && !spinUsed && (
+            <button className="spin-mobile-fab" onClick={() => setSpinOpen(true)}>
+              🎡 Spin & Win!
+            </button>
+          )}
           {/* Quick checkout FAB when cart has items — hidden on mobile */}
           {cartCount > 0 && loggedInUser && (
             <button onClick={openCheckout} className="d-none d-sm-flex" style={{
