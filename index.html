@@ -5152,7 +5152,7 @@
                         <div key={idx} className={`tracker-step ${step.status}`}>
                           <div className="tracker-step-left">
                             <div className="tracker-step-icon">{step.status === 'done' ? '✓' : step.icon}</div>
-                            {idx < steps.length - 1 && <div className="tracker-step-line" />}
+                            {idx < trackerSteps.length - 1 && <div className="tracker-step-line" />}
                           </div>
                           <div className="tracker-step-right">
                             <div className="tracker-step-name">{step.name}</div>
