@@ -2908,6 +2908,246 @@
       .blog-card:hover { transform: none !important; }
     }
 
+    /* ======================================================
+       SPIN THE WHEEL
+    ====================================================== */
+    .spin-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(10px);
+      z-index: 900;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fadeOverlay 0.4s ease;
+    }
+    .spin-modal {
+      background: var(--charcoal);
+      width: 100%; max-width: 480px;
+      border: 1px solid rgba(255,215,0,0.25);
+      position: relative; overflow: hidden;
+      animation: modalPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .spin-modal::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% -20%, rgba(255,215,0,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .spin-header {
+      text-align: center;
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid rgba(255,248,240,0.07);
+    }
+    .spin-header-emoji { font-size: 36px; display: block; margin-bottom: 8px; animation: wiggle 0.8s ease infinite alternate; }
+    .spin-header-title {
+      font-family: var(--font-display);
+      font-size: 32px; letter-spacing: 4px;
+      color: var(--gold); line-height: 1;
+    }
+    .spin-header-sub { font-size: 13px; color: var(--muted); margin-top: 6px; font-weight: 300; }
+    .spin-close {
+      position: absolute; top: 14px; right: 14px;
+      background: rgba(255,248,240,0.07); border: none;
+      color: var(--muted); width: 30px; height: 30px;
+      font-size: 16px; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .spin-close:hover { background: var(--fire); color: white; }
+
+    /* Wheel container */
+    .spin-wheel-wrap {
+      display: flex; justify-content: center; align-items: center;
+      padding: 28px 24px 20px;
+      position: relative;
+    }
+    .spin-pointer {
+      position: absolute;
+      top: 20px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 28px; z-index: 10;
+      filter: drop-shadow(0 2px 6px rgba(255,69,0,0.8));
+      animation: pointerBounce 1s ease-in-out infinite alternate;
+    }
+    @keyframes pointerBounce { from { transform: translateX(-50%) translateY(0); } to { transform: translateX(-50%) translateY(-4px); } }
+    .spin-canvas-wrap { position: relative; }
+    .spin-canvas {
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(255,215,0,0.3), 0 0 0 8px rgba(255,215,0,0.1), 0 20px 60px rgba(0,0,0,0.6);
+      transition: transform 0s;
+    }
+    .spin-canvas.spinning { transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 1); }
+    .spin-center-btn {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--fire);
+      border: 3px solid var(--gold);
+      color: white; font-family: var(--font-display);
+      font-size: 11px; letter-spacing: 1px;
+      cursor: none; transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 24px rgba(255,69,0,0.6);
+    }
+    .spin-center-btn:hover:not(:disabled) { background: var(--ember); transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 0 32px rgba(255,69,0,0.9); }
+    .spin-center-btn:disabled { background: var(--smoke); border-color: var(--smoke); box-shadow: none; cursor: not-allowed; }
+
+    /* Result */
+    .spin-result {
+      margin: 0 24px 20px;
+      padding: 18px 20px;
+      border: 1px solid rgba(255,215,0,0.3);
+      background: rgba(255,215,0,0.06);
+      text-align: center;
+      animation: modalPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .spin-result-emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+    .spin-result-title { font-family: var(--font-display); font-size: 24px; letter-spacing: 2px; color: var(--gold); margin-bottom: 4px; }
+    .spin-result-desc { font-size: 13px; color: var(--muted); font-weight: 300; margin-bottom: 12px; }
+    .spin-result-code {
+      font-family: var(--font-display); font-size: 28px; letter-spacing: 6px;
+      color: var(--fire); background: rgba(255,69,0,0.1);
+      border: 2px dashed rgba(255,69,0,0.4);
+      padding: 10px 24px; display: inline-block; margin-bottom: 12px;
+      cursor: none;
+    }
+    .spin-result-code:hover { background: rgba(255,69,0,0.15); }
+    .spin-apply-btn {
+      width: 100%; background: var(--fire); color: white; border: none;
+      padding: 14px; font-family: var(--font-body); font-weight: 800;
+      font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: none; transition: all 0.3s;
+    }
+    .spin-apply-btn:hover { background: var(--ember); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,69,0,0.4); }
+    .spin-footer { padding: 0 24px 20px; text-align: center; }
+    .spin-footer-note { font-size: 11px; color: var(--smoke); line-height: 1.6; }
+
+    /* Spin wheel nav button */
+    .spin-nav-btn {
+      background: linear-gradient(135deg, var(--gold) 0%, #f0c800 100%);
+      color: var(--dark); border: none;
+      padding: 8px 16px; font-family: var(--font-body);
+      font-weight: 800; font-size: 11px; letter-spacing: 1px;
+      text-transform: uppercase; cursor: none;
+      display: flex; align-items: center; gap: 6px;
+      animation: spinGlow 2s ease-in-out infinite;
+      transition: transform 0.2s;
+    }
+    .spin-nav-btn:hover { transform: scale(1.05); }
+    @keyframes spinGlow {
+      0%,100% { box-shadow: 0 0 8px rgba(255,215,0,0.4); }
+      50% { box-shadow: 0 0 20px rgba(255,215,0,0.8); }
+    }
+
+    /* ======================================================
+       REFERRAL PROGRAM
+    ====================================================== */
+    .referral-section {
+      background: var(--charcoal);
+      position: relative; overflow: hidden;
+    }
+    .referral-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(255,69,0,0.06) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 50%, rgba(255,215,0,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .referral-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+      position: relative; z-index: 1;
+    }
+    .referral-left {}
+    .referral-steps { margin-top: 36px; display: flex; flex-direction: column; gap: 20px; }
+    .referral-step {
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+    .referral-step-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,69,0,0.15);
+      border: 1px solid rgba(255,69,0,0.4);
+      color: var(--fire); font-family: var(--font-display);
+      font-size: 18px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .referral-step-text {}
+    .referral-step-title { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
+    .referral-step-desc { font-size: 12px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+
+    .referral-right {
+      background: var(--ash);
+      border: 1px solid rgba(255,248,240,0.07);
+      padding: 32px;
+    }
+    .referral-card-title {
+      font-family: var(--font-display);
+      font-size: 20px; letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+    .referral-card-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+    .referral-code-box {
+      background: var(--dark);
+      border: 2px dashed rgba(255,69,0,0.4);
+      padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; gap: 12px;
+    }
+    .referral-code-text {
+      font-family: var(--font-display);
+      font-size: 26px; letter-spacing: 4px; color: var(--fire);
+    }
+    .referral-copy-btn {
+      background: var(--fire); color: white; border: none;
+      padding: 8px 18px; font-family: var(--font-body);
+      font-weight: 700; font-size: 11px; letter-spacing: 1px;
+      text-transform: uppercase; cursor: none; transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .referral-copy-btn:hover { background: var(--ember); }
+    .referral-copy-btn.copied { background: #27ae60; }
+    .referral-share-btns { display: flex; gap: 8px; margin-bottom: 20px; }
+    .referral-share-btn {
+      flex: 1; padding: 10px 8px;
+      border: 1px solid rgba(255,248,240,0.1);
+      background: transparent; color: var(--muted);
+      font-family: var(--font-body); font-size: 11px;
+      letter-spacing: 1px; cursor: none; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .referral-share-btn:hover { border-color: var(--fire); color: var(--fire); }
+    .referral-share-btn.wa:hover { border-color: #25D366; color: #25D366; }
+    .referral-stats {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px; background: rgba(255,248,240,0.06);
+      border: 1px solid rgba(255,248,240,0.06);
+    }
+    .referral-stat {
+      background: var(--charcoal);
+      padding: 14px; text-align: center;
+    }
+    .referral-stat-num { font-family: var(--font-display); font-size: 24px; color: var(--fire); letter-spacing: 1px; }
+    .referral-stat-label { font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 3px; }
+
+    .referral-reward-banner {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(255,215,0,0.06);
+      border: 1px solid rgba(255,215,0,0.2);
+      padding: 12px 16px; margin-top: 16px;
+    }
+    .referral-reward-icon { font-size: 22px; flex-shrink: 0; }
+    .referral-reward-text { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .referral-reward-text strong { color: var(--gold); }
+
+    @media (max-width: 768px) {
+      .referral-inner { grid-template-columns: 1fr; gap: 32px; }
+    }
+    @media (max-width: 575.98px) {
+      .referral-right { padding: 20px; }
+      .referral-code-text { font-size: 20px; letter-spacing: 2px; }
+      .referral-stats { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
   </style>
 </head>
 <body>
@@ -3155,6 +3395,119 @@
       const [flashTimer, setFlashTimer] = useState({ m: 9, s: 59 });
       const flashShownRef               = useRef(false);
 
+      // Spin the Wheel state
+      const [spinOpen, setSpinOpen]         = useState(false);
+      const [spinDeg, setSpinDeg]           = useState(0);
+      const [spinning, setSpinning]         = useState(false);
+      const [spinResult, setSpinResult]     = useState(null);
+      const [spinUsed, setSpinUsed]         = useState(() => !!localStorage.getItem('flare_spin_used'));
+      const spinCanvasRef                   = useRef(null);
+      const spinCurrentDeg                  = useRef(0);
+
+      // Referral Program state
+      const [referralCopied, setReferralCopied] = useState(false);
+      const [referralStats, setReferralStats]   = useState(() => {
+        try { return JSON.parse(localStorage.getItem('flare_referral_stats')) || { sent: 0, joined: 0, earned: 0 }; } catch { return { sent:0, joined:0, earned:0 }; }
+      });
+
+      // Generate unique referral code from user name
+      const getReferralCode = () => {
+        if (!loggedInUser) return 'FLARE-XXXX';
+        const base = loggedInUser.name.replace(/\s/g,'').toUpperCase().slice(0,5);
+        const num  = loggedInUser.email.charCodeAt(0) * 7 % 900 + 100;
+        return `${base}${num}`;
+      };
+
+      // Spin wheel segments
+      const wheelSegments = [
+        { label: '5% OFF',      color: '#FF4500', prize: { type:'discount', value:5,  code:'SPIN5',   desc:'5% off your next order' } },
+        { label: 'FREE FRIES',  color: '#FFD700', prize: { type:'free',     value:449, code:'FRIES0',  desc:'Free Truffle Fries on your order' } },
+        { label: '10% OFF',     color: '#c0392b', prize: { type:'discount', value:10,  code:'SPIN10',  desc:'10% off your next order' } },
+        { label: 'TRY AGAIN',   color: '#2D2820', prize: { type:'none',     value:0,   code:'',        desc:'Better luck next time!' } },
+        { label: '15% OFF',     color: '#FF6B35', prize: { type:'discount', value:15,  code:'SPIN15',  desc:'15% off your next order' } },
+        { label: 'FREE DRINK',  color: '#FFD700', prize: { type:'free',     value:350, code:'DRINK0',  desc:'Free Signature Drink on your order' } },
+        { label: '20% OFF',     color: '#FF4500', prize: { type:'discount', value:20,  code:'SPIN20',  desc:'20% off your next order' } },
+        { label: 'PKR 100 OFF', color: '#2D2820', prize: { type:'discount', value:0,   code:'OFF100',  desc:'PKR 100 off your next order' } },
+      ];
+
+      // Draw wheel on canvas
+      useEffect(() => {
+        if (!spinOpen || !spinCanvasRef.current) return;
+        const canvas = spinCanvasRef.current;
+        const ctx = canvas.getContext('2d');
+        const size = canvas.width;
+        const cx = size / 2, cy = size / 2, r = size / 2 - 4;
+        const segAngle = (2 * Math.PI) / wheelSegments.length;
+        ctx.clearRect(0, 0, size, size);
+        wheelSegments.forEach((seg, i) => {
+          const start = i * segAngle - Math.PI / 2;
+          const end   = start + segAngle;
+          // Slice
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, r, start, end);
+          ctx.closePath();
+          ctx.fillStyle = seg.color;
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,248,240,0.15)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+          // Text
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(start + segAngle / 2);
+          ctx.textAlign = 'right';
+          ctx.fillStyle = '#fff';
+          ctx.font = `bold ${size < 280 ? 10 : 12}px DM Sans, sans-serif`;
+          ctx.fillText(seg.label, r - 14, 4);
+          ctx.restore();
+        });
+        // Center circle
+        ctx.beginPath();
+        ctx.arc(cx, cy, 24, 0, 2 * Math.PI);
+        ctx.fillStyle = '#0A0805';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,215,0,0.5)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }, [spinOpen, spinDeg]);
+
+      const doSpin = () => {
+        if (spinning || spinUsed) return;
+        setSpinning(true);
+        setSpinResult(null);
+        // Pick random segment
+        const segIdx  = Math.floor(Math.random() * wheelSegments.length);
+        const segAngle = 360 / wheelSegments.length;
+        // Extra rotations + land on segment
+        const extraSpins = (5 + Math.floor(Math.random() * 5)) * 360;
+        const targetDeg  = extraSpins + (360 - segIdx * segAngle - segAngle / 2);
+        const newDeg     = spinCurrentDeg.current + targetDeg;
+        spinCurrentDeg.current = newDeg % 360;
+        setSpinDeg(newDeg);
+        setTimeout(() => {
+          setSpinResult(wheelSegments[segIdx].prize);
+          setSpinning(false);
+          setSpinUsed(true);
+          localStorage.setItem('flare_spin_used', '1');
+          // Auto-apply discount codes
+          if (wheelSegments[segIdx].prize.code) {
+            setPromoCode(wheelSegments[segIdx].prize.code);
+          }
+        }, 4200);
+      };
+
+      const copyReferral = () => {
+        const code = getReferralCode();
+        navigator.clipboard?.writeText(code).catch(() => {});
+        setReferralCopied(true);
+        setTimeout(() => setReferralCopied(false), 2000);
+        // Increment sent count
+        const updated = { ...referralStats, sent: referralStats.sent + 1 };
+        setReferralStats(updated);
+        localStorage.setItem('flare_referral_stats', JSON.stringify(updated));
+      };
+
       // Order Tracker state
       const [trackerOpen, setTrackerOpen]   = useState(false);
       const [trackerStep, setTrackerStep]   = useState(0);
@@ -3260,10 +3613,15 @@
 
       const applyPromo = () => {
         setPromoError('');
-        if (promoCode.trim().toUpperCase() === 'FLARE15') {
+        const code = promoCode.trim().toUpperCase();
+        const spinCodes = { 'SPIN5':5, 'SPIN10':10, 'SPIN15':15, 'SPIN20':20, 'FRIES0':5, 'DRINK0':5, 'OFF100':8 };
+        const refCode = loggedInUser ? getReferralCode() : null;
+        if (code === 'FLARE15' || code === refCode) {
+          setPromoApplied(true);
+        } else if (spinCodes[code] !== undefined) {
           setPromoApplied(true);
         } else {
-          setPromoError('Invalid promo code. Try FLARE15');
+          setPromoError('Invalid promo code.');
         }
       };
 
@@ -3432,8 +3790,8 @@
 
       /* body scroll lock */
       useEffect(() => {
-        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen) ? 'hidden' : '';
-      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen]);
+        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen) ? 'hidden' : '';
+      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen]);
 
       /* cart helpers */
       const addToCart = (item, customizations) => {
@@ -3538,6 +3896,12 @@
             </ul>
             {/* Desktop actions */}
             <div className="nav-desktop-actions" style={{display:'flex',gap:'12px',alignItems:'center'}}>
+              {/* Spin wheel button */}
+              {loggedInUser && !spinUsed && (
+                <button className="spin-nav-btn" onClick={() => setSpinOpen(true)}>
+                  🎡 Spin & Win
+                </button>
+              )}
               {/* Checkout shortcut — appears when cart has items */}
               {cartCount > 0 && loggedInUser && (
                 <button className="nav-cta" style={{background:'#27ae60',border:'none',display:'flex',alignItems:'center',gap:8}} onClick={openCheckout}>
@@ -3920,6 +4284,88 @@
                   </div>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* ── REFERRAL PROGRAM ── */}
+          <section className="section referral-section" id="referral">
+            <div className="referral-inner">
+              <div className="referral-left">
+                <div className="section-tag" style={{color:'var(--gold)'}}>🎁 Referral Program</div>
+                <h2 className="section-title">SHARE &<br/><em style={{color:'var(--gold)'}}>earn together</em></h2>
+                <p style={{fontSize:14,color:'var(--muted)',lineHeight:1.8,fontWeight:300,marginTop:12,maxWidth:400}}>
+                  Share your unique FLARE code with friends. When they place their first order, you both get PKR 200 off. The more you share, the more you earn.
+                </p>
+                <div className="referral-steps">
+                  {[
+                    ['1','Share Your Code','Send your unique code to friends via WhatsApp, Instagram or anywhere.'],
+                    ['2','Friend Orders','Your friend signs up and places their first FLARE order using your code.'],
+                    ['3','Both Get Rewarded','You get PKR 200 credit. They get PKR 200 off their first order. Win-win!'],
+                  ].map(([n,title,desc]) => (
+                    <div key={n} className="referral-step">
+                      <div className="referral-step-num">{n}</div>
+                      <div className="referral-step-text">
+                        <div className="referral-step-title">{title}</div>
+                        <div className="referral-step-desc">{desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="referral-right">
+                <div className="referral-card-title">YOUR REFERRAL CODE</div>
+                <div className="referral-card-sub">Share this code — valid for all new FLARE customers</div>
+                <div className="referral-code-box">
+                  <span className="referral-code-text">{loggedInUser ? getReferralCode() : 'SIGN IN'}</span>
+                  {loggedInUser && (
+                    <button className={`referral-copy-btn ${referralCopied?'copied':''}`} onClick={copyReferral}>
+                      {referralCopied ? '✓ Copied!' : 'Copy'}
+                    </button>
+                  )}
+                </div>
+                {loggedInUser ? (
+                  <>
+                    <div className="referral-share-btns">
+                      <a className="referral-share-btn wa"
+                        href={`https://wa.me/?text=Hey!%20Order%20from%20FLARE%20Restaurant%20and%20use%20my%20code%20${getReferralCode()}%20for%20PKR%20200%20off!%20%F0%9F%94%A5%20https://flare-eats.vercel.app`}
+                        target="_blank" rel="noopener noreferrer">
+                        💬 WhatsApp
+                      </a>
+                      <button className="referral-share-btn" onClick={() => { navigator.share?.({ title:'FLARE Restaurant', text:`Use my code ${getReferralCode()} for PKR 200 off!`, url:'https://flare-eats.vercel.app' }).catch(()=>{}); copyReferral(); }}>
+                        📤 Share Link
+                      </button>
+                      <button className="referral-share-btn" onClick={() => { copyReferral(); }}>
+                        📋 Copy Code
+                      </button>
+                    </div>
+                    <div className="referral-stats">
+                      <div className="referral-stat">
+                        <div className="referral-stat-num">{referralStats.sent}</div>
+                        <div className="referral-stat-label">Shared</div>
+                      </div>
+                      <div className="referral-stat">
+                        <div className="referral-stat-num">{referralStats.joined}</div>
+                        <div className="referral-stat-label">Joined</div>
+                      </div>
+                      <div className="referral-stat">
+                        <div className="referral-stat-num">PKR {referralStats.earned * 200}</div>
+                        <div className="referral-stat-label">Earned</div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{textAlign:'center',padding:'20px 0'}}>
+                    <div style={{fontSize:13,color:'var(--muted)',marginBottom:12}}>Sign in to get your referral code</div>
+                    <button className="btn-primary" style={{padding:'12px 32px'}} onClick={() => { setAuthTab('login'); setAuthOpen(true); }}>Sign In to Get Code</button>
+                  </div>
+                )}
+                <div className="referral-reward-banner">
+                  <span className="referral-reward-icon">🎁</span>
+                  <div className="referral-reward-text">
+                    <strong>You earn PKR 200</strong> for every friend who orders. <strong>They save PKR 200</strong> on their first order. No limit on referrals!
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -4793,6 +5239,75 @@
                   </div>
                 )}
 
+              </div>
+            </div>
+          )}
+
+          {/* ── SPIN THE WHEEL MODAL ── */}
+          {spinOpen && (
+            <div className="spin-overlay" onClick={e => { if(e.target===e.currentTarget && !spinning) setSpinOpen(false); }}>
+              <div className="spin-modal">
+                <button className="spin-close" onClick={() => { if(!spinning) setSpinOpen(false); }}>✕</button>
+                <div className="spin-header">
+                  <span className="spin-header-emoji">🎡</span>
+                  <div className="spin-header-title">SPIN & WIN</div>
+                  <div className="spin-header-sub">One spin per customer · Prizes applied automatically</div>
+                </div>
+                <div className="spin-wheel-wrap">
+                  <div className="spin-pointer">🔻</div>
+                  <div className="spin-canvas-wrap">
+                    <canvas
+                      ref={spinCanvasRef}
+                      className={`spin-canvas ${spinning ? 'spinning' : ''}`}
+                      width={280} height={280}
+                      style={{ transform: `rotate(${spinDeg}deg)` }}
+                    />
+                    <button className="spin-center-btn" onClick={doSpin} disabled={spinning || spinUsed}>
+                      {spinning ? '...' : spinUsed ? 'USED' : 'SPIN!'}
+                    </button>
+                  </div>
+                </div>
+
+                {spinResult && (
+                  <div className="spin-result">
+                    <span className="spin-result-emoji">
+                      {spinResult.type === 'none' ? '😅' : spinResult.type === 'free' ? '🎁' : '🔥'}
+                    </span>
+                    <div className="spin-result-title">
+                      {spinResult.type === 'none' ? 'BETTER LUCK NEXT TIME!' : 'YOU WON!'}
+                    </div>
+                    <div className="spin-result-desc">{spinResult.desc}</div>
+                    {spinResult.code && (
+                      <>
+                        <div className="spin-result-code" onClick={() => { navigator.clipboard?.writeText(spinResult.code).catch(()=>{}); }}>
+                          {spinResult.code}
+                        </div>
+                        <button className="spin-apply-btn" onClick={() => {
+                          setPromoCode(spinResult.code);
+                          setPromoApplied(true);
+                          setSpinOpen(false);
+                          requireAuth(() => openCheckout(), 'Sign in to use your prize!');
+                        }}>
+                          🛒 Apply & Order Now
+                        </button>
+                      </>
+                    )}
+                    {spinResult.type === 'none' && (
+                      <button className="spin-apply-btn" style={{background:'var(--smoke)'}} onClick={() => setSpinOpen(false)}>
+                        Close
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <div className="spin-footer">
+                  {spinUsed && !spinResult && (
+                    <div style={{color:'var(--muted)',fontSize:13,padding:'12px 0'}}>You have already used your spin. Check back tomorrow!</div>
+                  )}
+                  <div className="spin-footer-note">
+                    🔒 One spin per account · Prizes valid for 24 hours · Cannot be combined with other offers
+                  </div>
+                </div>
               </div>
             </div>
           )}
