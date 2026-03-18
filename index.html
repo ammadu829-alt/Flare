@@ -3284,6 +3284,67 @@
         ]
       },
     ];
+    /* ─── DELIVERY ZONES ─── */
+    const deliveryZones = {
+      'Peshawar': {
+        minOrder: 500,
+        areas: [
+          { name: 'Hayatabad',       fee: 100, eta: '20-30 min', zone: 'near' },
+          { name: 'University Town', fee: 120, eta: '25-35 min', zone: 'near' },
+          { name: 'DHA Peshawar',    fee: 120, eta: '25-35 min', zone: 'near' },
+          { name: 'Saddar',          fee: 150, eta: '30-40 min', zone: 'mid'  },
+          { name: 'Cantonment',      fee: 150, eta: '30-40 min', zone: 'mid'  },
+          { name: 'Gulbahar',        fee: 180, eta: '35-45 min', zone: 'mid'  },
+          { name: 'Tehkal',          fee: 180, eta: '35-45 min', zone: 'mid'  },
+          { name: 'Regi Model Town', fee: 200, eta: '40-50 min', zone: 'far'  },
+          { name: 'Warsak Road',     fee: 220, eta: '45-55 min', zone: 'far'  },
+          { name: 'Chamkani',        fee: 250, eta: '50-60 min', zone: 'far'  },
+        ]
+      },
+      'Lahore': {
+        minOrder: 500,
+        areas: [
+          { name: 'DHA Phase 1-5',   fee: 100, eta: '20-30 min', zone: 'near' },
+          { name: 'Gulberg',         fee: 120, eta: '25-35 min', zone: 'near' },
+          { name: 'Model Town',      fee: 130, eta: '28-38 min', zone: 'near' },
+          { name: 'Johar Town',      fee: 150, eta: '30-40 min', zone: 'mid'  },
+          { name: 'Garden Town',     fee: 150, eta: '30-40 min', zone: 'mid'  },
+          { name: 'Wapda Town',      fee: 170, eta: '35-45 min', zone: 'mid'  },
+          { name: 'Bahria Town',     fee: 200, eta: '40-55 min', zone: 'far'  },
+          { name: 'Township',        fee: 200, eta: '40-50 min', zone: 'far'  },
+        ]
+      },
+      'Islamabad': {
+        minOrder: 600,
+        areas: [
+          { name: 'F-6 / F-7',     fee: 120, eta: '25-35 min', zone: 'near' },
+          { name: 'F-8 / F-10',    fee: 130, eta: '28-38 min', zone: 'near' },
+          { name: 'G-9 / G-10',    fee: 130, eta: '28-38 min', zone: 'near' },
+          { name: 'Blue Area',     fee: 140, eta: '30-40 min', zone: 'mid'  },
+          { name: 'DHA Islamabad', fee: 170, eta: '35-45 min', zone: 'mid'  },
+          { name: 'Bahria Town',   fee: 220, eta: '45-55 min', zone: 'far'  },
+        ]
+      },
+      'Karachi': {
+        minOrder: 500,
+        areas: [
+          { name: 'DHA Karachi',     fee: 100, eta: '20-30 min', zone: 'near' },
+          { name: 'Clifton',         fee: 120, eta: '25-35 min', zone: 'near' },
+          { name: 'Gulshan-e-Iqbal', fee: 150, eta: '30-40 min', zone: 'mid'  },
+          { name: 'North Nazimabad', fee: 170, eta: '35-45 min', zone: 'mid'  },
+          { name: 'Korangi',         fee: 200, eta: '40-55 min', zone: 'far'  },
+        ]
+      },
+      'Rawalpindi': {
+        minOrder: 500,
+        areas: [
+          { name: 'Saddar',        fee: 120, eta: '25-35 min', zone: 'near' },
+          { name: 'Bahria Town',   fee: 180, eta: '35-45 min', zone: 'mid'  },
+          { name: 'Chaklala',      fee: 150, eta: '30-40 min', zone: 'mid'  },
+        ]
+      },
+    };
+
     const customizerConfig = {
       1: {
         toppings: [
@@ -3380,6 +3441,7 @@
       const [deliveryForm, setDeliveryForm] = useState({
         name: '', phone: '', email: '', address: '', city: '', area: '', notes: ''
       });
+      const [selectedZone, setSelectedZone] = useState(null); // {fee, eta, zone}
       const [paymentMethod, setPaymentMethod] = useState('cod');
       const [cardForm, setCardForm] = useState({ number:'', name:'', expiry:'', cvv:'' });
       const [promoCode, setPromoCode] = useState('');
@@ -3592,9 +3654,10 @@
         if (!deliveryForm.phone.trim()) errs.phone = 'Required';
         if (!deliveryForm.email.trim() || !deliveryForm.email.includes('@')) errs.email = 'Valid email required';
         if (deliveryType === 'delivery') {
-          if (!deliveryForm.address.trim()) errs.address = 'Required';
           if (!deliveryForm.city.trim()) errs.city = 'Required';
-          if (!deliveryForm.area.trim()) errs.area = 'Required';
+          if (deliveryForm.city && deliveryZones[deliveryForm.city] && !deliveryForm.area.trim()) errs.area = 'Please select your area';
+          if (!deliveryForm.address.trim()) errs.address = 'Required';
+          if (belowMin) errs.address = `Minimum order is PKR ${minOrder}`;
         }
         setCoErrors(errs);
         return Object.keys(errs).length === 0;
@@ -3632,69 +3695,77 @@
         const orderId = 'FLR-' + Math.floor(100000 + Math.random() * 900000);
         setPlacedOrderId(orderId);
         const freshTotal = cart.reduce((s,i) => s + (Number(i.finalPrice)||0) * (Number(i.qty)||1), 0);
-        const freshFee   = deliveryType === 'pickup' ? 0 : 300;
+        const freshFee   = deliveryType === 'pickup' ? 0 : (selectedZone?.fee || 300);
         const freshDisc  = promoApplied ? Math.round(freshTotal * 0.15) : 0;
         const freshGrand = freshTotal + freshFee - freshDisc;
         setConfirmedTotal(freshGrand);
 
-        // Build items string for email — use pipe separator for EmailJS compatibility
         const itemsText = cart.map((item, idx) => {
           const price = ((Number(item.finalPrice)||0) * (Number(item.qty)||1)).toLocaleString();
           const mods = item.customizations?.mods ? ` [${item.customizations.mods}]` : '';
           return `${idx+1}. ${item.name}${mods} x${item.qty} = PKR ${price}`;
         }).join(' | ');
 
-        // Send EmailJS notification to restaurant owner
         const address = deliveryType === 'pickup'
           ? 'Self Pickup — Branch'
           : `${deliveryForm.address}, ${deliveryForm.area}, ${deliveryForm.city}`;
 
+        const eta = selectedZone?.eta || '30-40 min';
+
+        // ── Email to owner ──
         emailjs.send('service_42wuj4i', 'template_67kpqkc', {
           order_id:       orderId,
           customer_name:  deliveryForm.name,
           customer_phone: deliveryForm.phone,
           customer_email: deliveryForm.email,
-          address:        address,
-          payment:        paymentMethod === 'cod' ? 'Cash on Delivery'
-                          : paymentMethod === 'card' ? 'Credit/Debit Card'
-                          : paymentMethod === 'easypaisa' ? 'EasyPaisa'
-                          : 'JazzCash',
-          items:          itemsText,
-          subtotal:       freshTotal.toLocaleString(),
-          discount:       freshDisc > 0 ? freshDisc.toLocaleString() : '0',
-          total:          freshGrand.toLocaleString(),
-          time:           new Date().toLocaleString('en-PK', { timeZone: 'Asia/Karachi' }),
-        }).then(() => {
-          console.log('Owner notification sent!');
-        }).catch((err) => {
-          console.error('Owner email failed:', err);
-        });
+          address,
+          payment: paymentMethod === 'cod' ? 'Cash on Delivery'
+                 : paymentMethod === 'card' ? 'Credit/Debit Card'
+                 : paymentMethod === 'easypaisa' ? 'EasyPaisa' : 'JazzCash',
+          items:    itemsText,
+          subtotal: freshTotal.toLocaleString(),
+          discount: freshDisc > 0 ? freshDisc.toLocaleString() : '0',
+          total:    freshGrand.toLocaleString(),
+          time:     new Date().toLocaleString('en-PK', { timeZone: 'Asia/Karachi' }),
+        }).then(() => console.log('Owner email sent!')).catch(e => console.error(e));
 
-        // Send confirmation email to customer
+        // ── Email to customer ──
         emailjs.send('service_42wuj4i', 'template_ocgu6s5', {
           order_id:       orderId,
           customer_name:  deliveryForm.name,
           customer_email: deliveryForm.email,
-          address:        address,
-          payment:        paymentMethod === 'cod' ? 'Cash on Delivery'
-                          : paymentMethod === 'card' ? 'Credit/Debit Card'
-                          : paymentMethod === 'easypaisa' ? 'EasyPaisa'
-                          : 'JazzCash',
-          items:          itemsText,
-          total:          freshGrand.toLocaleString(),
-          time:           new Date().toLocaleString('en-PK', { timeZone: 'Asia/Karachi' }),
-        }).then(() => {
-          console.log('Customer confirmation sent!');
-        }).catch((err) => {
-          console.error('Customer email failed:', err);
-        });
+          address,
+          payment: paymentMethod === 'cod' ? 'Cash on Delivery'
+                 : paymentMethod === 'card' ? 'Credit/Debit Card'
+                 : paymentMethod === 'easypaisa' ? 'EasyPaisa' : 'JazzCash',
+          items:    itemsText,
+          total:    freshGrand.toLocaleString(),
+          time:     new Date().toLocaleString('en-PK', { timeZone: 'Asia/Karachi' }),
+        }).then(() => console.log('Customer email sent!')).catch(e => console.error(e));
 
-        // Save order to localStorage history
+        // ── WhatsApp to rider (+923261369791) ──
+        if (deliveryType === 'delivery') {
+          const riderMsg = encodeURIComponent(
+            `🚴 NEW DELIVERY ORDER — FLARE\n\n` +
+            `Order: ${orderId}\n` +
+            `Customer: ${deliveryForm.name}\n` +
+            `Phone: ${deliveryForm.phone}\n` +
+            `Address: ${address}\n` +
+            `Items: ${cart.map(i => `${i.name} x${i.qty}`).join(', ')}\n` +
+            `Total: PKR ${freshGrand.toLocaleString()} (${paymentMethod === 'cod' ? 'CASH ON DELIVERY' : 'PAID'})\n` +
+            `ETA: ${eta}\n` +
+            `Zone: ${selectedZone?.zone || 'standard'} · Fee: PKR ${freshFee}\n\n` +
+            `Pickup from: FLARE Restaurant, Shop #14, Food Street`
+          );
+          window.open(`https://wa.me/923261369791?text=${riderMsg}`, '_blank');
+        }
+
+        // Save to localStorage
         const order = {
           id: orderId, date: new Date().toLocaleString(),
           items: cart, total: freshGrand,
           delivery: deliveryForm, payment: paymentMethod,
-          status: 'confirmed'
+          zone: selectedZone, status: 'confirmed'
         };
         try {
           const history = JSON.parse(localStorage.getItem('flare_orders') || '[]');
@@ -3821,9 +3892,14 @@
       const cartCount = cart.reduce((s,i) => s + (Number(i.qty) || 1), 0);
 
       // Always compute fresh — no stale references
-      const deliveryFee = deliveryType === 'pickup' ? 0 : 300;
+      const deliveryFee = deliveryType === 'pickup' ? 0 : (selectedZone?.fee || 300);
       const discount    = promoApplied ? Math.round(cartTotal * 0.15) : 0;
       const grandTotal  = cartTotal + deliveryFee - discount;
+
+      // Min order check
+      const cityData    = deliveryZones[deliveryForm.city];
+      const minOrder    = cityData?.minOrder || 500;
+      const belowMin    = deliveryType === 'delivery' && cartTotal > 0 && cartTotal < minOrder;
 
       /* customizer helpers */
       const openCustomizer = (item) => {
@@ -4511,10 +4587,10 @@
                 <div className="cart-drawer-foot">
                   {cart.length > 0 ? (<>
                     <div className="cart-subtotal-row"><span>Subtotal</span><span>PKR {cartTotal.toLocaleString()}</span></div>
-                    <div className="cart-subtotal-row"><span>Delivery Fee</span><span style={{color:'var(--cream)'}}>PKR 300</span></div>
+                    <div className="cart-subtotal-row"><span>Delivery Fee</span><span style={{color: deliveryType==='pickup' ? '#27ae60' : 'var(--cream)'}}>{deliveryType==='pickup' ? 'FREE' : 'PKR ' + deliveryFee}</span></div>
                     <div className="cart-total-row">
                       <span className="cart-total-label">TOTAL</span>
-                      <span className="cart-total-price">PKR {(cartTotal + 300).toLocaleString()}</span>
+                      <span className="cart-total-price">PKR {(cartTotal + deliveryFee).toLocaleString()}</span>
                     </div>
                     <button className="checkout-btn" onClick={() => requireAuth(() => { if(cart.length===0){return;} openCheckout(); }, 'Sign in to complete your order.')}>
                       Proceed to Checkout →
@@ -4923,8 +4999,8 @@
 
                         {/* Delivery type */}
                         <div className="co-delivery-toggle">
-                          {[['delivery','🚴','Home Delivery','28–35 min · Free'],['pickup','🏪','Self Pickup','Ready in 15 min']].map(([val,icon,label,sub]) => (
-                            <button key={val} className={`co-delivery-opt ${deliveryType===val?'active':''}`} onClick={() => setDeliveryType(val)}>
+                          {[['delivery','🚴','Home Delivery','Zone-based fee'],['pickup','🏪','Self Pickup','Free · 15 min']].map(([val,icon,label,sub]) => (
+                            <button key={val} className={`co-delivery-opt ${deliveryType===val?'active':''}`} onClick={() => { setDeliveryType(val); setSelectedZone(null); setDeliveryForm(p=>({...p,area:''})); }}>
                               <span className="co-delivery-icon">{icon}</span>
                               <div><span className="co-delivery-label">{label}</span><span className="co-delivery-sub">{sub}</span></div>
                             </button>
@@ -4953,32 +5029,88 @@
                         </div>
 
                         {deliveryType === 'delivery' && (<>
+                          {/* City */}
                           <div className="co-row full">
                             <div className="co-field">
-                              <label className="co-label">Street Address *</label>
-                              <input className={`co-input ${coErrors.address?'error':''}`} value={deliveryForm.address} onChange={e=>setDeliveryForm(p=>({...p,address:e.target.value}))} placeholder="House/Flat no., Street, Block" />
-                              {coErrors.address && <span className="co-error-msg">{coErrors.address}</span>}
-                            </div>
-                          </div>
-                          <div className="co-row">
-                            <div className="co-field">
                               <label className="co-label">City *</label>
-                              <select className={`co-select ${coErrors.city?'error':''}`} value={deliveryForm.city} onChange={e=>setDeliveryForm(p=>({...p,city:e.target.value}))}>
-                                <option value="">Select city</option>
-                                {['Karachi','Lahore','Islamabad','Rawalpindi','Peshawar','Quetta','Faisalabad','Multan'].map(c=><option key={c} value={c}>{c}</option>)}
+                              <select className={`co-select ${coErrors.city?'error':''}`} value={deliveryForm.city}
+                                onChange={e => { setDeliveryForm(p=>({...p,city:e.target.value,area:''})); setSelectedZone(null); }}>
+                                <option value="">Select your city</option>
+                                {Object.keys(deliveryZones).map(c=><option key={c} value={c}>{c}</option>)}
+                                <option value="other">Other (contact us)</option>
                               </select>
                               {coErrors.city && <span className="co-error-msg">{coErrors.city}</span>}
                             </div>
+                          </div>
+
+                          {/* Area dropdown with fee + ETA */}
+                          {deliveryForm.city && deliveryZones[deliveryForm.city] && (
+                            <div className="co-row full">
+                              <div className="co-field">
+                                <label className="co-label">Your Area *
+                                  <span style={{color:'var(--muted)',fontWeight:400,marginLeft:6,fontSize:10,letterSpacing:0,textTransform:'none'}}>— fee & ETA shown per area</span>
+                                </label>
+                                <select className={`co-select ${coErrors.area?'error':''}`} value={deliveryForm.area}
+                                  onChange={e => {
+                                    const aName = e.target.value;
+                                    setDeliveryForm(p=>({...p,area:aName}));
+                                    setSelectedZone(deliveryZones[deliveryForm.city]?.areas.find(a=>a.name===aName) || null);
+                                  }}>
+                                  <option value="">Choose your area</option>
+                                  {deliveryZones[deliveryForm.city].areas.map(a=>(
+                                    <option key={a.name} value={a.name}>{a.name} — PKR {a.fee} · {a.eta}</option>
+                                  ))}
+                                </select>
+                                {coErrors.area && <span className="co-error-msg">{coErrors.area}</span>}
+                                {/* Zone info */}
+                                {selectedZone && (
+                                  <div style={{marginTop:10,padding:'12px 14px',background:'rgba(255,69,0,0.07)',border:'1px solid rgba(255,69,0,0.2)',display:'grid',gridTemplateColumns:'1fr 1px 1fr 1px 1fr',gap:8,alignItems:'center'}}>
+                                    <div style={{textAlign:'center'}}>
+                                      <div style={{fontFamily:'var(--font-display)',fontSize:20,color:'var(--gold)'}}>PKR {selectedZone.fee}</div>
+                                      <div style={{fontSize:9,color:'var(--muted)',letterSpacing:1,textTransform:'uppercase'}}>Delivery Fee</div>
+                                    </div>
+                                    <div style={{background:'rgba(255,248,240,0.08)',height:32}}/>
+                                    <div style={{textAlign:'center'}}>
+                                      <div style={{fontFamily:'var(--font-display)',fontSize:18,color:'var(--fire)'}}>{selectedZone.eta}</div>
+                                      <div style={{fontSize:9,color:'var(--muted)',letterSpacing:1,textTransform:'uppercase'}}>Est. Time</div>
+                                    </div>
+                                    <div style={{background:'rgba(255,248,240,0.08)',height:32}}/>
+                                    <div style={{textAlign:'center'}}>
+                                      <div style={{fontFamily:'var(--font-display)',fontSize:18,color:selectedZone.zone==='near'?'#27ae60':selectedZone.zone==='mid'?'var(--gold)':'var(--fire)',textTransform:'uppercase'}}>{selectedZone.zone}</div>
+                                      <div style={{fontSize:9,color:'var(--muted)',letterSpacing:1,textTransform:'uppercase'}}>Zone</div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Other city message */}
+                          {deliveryForm.city === 'other' && (
+                            <div style={{padding:'12px 14px',background:'rgba(255,215,0,0.06)',border:'1px solid rgba(255,215,0,0.2)',fontSize:13,color:'var(--muted)',lineHeight:1.7,marginBottom:8}}>
+                              ⚠️ We currently cover Peshawar, Lahore, Islamabad, Karachi & Rawalpindi.
+                              For other cities <a href="https://wa.me/923261369791" target="_blank" style={{color:'var(--fire)',fontWeight:600}}>WhatsApp us</a> to arrange delivery.
+                            </div>
+                          )}
+
+                          {/* Min order warning */}
+                          {belowMin && (
+                            <div style={{padding:'10px 14px',background:'rgba(231,76,60,0.1)',border:'1px solid rgba(231,76,60,0.3)',fontSize:12,color:'#e74c3c',marginBottom:8}}>
+                              ⚠️ Minimum order for {deliveryForm.city} is PKR {minOrder}. Add PKR {minOrder - cartTotal} more to continue.
+                            </div>
+                          )}
+
+                          <div className="co-row full">
                             <div className="co-field">
-                              <label className="co-label">Area / Sector *</label>
-                              <input className={`co-input ${coErrors.area?'error':''}`} value={deliveryForm.area} onChange={e=>setDeliveryForm(p=>({...p,area:e.target.value}))} placeholder="e.g. DHA Phase 5, Gulshan" />
-                              {coErrors.area && <span className="co-error-msg">{coErrors.area}</span>}
+                              <label className="co-label">Street Address *</label>
+                              <input className={`co-input ${coErrors.address?'error':''}`} value={deliveryForm.address} onChange={e=>setDeliveryForm(p=>({...p,address:e.target.value}))} placeholder="House no., Street, Block" />
+                              {coErrors.address && <span className="co-error-msg">{coErrors.address}</span>}
                             </div>
                           </div>
                           <div className="co-row full">
                             <div className="co-field">
                               <label className="co-label">Delivery Notes (Optional)</label>
-                              <input className="co-input" value={deliveryForm.notes} onChange={e=>setDeliveryForm(p=>({...p,notes:e.target.value}))} placeholder="Ring the bell, leave at door, etc." />
+                              <input className="co-input" value={deliveryForm.notes} onChange={e=>setDeliveryForm(p=>({...p,notes:e.target.value}))} placeholder="Ring the bell, gate code, leave at door..." />
                             </div>
                           </div>
                         </>)}
@@ -4987,6 +5119,7 @@
                           <div style={{background:'rgba(255,69,0,0.07)',border:'1px solid rgba(255,69,0,0.2)',padding:'16px',marginTop:8}}>
                             <div style={{fontFamily:'var(--font-display)',fontSize:16,letterSpacing:2,marginBottom:6}}>📍 FLARE PICKUP LOCATION</div>
                             <div style={{fontSize:13,color:'var(--muted)',lineHeight:1.7}}>Shop #14, Food Street, Main Boulevard<br/>DHA Phase 2, Lahore · Open 11am–2am</div>
+                            <div style={{marginTop:10,fontSize:12,color:'#27ae60',fontWeight:600}}>✓ Free pickup · Ready in 15 minutes</div>
                           </div>
                         )}
                       </div>
@@ -5009,7 +5142,7 @@
                         </div>
                         <div className="co-divider" />
                         <div className="co-line"><span>Subtotal</span><span>PKR {cartTotal.toLocaleString()}</span></div>
-                        <div className="co-line"><span>Delivery</span><span style={{color: deliveryType==='pickup' ? '#27ae60' : 'var(--cream)'}}>{ deliveryType==='pickup' ? 'FREE (Pickup)' : 'PKR 300'}</span></div>
+                        <div className="co-line"><span>Delivery</span><span style={{color: deliveryType==='pickup' ? '#27ae60' : 'var(--cream)'}}>{ deliveryType==='pickup' ? 'FREE (Pickup)' : 'PKR ' + deliveryFee}</span></div>
                         {promoApplied && <div className="co-line discount"><span>Promo (FLARE15)</span><span>−PKR {discount.toLocaleString()}</span></div>}
                         <div className="co-divider" />
                         <div className="co-line total"><span>Total</span><span className="co-line-val">PKR {grandTotal.toLocaleString()}</span></div>
@@ -5115,7 +5248,7 @@
                         </div>
                         <div className="co-divider"/>
                         <div className="co-line"><span>Subtotal</span><span>PKR {cartTotal.toLocaleString()}</span></div>
-                        <div className="co-line"><span>Delivery</span><span style={{color: deliveryType==='pickup' ? '#27ae60' : 'var(--cream)'}}>{ deliveryType==='pickup' ? 'FREE (Pickup)' : 'PKR 300'}</span></div>
+                        <div className="co-line"><span>Delivery</span><span style={{color: deliveryType==='pickup' ? '#27ae60' : 'var(--cream)'}}>{ deliveryType==='pickup' ? 'FREE (Pickup)' : 'PKR ' + deliveryFee}</span></div>
                         {promoApplied && <div className="co-line discount"><span>Promo (FLARE15)</span><span>−PKR {discount.toLocaleString()}</span></div>}
                         <div className="co-divider"/>
                         <div className="co-line total"><span>Total</span><span className="co-line-val">PKR {grandTotal.toLocaleString()}</span></div>
@@ -5183,7 +5316,7 @@
                       <div className="co-right">
                         <div className="co-summary-title">Final Bill</div>
                         <div className="co-line"><span>Subtotal ({cart.reduce((s,i)=>s+i.qty,0)} items)</span><span>PKR {cartTotal.toLocaleString()}</span></div>
-                        <div className="co-line"><span>Delivery Fee</span><span style={{color: deliveryType==='pickup' ? '#27ae60' : 'var(--cream)'}}>{deliveryType==='pickup' ? 'FREE (Pickup)' : 'PKR 300'}</span></div>
+                        <div className="co-line"><span>Delivery Fee</span><span style={{color: deliveryType==='pickup' ? '#27ae60' : 'var(--cream)'}}>{deliveryType==='pickup' ? 'FREE (Pickup)' : 'PKR ' + deliveryFee}</span></div>
                         {promoApplied && <div className="co-line discount"><span>Promo (FLARE15)</span><span>−PKR {discount.toLocaleString()}</span></div>}
                         <div className="co-divider"/>
                         <div className="co-line total"><span>Grand Total</span><span className="co-line-val">PKR {grandTotal.toLocaleString()}</span></div>
