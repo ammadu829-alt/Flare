@@ -3356,10 +3356,301 @@
       .history-stats { justify-content: center; }
     }
 
+    /* ======================================================
+       LOADING SCREEN
+    ====================================================== */
+    #flare-loader {
+      position: fixed; inset: 0;
+      background: var(--dark);
+      z-index: 99999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #flare-loader.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(64px, 12vw, 120px);
+      letter-spacing: 12px;
+      color: var(--cream);
+      animation: loaderPop 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .loader-logo span { color: var(--fire); }
+    .loader-tagline {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--muted);
+      margin-top: 4px;
+      animation: loaderPop 0.6s 0.15s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .loader-bar-wrap {
+      width: 160px; height: 2px;
+      background: rgba(255,248,240,0.08);
+      margin-top: 40px; overflow: hidden;
+      animation: loaderPop 0.4s 0.3s ease both;
+    }
+    .loader-bar {
+      height: 100%; background: var(--fire);
+      width: 0%;
+      animation: loadFill 1.8s 0.4s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+    .loader-emoji {
+      font-size: 48px; margin-bottom: 8px;
+      animation: loaderBounce 0.8s ease infinite alternate;
+    }
+    @keyframes loaderPop {
+      from { opacity:0; transform: scale(0.85) translateY(20px); }
+      to   { opacity:1; transform: scale(1) translateY(0); }
+    }
+    @keyframes loadFill {
+      0%   { width: 0%; }
+      60%  { width: 80%; }
+      100% { width: 100%; }
+    }
+    @keyframes loaderBounce {
+      from { transform: translateY(0) rotate(-5deg) scale(1); }
+      to   { transform: translateY(-10px) rotate(5deg) scale(1.1); }
+    }
+
+    /* ======================================================
+       LIVE CHAT WIDGET
+    ====================================================== */
+    .chat-fab {
+      position: fixed; bottom: 110px; right: 40px;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #25D366;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; cursor: none; z-index: 199;
+      box-shadow: 0 8px 32px rgba(37,211,102,0.5);
+      transition: transform 0.3s;
+      border: none;
+      animation: chatPulse 3s ease-in-out infinite;
+    }
+    .chat-fab:hover { transform: scale(1.12); }
+    @keyframes chatPulse {
+      0%,100% { box-shadow: 0 8px 32px rgba(37,211,102,0.5); }
+      50%      { box-shadow: 0 8px 40px rgba(37,211,102,0.85); }
+    }
+    .chat-badge {
+      position: absolute; top: -3px; right: -3px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--fire); color: white;
+      font-size: 10px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      animation: pulse 2s infinite;
+    }
+    .chat-widget {
+      position: fixed; bottom: 176px; right: 40px;
+      width: 320px; background: var(--charcoal);
+      border: 1px solid rgba(37,211,102,0.25);
+      z-index: 199; overflow: hidden;
+      animation: modalPop 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .chat-widget-head {
+      background: #128C7E;
+      padding: 16px 18px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .chat-widget-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .chat-widget-name { font-weight: 700; font-size: 14px; color: white; }
+    .chat-widget-status { font-size: 11px; color: rgba(255,255,255,0.75); display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+    .chat-online-dot { width: 7px; height: 7px; border-radius: 50%; background: #4CAF50; flex-shrink: 0; animation: pulse 2s infinite; }
+    .chat-close-btn { margin-left: auto; background: none; border: none; color: rgba(255,255,255,0.7); font-size: 18px; cursor: none; padding: 0 2px; }
+    .chat-close-btn:hover { color: white; }
+    .chat-body { padding: 20px 18px; }
+    .chat-bubble {
+      background: var(--ash);
+      border: 1px solid rgba(255,248,240,0.07);
+      padding: 12px 14px; font-size: 13px;
+      color: var(--muted); line-height: 1.7;
+      margin-bottom: 12px; position: relative;
+    }
+    .chat-bubble::before {
+      content: ''; position: absolute;
+      top: -1px; left: 16px;
+      border: 6px solid transparent;
+      border-bottom-color: rgba(255,248,240,0.07);
+      transform: translateY(-100%);
+    }
+    .chat-quick-btns { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .chat-quick-btn {
+      background: transparent; border: 1px solid rgba(37,211,102,0.3);
+      color: #25D366; padding: 9px 14px; font-size: 12px;
+      font-family: var(--font-body); cursor: none;
+      text-align: left; transition: all 0.2s; letter-spacing: 0.5px;
+    }
+    .chat-quick-btn:hover { background: rgba(37,211,102,0.08); border-color: #25D366; }
+    .chat-wa-btn {
+      width: 100%; background: #25D366; color: white; border: none;
+      padding: 13px; font-family: var(--font-body); font-weight: 800;
+      font-size: 13px; letter-spacing: 1px; cursor: none;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 0.2s;
+    }
+    .chat-wa-btn:hover { background: #128C7E; }
+    @media (max-width: 575.98px) {
+      .chat-fab { bottom: 88px !important; right: 14px !important; width: 48px !important; height: 48px !important; font-size: 20px !important; }
+      .chat-widget { right: 10px !important; width: calc(100vw - 20px) !important; bottom: 148px !important; }
+    }
+
+    /* ======================================================
+       ADMIN PANEL
+    ====================================================== */
+    .admin-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      animation: fadeOverlay 0.3s ease;
+    }
+    .admin-modal {
+      background: var(--charcoal);
+      width: 100%; max-width: 900px;
+      max-height: 92vh;
+      border: 1px solid rgba(255,69,0,0.25);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      animation: modalPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .admin-head {
+      padding: 20px 28px;
+      background: linear-gradient(135deg, var(--fire) 0%, #c0392b 100%);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .admin-title { font-family: var(--font-display); font-size: 28px; letter-spacing: 4px; color: white; }
+    .admin-subtitle { font-size: 11px; color: rgba(255,255,255,0.7); letter-spacing: 2px; margin-top: 2px; }
+
+    /* Admin login */
+    .admin-login { padding: 48px 40px; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .admin-login-icon { font-size: 52px; margin-bottom: 16px; }
+    .admin-login-title { font-family: var(--font-display); font-size: 28px; letter-spacing: 3px; margin-bottom: 8px; }
+    .admin-login-sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; font-weight: 300; }
+    .admin-pw-input {
+      background: var(--ash); border: 1px solid rgba(255,248,240,0.12);
+      color: var(--cream); font-family: var(--font-body); font-size: 16px;
+      padding: 14px 20px; outline: none; width: 280px; max-width: 100%;
+      text-align: center; letter-spacing: 4px; margin-bottom: 14px;
+      transition: border-color 0.2s;
+    }
+    .admin-pw-input:focus { border-color: var(--fire); }
+    .admin-login-btn {
+      background: var(--fire); color: white; border: none;
+      padding: 14px 40px; font-family: var(--font-body);
+      font-weight: 800; font-size: 14px; letter-spacing: 2px;
+      text-transform: uppercase; cursor: none; transition: all 0.3s;
+    }
+    .admin-login-btn:hover { background: var(--ember); }
+    .admin-pw-error { font-size: 12px; color: #e74c3c; margin-top: 10px; }
+
+    /* Admin dashboard */
+    .admin-body { flex: 1; overflow-y: auto; padding: 24px 28px; }
+    .admin-body::-webkit-scrollbar { width: 3px; }
+    .admin-body::-webkit-scrollbar-thumb { background: var(--fire); }
+
+    .admin-stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 14px; margin-bottom: 28px;
+    }
+    .admin-stat-card {
+      background: var(--ash); border: 1px solid rgba(255,248,240,0.06);
+      padding: 18px 16px; text-align: center;
+      transition: border-color 0.2s;
+    }
+    .admin-stat-card:hover { border-color: rgba(255,69,0,0.3); }
+    .admin-stat-icon { font-size: 24px; display: block; margin-bottom: 8px; }
+    .admin-stat-val { font-family: var(--font-display); font-size: 28px; color: var(--fire); letter-spacing: 1px; line-height: 1; }
+    .admin-stat-label { font-size: 9px; color: var(--smoke); letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; }
+
+    .admin-section-title {
+      font-family: var(--font-display); font-size: 18px; letter-spacing: 3px;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(255,248,240,0.06);
+    }
+    .admin-section-title span { color: var(--fire); }
+
+    /* Orders table */
+    .admin-orders-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+    .admin-orders-table th {
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--smoke); font-weight: 700; padding: 8px 12px;
+      text-align: left; border-bottom: 1px solid rgba(255,248,240,0.07);
+      background: var(--dark);
+    }
+    .admin-orders-table td {
+      padding: 11px 12px; font-size: 12px; color: var(--muted);
+      border-bottom: 1px solid rgba(255,248,240,0.04);
+    }
+    .admin-orders-table tr:hover td { background: rgba(255,248,240,0.02); }
+    .admin-order-id { font-family: var(--font-display); font-size: 13px; color: var(--fire); letter-spacing: 1px; }
+    .admin-order-total { font-weight: 700; color: var(--gold); }
+    .admin-status-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 9px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; padding: 3px 8px;
+      background: rgba(39,174,96,0.15); color: #27ae60;
+      border: 1px solid rgba(39,174,96,0.3);
+    }
+
+    /* Top items */
+    .admin-top-items { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
+    .admin-top-item {
+      background: var(--ash); padding: 12px 14px;
+      border: 1px solid rgba(255,248,240,0.06);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .admin-top-rank { font-family: var(--font-display); font-size: 22px; color: var(--fire); flex-shrink: 0; width: 28px; }
+    .admin-top-name { font-size: 12px; font-weight: 600; flex: 1; }
+    .admin-top-count { font-size: 11px; color: var(--muted); }
+
+    .admin-empty { text-align: center; padding: 40px; color: var(--smoke); font-size: 14px; }
+    .admin-export-btn {
+      background: transparent; border: 1px solid rgba(255,248,240,0.15);
+      color: var(--muted); padding: 8px 18px; font-family: var(--font-body);
+      font-size: 11px; letter-spacing: 1px; cursor: none; transition: all 0.2s;
+      margin-left: auto; display: block; margin-bottom: 14px;
+    }
+    .admin-export-btn:hover { border-color: var(--fire); color: var(--fire); }
+
+    @media (max-width: 575.98px) {
+      .admin-stats-grid { grid-template-columns: 1fr 1fr !important; }
+      .admin-top-items { grid-template-columns: 1fr !important; }
+      .admin-body { padding: 16px !important; }
+      .admin-head { padding: 16px 18px !important; }
+      .admin-modal { max-height: 100svh !important; }
+    }
+
   </style>
 </head>
 <body>
+  <!-- ── LOADING SCREEN ── -->
+  <div id="flare-loader">
+    <div class="loader-emoji">🔥</div>
+    <div class="loader-logo">FL<span>A</span>RE</div>
+    <div class="loader-tagline">Premium Fast Food</div>
+    <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  </div>
+
   <div id="root"></div>
+  <script>
+    // Dismiss loader after 2.2s
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        var loader = document.getElementById('flare-loader');
+        if (loader) loader.classList.add('hide');
+        setTimeout(function() { if (loader) loader.remove(); }, 700);
+      }, 2200);
+    });
+  </script>
   <script type="text/babel">
     const { useState, useEffect, useRef, useCallback } = React;
 
@@ -3634,6 +3925,16 @@
       const cursorRef                   = useRef({ x:0, y:0 });
       const [timeLeft, setTimeLeft]     = useState({ h:5, m:47, s:22 });
 
+      // Live Chat state
+      const [chatOpen, setChatOpen]     = useState(false);
+
+      // Admin Panel state
+      const [adminOpen, setAdminOpen]   = useState(false);
+      const [adminAuth, setAdminAuth]   = useState(false);
+      const [adminPw, setAdminPw]       = useState('');
+      const [adminPwError, setAdminPwError] = useState('');
+      const ADMIN_PASSWORD = 'flare2025'; // change this to your password
+
       // New state
       const [cartOpen, setCartOpen]     = useState(false);
       const [authOpen, setAuthOpen]     = useState(false);
@@ -3789,6 +4090,13 @@
       const trackerEtaMins = Math.max(2, 18 - trackerStep * 4);
       const orderHistoryList = getOrderHistory();
       const orderHistoryTotal = orderHistoryList.reduce((s,o)=>s+(Number(o.total)||0),0);
+
+      // Admin stats
+      const adminOrders = orderHistoryList;
+      const adminRevenue = adminOrders.reduce((s,o)=>s+(Number(o.total)||0),0);
+      const adminItemCounts = {};
+      adminOrders.forEach(o => (o.items||[]).forEach(i => { adminItemCounts[i.name] = (adminItemCounts[i.name]||0) + (Number(i.qty)||1); }));
+      const adminTopItems = Object.entries(adminItemCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
 
       const copyReferral = () => {
         const code = getReferralCode();
@@ -4091,8 +4399,8 @@
 
       /* body scroll lock */
       useEffect(() => {
-        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen) ? 'hidden' : '';
-      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen, historyOpen]);
+        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen || adminOpen) ? 'hidden' : '';
+      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen, historyOpen, adminOpen]);
 
       /* cart helpers */
       const addToCart = (item, customizations) => {
@@ -4214,6 +4522,10 @@
                   My Orders
                 </button>
               )}
+              <button style={{background:'transparent',border:'none',color:'rgba(255,69,0,0.5)',fontSize:11,fontWeight:700,letterSpacing:'2px',textTransform:'uppercase',cursor:'none',transition:'color 0.3s',padding:0}} onClick={() => { setAdminAuth(false); setAdminPw(''); setAdminPwError(''); setAdminOpen(true); }}
+                onMouseEnter={e=>e.target.style.color='var(--fire)'} onMouseLeave={e=>e.target.style.color='rgba(255,69,0,0.5)'}>
+                Admin
+              </button>
               {cartCount > 0 && loggedInUser && (
                 <button className="nav-cta" style={{background:'#27ae60',border:'none',display:'flex',alignItems:'center',gap:8}} onClick={openCheckout}>
                   ✓ Checkout ({cartCount}) · PKR {cartTotal.toLocaleString()}
@@ -5802,6 +6114,179 @@
                     <button className="btn-primary" style={{padding:'10px 24px',fontSize:12}} onClick={() => { setHistoryOpen(false); document.getElementById('menu')?.scrollIntoView({behavior:'smooth'}); }}>
                       Order Again 🔥
                     </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── LIVE CHAT WIDGET ── */}
+          <button className="chat-fab" onClick={() => setChatOpen(p=>!p)} title="Chat with us">
+            {chatOpen ? '✕' : '💬'}
+            {!chatOpen && <span className="chat-badge">1</span>}
+          </button>
+
+          {chatOpen && (
+            <div className="chat-widget">
+              <div className="chat-widget-head">
+                <div className="chat-widget-avatar">🔥</div>
+                <div>
+                  <div className="chat-widget-name">FLARE Support</div>
+                  <div className="chat-widget-status"><span className="chat-online-dot"/>Online · Replies instantly</div>
+                </div>
+                <button className="chat-close-btn" onClick={() => setChatOpen(false)}>✕</button>
+              </div>
+              <div className="chat-body">
+                <div className="chat-bubble">
+                  👋 Hey! Welcome to FLARE. How can I help you today?
+                </div>
+                <div className="chat-quick-btns">
+                  {[
+                    ['🚴 Track my order', `Hi! I want to track my order`],
+                    ['🍔 Ask about menu', `Hi! I have a question about the menu`],
+                    ['💳 Payment issue', `Hi! I have a payment issue`],
+                    ['📦 Report a problem', `Hi! I want to report a problem with my order`],
+                  ].map(([label, msg]) => (
+                    <a key={label} className="chat-quick-btn"
+                      href={`https://wa.me/923261369791?text=${encodeURIComponent(msg)}`}
+                      target="_blank" rel="noopener noreferrer">
+                      {label}
+                    </a>
+                  ))}
+                </div>
+                <a className="chat-wa-btn"
+                  href="https://wa.me/923261369791"
+                  target="_blank" rel="noopener noreferrer">
+                  💬 Open WhatsApp Chat
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* ── ADMIN PANEL ── */}
+          {adminOpen && (
+            <div className="admin-overlay" onClick={e => { if(e.target===e.currentTarget) setAdminOpen(false); }}>
+              <div className="admin-modal">
+                <div className="admin-head">
+                  <div>
+                    <div className="admin-title">🔥 FLARE ADMIN</div>
+                    <div className="admin-subtitle">Restaurant Management Dashboard</div>
+                  </div>
+                  <button className="drawer-close" style={{background:'rgba(255,255,255,0.2)',color:'white'}} onClick={() => setAdminOpen(false)}>✕</button>
+                </div>
+
+                {!adminAuth ? (
+                  <div className="admin-login">
+                    <div className="admin-login-icon">🔐</div>
+                    <div className="admin-login-title">ADMIN ACCESS</div>
+                    <div className="admin-login-sub">Enter your admin password to continue</div>
+                    <input className="admin-pw-input" type="password" placeholder="••••••••"
+                      value={adminPw} onChange={e => { setAdminPw(e.target.value); setAdminPwError(''); }}
+                      onKeyDown={e => { if(e.key==='Enter') { if(adminPw===ADMIN_PASSWORD){setAdminAuth(true);}else{setAdminPwError('Wrong password. Try again.');} }}} />
+                    {adminPwError && <div className="admin-pw-error">{adminPwError}</div>}
+                    <button className="admin-login-btn" onClick={() => { if(adminPw===ADMIN_PASSWORD){setAdminAuth(true);}else{setAdminPwError('Wrong password. Try again.');} }}>
+                      Enter Dashboard
+                    </button>
+                  </div>
+                ) : (
+                  <div className="admin-body">
+                    {/* Stats */}
+                    <div className="admin-stats-grid">
+                      {[
+                        ['📦', adminOrders.length, 'Total Orders'],
+                        ['💰', `PKR ${adminRevenue.toLocaleString()}`, 'Total Revenue'],
+                        ['👥', (() => { try { return JSON.parse(localStorage.getItem('flare_accounts')||'[]').length; } catch{return 0;} })(), 'Customers'],
+                        ['🍔', adminOrders.reduce((s,o)=>s+(o.items?.length||0),0), 'Items Sold'],
+                      ].map(([icon, val, label]) => (
+                        <div key={label} className="admin-stat-card">
+                          <span className="admin-stat-icon">{icon}</span>
+                          <div className="admin-stat-val">{val}</div>
+                          <div className="admin-stat-label">{label}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Recent Orders */}
+                    <div className="admin-section-title">📋 Recent <span>Orders</span></div>
+                    {adminOrders.length === 0 ? (
+                      <div className="admin-empty">No orders yet. Orders will appear here when customers place them.</div>
+                    ) : (
+                      <>
+                        <button className="admin-export-btn" onClick={() => {
+                          const csv = ['Order ID,Date,Customer,Phone,Total,Payment,Area'].concat(
+                            adminOrders.map(o => `${o.id},${o.date},${o.delivery?.name||''},${o.delivery?.phone||''},PKR ${o.total},${o.payment},${o.delivery?.area||''} ${o.delivery?.city||''}`)
+                          ).join('\n');
+                          const blob = new Blob([csv], {type:'text/csv'});
+                          const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+                          a.download = 'flare_orders.csv'; a.click();
+                        }}>⬇ Export CSV</button>
+                        <table className="admin-orders-table">
+                          <thead>
+                            <tr>
+                              <th>Order ID</th><th>Date</th><th>Customer</th>
+                              <th>Items</th><th>Total</th><th>Payment</th><th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {adminOrders.map((order, idx) => (
+                              <tr key={idx}>
+                                <td><span className="admin-order-id">#{order.id}</span></td>
+                                <td>{order.date}</td>
+                                <td>
+                                  <div style={{fontWeight:600,color:'var(--cream)',fontSize:12}}>{order.delivery?.name||'—'}</div>
+                                  <div style={{fontSize:10,color:'var(--smoke)'}}>{order.delivery?.phone||''}</div>
+                                </td>
+                                <td>{(order.items||[]).map(i=>`${i.name} ×${i.qty||1}`).join(', ').slice(0,40)}{(order.items||[]).length > 2 ? '...' : ''}</td>
+                                <td><span className="admin-order-total">PKR {Number(order.total).toLocaleString()}</span></td>
+                                <td style={{textTransform:'capitalize'}}>{order.payment==='cod'?'Cash':order.payment}</td>
+                                <td><span className="admin-status-badge">✓ {order.status||'confirmed'}</span></td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </>
+                    )}
+
+                    {/* Top Items */}
+                    {adminTopItems.length > 0 && (
+                      <>
+                        <div className="admin-section-title">🏆 Top <span>Selling Items</span></div>
+                        <div className="admin-top-items">
+                          {adminTopItems.map(([name, count], idx) => (
+                            <div key={name} className="admin-top-item">
+                              <span className="admin-top-rank">#{idx+1}</span>
+                              <div>
+                                <div className="admin-top-name">{name}</div>
+                                <div className="admin-top-count">{count} ordered</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Customer list */}
+                    <div className="admin-section-title">👥 Registered <span>Customers</span></div>
+                    {(() => {
+                      const accounts = (() => { try { return JSON.parse(localStorage.getItem('flare_accounts')||'[]'); } catch { return []; } })();
+                      return accounts.length === 0 ? (
+                        <div className="admin-empty">No registered customers yet.</div>
+                      ) : (
+                        <table className="admin-orders-table" style={{marginBottom:0}}>
+                          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th></tr></thead>
+                          <tbody>
+                            {accounts.map((a,i) => (
+                              <tr key={i}>
+                                <td style={{fontWeight:600,color:'var(--cream)'}}>{a.name}</td>
+                                <td>{a.email}</td>
+                                <td>{a.phone}</td>
+                                <td style={{color:'var(--smoke)'}}>{a.joinedAt||'—'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
