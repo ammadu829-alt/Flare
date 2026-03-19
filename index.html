@@ -4569,6 +4569,10 @@
                   MY ORDERS
                 </button>
               )}
+              <button className="mobile-nav-link" style={{background:'none',border:'none',textAlign:'center',color:'rgba(255,69,0,0.6)',fontFamily:'var(--font-display)',letterSpacing:3,padding:'10px 0',width:'100%',borderBottom:'1px solid rgba(255,248,240,0.05)',cursor:'none'}}
+                onClick={() => { setAdminAuth(false); setAdminPw(''); setAdminPwError(''); setAdminOpen(true); setMobileMenuOpen(false); }}>
+                🔐 ADMIN
+              </button>
 
               {/* Spin & Win inside mobile menu */}
               {loggedInUser && !spinUsed && (
