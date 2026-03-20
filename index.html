@@ -3746,17 +3746,17 @@
 
     /* Map FAB — shows after order placed */
     .map-fab {
-      position: fixed; bottom: 40px; right: 178px;
+      position: fixed; bottom: 108px; right: 40px;
       background: #27ae60; color: white; border: none;
-      padding: 0 16px; height: 52px;
+      padding: 0 18px; height: 46px;
       display: flex; align-items: center; gap: 8px;
-      cursor: none; z-index: 200; font-size: 12px; font-weight: 700;
-      letter-spacing: 1px; box-shadow: 0 8px 28px rgba(39,174,96,0.45);
+      cursor: none; z-index: 198; font-size: 12px; font-weight: 700;
+      letter-spacing: 1px; box-shadow: 0 6px 24px rgba(39,174,96,0.45);
       transition: all 0.3s; white-space: nowrap;
-      animation: pulse 2s infinite;
+      border-radius: 2px;
     }
     .map-fab:hover { background: #219a52; transform: translateY(-2px); }
-    @media (max-width: 575.98px) { .map-fab { display: none !important; } }
+    @media (max-width: 767.98px) { .map-fab { display: none !important; } }
 
     /* ======================================================
        RECIPE VIDEO MODAL
@@ -6564,7 +6564,7 @@
 
           {/* ── LIVE MAP FAB — shows after order placed ── */}
           {orderPlaced && (
-            <button className="map-fab d-none d-sm-flex" onClick={() => setMapOpen(true)}>
+            <button className="map-fab" onClick={() => setMapOpen(true)}>
               🗺️ Live Map
             </button>
           )}
