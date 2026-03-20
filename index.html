@@ -2367,9 +2367,13 @@
     }
 
     /* Action buttons row */
-    .tracker-support-btns { display: flex; gap: 8px; }
+    .tracker-support-btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
     .tracker-call-btn {
-      flex: 1.5; background: var(--fire); color: white; border: none;
+      background: var(--fire); color: white; border: none;
       padding: 14px 12px; font-family: var(--font-body); font-weight: 800;
       font-size: 13px; cursor: none; transition: all 0.3s;
       display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -2384,34 +2388,43 @@
       transition: transform 0.4s;
     }
     .tracker-call-btn:hover::before { transform: translateX(100%); }
-    .tracker-call-btn:hover { background: var(--ember); transform: translateY(-2px); box-shadow: 0 10px 32px rgba(255,69,0,0.55); }
-
+    .tracker-call-btn:hover { background: var(--ember); }
     .tracker-whatsapp-btn {
-      flex: 1; background: #128C7E; color: white; border: none;
+      background: #128C7E; color: white; border: none;
       padding: 14px 12px; font-family: var(--font-body); font-weight: 700;
       font-size: 13px; cursor: none; transition: all 0.3s;
       display: flex; align-items: center; justify-content: center; gap: 6px;
       text-decoration: none; letter-spacing: 1px;
-      box-shadow: 0 4px 16px rgba(18,140,126,0.3);
     }
-    .tracker-whatsapp-btn:hover { background: #075E54; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(18,140,126,0.5); }
-
+    .tracker-whatsapp-btn:hover { background: #075E54; }
     .tracker-receipt-btn {
-      flex: 0.8; background: transparent;
+      background: transparent;
       border: 1px solid rgba(255,215,0,0.2);
-      color: var(--muted); padding: 14px 10px; font-family: var(--font-body);
+      color: var(--muted); padding: 12px 10px; font-family: var(--font-body);
       font-weight: 600; font-size: 12px; cursor: none; transition: all 0.2s;
       display: flex; align-items: center; justify-content: center; gap: 5px;
       letter-spacing: 1px;
     }
     .tracker-receipt-btn:hover { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.05); }
+    .tracker-map-btn {
+      grid-column: span 2;
+      background: rgba(39,174,96,0.12);
+      border: 1px solid rgba(39,174,96,0.35);
+      color: #27ae60; padding: 13px 10px; font-family: var(--font-body);
+      font-weight: 700; font-size: 13px; cursor: none; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      letter-spacing: 1px;
+    }
+    .tracker-map-btn:hover { background: rgba(39,174,96,0.2); border-color: #27ae60; }
+    @media (max-width: 575.98px) {
+      .tracker-support-btns { grid-template-columns: 1fr 1fr; gap: 6px; }
+      .tracker-call-btn, .tracker-whatsapp-btn { font-size: 12px !important; padding: 12px 8px !important; }
+      .tracker-receipt-btn { font-size: 11px !important; padding: 10px 6px !important; }
+      .tracker-map-btn { font-size: 12px !important; padding: 11px 8px !important; }
+    }
 
     @media (max-width: 600px) {
       .tracker-support-panel { padding: 16px 18px 18px; }
-      .tracker-support-btns { flex-wrap: wrap; }
-      .tracker-call-btn { flex: 1; }
-      .tracker-whatsapp-btn { flex: 1; }
-      .tracker-receipt-btn { flex: 100%; }
     }
 
     /* Track Order FAB — floating button next to cart */
@@ -2862,9 +2875,6 @@
       .tracker-support-panel { padding: 10px 12px 12px !important; }
       .tracker-call-card { padding: 12px 14px !important; }
       .tracker-call-name { font-size: 15px !important; }
-      .tracker-support-btns { flex-wrap: wrap !important; }
-      .tracker-call-btn, .tracker-whatsapp-btn { flex: 1 !important; font-size: 11px !important; padding: 11px 8px !important; }
-      .tracker-receipt-btn { flex: 100% !important; }
 
       /* TOAST */
       .toast { right: 8px !important; bottom: 76px !important; left: 8px !important; padding: 10px 14px !important; }
@@ -5818,7 +5828,7 @@
                         </div>
                       </div>
 
-                      {/* Action buttons */}
+                      {/* Action buttons — 2x2 grid */}
                       <div className="tracker-support-btns">
                         <a className="tracker-call-btn" href="tel:+923261369791">
                           📞 Call Now
@@ -5833,9 +5843,9 @@
                           🧾 Receipt
                         </button>
                         <button className="tracker-receipt-btn"
-                          style={{flex:'100%',background:'rgba(39,174,96,0.12)',borderColor:'rgba(39,174,96,0.4)',color:'#27ae60'}}
+                          style={{borderColor:'rgba(39,174,96,0.3)',color:'#27ae60'}}
                           onClick={() => { setTrackerOpen(false); setMapOpen(true); }}>
-                          🗺️ Live Delivery Map
+                          🗺️ Live Map
                         </button>
                       </div>
                     </div>
