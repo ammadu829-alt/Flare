@@ -4306,15 +4306,25 @@
         setCartOpen(true);
       };
 
-      // Computed for tracker modal
+      // Real elapsed time helper
+      const STEP_TIMES = [0, 2, 8, 12, 30];
+      const elapsedMins = orderPlacedTime ? Math.floor((Date.now() - orderPlacedTime) / 60000) : 0;
+      const getStepTime = (stepIdx) => {
+        if (trackerStep < stepIdx) return 'Pending';
+        if (trackerStep === stepIdx) return 'Now';
+        const minsPassed = elapsedMins - STEP_TIMES[stepIdx];
+        if (minsPassed < 1) return 'Just now';
+        return `${minsPassed} min ago`;
+      };
+
       const trackerSteps = [
-        { icon:'✅', name:'ORDER RECEIVED', desc:'We got your order and are confirming it with our kitchen.', time:'Just now', status: trackerStep >= 0 ? (trackerStep > 0 ? 'done' : 'active') : 'pending' },
-        { icon:'👨‍🍳', name:'PREPARING YOUR FOOD', desc:'Our chefs are cooking your order fresh. Smells amazing already!', time: trackerStep >= 1 ? '~5 min ago' : 'Pending', status: trackerStep > 1 ? 'done' : trackerStep === 1 ? 'active' : 'pending' },
-        { icon:'📦', name:'PACKED & READY', desc:'Your order is packed hot and handed to the delivery rider.', time: trackerStep >= 2 ? '~2 min ago' : 'Pending', status: trackerStep > 2 ? 'done' : trackerStep === 2 ? 'active' : 'pending' },
-        { icon:'🚴', name:'OUT FOR DELIVERY', desc:'Your rider is on the way! Estimated arrival in 12-18 minutes.', time: trackerStep >= 3 ? 'En route' : 'Pending', status: trackerStep === 3 ? 'active' : trackerStep > 3 ? 'done' : 'pending' },
-        { icon:'🎉', name:'DELIVERED!', desc:'Your FLARE order has arrived. Enjoy every bite!', time: trackerStep >= 4 ? 'Delivered' : 'Pending', status: trackerStep >= 4 ? 'done' : 'pending' },
+        { icon:'✅', name:'ORDER RECEIVED',      desc:'Your order has been confirmed and sent to our kitchen.', time: getStepTime(0), status: trackerStep > 0 ? 'done' : trackerStep === 0 ? 'active' : 'pending' },
+        { icon:'👨‍🍳', name:'PREPARING YOUR FOOD', desc:'Our chefs are cooking your order fresh right now.', time: getStepTime(1), status: trackerStep > 1 ? 'done' : trackerStep === 1 ? 'active' : 'pending' },
+        { icon:'📦', name:'PACKED & READY',       desc:'Your order is packed hot and ready for the rider.', time: getStepTime(2), status: trackerStep > 2 ? 'done' : trackerStep === 2 ? 'active' : 'pending' },
+        { icon:'🚴', name:'OUT FOR DELIVERY',     desc:`Your rider is heading to you. ETA ${Math.max(0, 30 - elapsedMins)} min.`, time: getStepTime(3), status: trackerStep > 3 ? 'done' : trackerStep === 3 ? 'active' : 'pending' },
+        { icon:'🎉', name:'DELIVERED!',           desc:'Your FLARE order has arrived. Enjoy every bite!', time: trackerStep >= 4 ? 'Delivered ✓' : `~${Math.max(0, 30 - elapsedMins)} min left`, status: trackerStep >= 4 ? 'done' : 'pending' },
       ];
-      const trackerEtaMins = Math.max(2, 18 - trackerStep * 4);
+      const trackerEtaMins = Math.max(0, 30 - elapsedMins);
       const orderHistoryList = getOrderHistory();
       const orderHistoryTotal = orderHistoryList.reduce((s,o)=>s+(Number(o.total)||0),0);
 
@@ -4339,6 +4349,7 @@
       const [trackerOpen, setTrackerOpen]   = useState(false);
       const [trackerStep, setTrackerStep]   = useState(0);
       const [orderPlaced, setOrderPlaced]   = useState(false);
+      const [orderPlacedTime, setOrderPlacedTime] = useState(null); // real timestamp
       const [activeOrderId] = useState(() => 'FLR-' + Math.floor(100000 + Math.random() * 900000));
 
       // Auth system state
@@ -4541,6 +4552,7 @@
         setCart([]);
         setTrackerStep(0);
         setOrderPlaced(true);
+        setOrderPlacedTime(Date.now());
         setCheckoutStep(4);
       };
       const requireAuth = (action, msg) => {
@@ -4592,13 +4604,27 @@
         return () => clearInterval(t);
       }, [flashOpen]);
 
-      // Order tracker — auto-advance steps every 6s when open
+      // Real-time order tracker — advances based on actual elapsed time
+      // Step 0 = Order Received (instant)
+      // Step 1 = Preparing (after 2 min)
+      // Step 2 = Packed & Ready (after 8 min)
+      // Step 3 = Out for Delivery (after 12 min)
+      // Step 4 = Delivered (after 30 min)
       useEffect(() => {
-        if (!trackerOpen) return;
-        if (trackerStep >= 3) return;
-        const t = setTimeout(() => setTrackerStep(p => Math.min(p+1, 3)), 6000);
-        return () => clearTimeout(t);
-      }, [trackerOpen, trackerStep]);
+        if (!orderPlaced || !orderPlacedTime) return;
+        const MINS = [0, 2, 8, 12, 30];
+        const tick = () => {
+          const elapsed = (Date.now() - orderPlacedTime) / 60000;
+          let step = 0;
+          for (let i = MINS.length - 1; i >= 0; i--) {
+            if (elapsed >= MINS[i]) { step = i; break; }
+          }
+          setTrackerStep(step);
+        };
+        tick();
+        const interval = setInterval(tick, 10000);
+        return () => clearInterval(interval);
+      }, [orderPlaced, orderPlacedTime]);
 
       useEffect(() => {
         const fn = () => setScrolled(window.scrollY > 60);
