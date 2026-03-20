@@ -3846,22 +3846,28 @@
     const menuItems = [
       { id: 1, name: "SMASH BURGER", category: "Burgers", price: 899, oldPrice: 1100, desc: "Double smash patty, aged cheddar, secret flare sauce, caramelized onion, brioche bun.", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80", badge: "bestseller", rating: 4.9, reviews: 2341,
         nutrition: { calories: 720, protein: 38, carbs: 52, fat: 34 },
-        video: "https://www.youtube.com/embed/tDNX6-3IeGU?autoplay=1&mute=1" },
+        video: "https://www.youtube.com/embed/gm_W1lM4S6k?autoplay=1&mute=1&rel=0",
+        videoTitle: "How to Make a Perfect Smash Burger" },
       { id: 2, name: "INFERNO WINGS", category: "Chicken", price: 749, oldPrice: 950, desc: "Ghost pepper glazed wings, blue cheese dip, celery, pickled jalapeños.", img: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=600&q=80", badge: "spicy", rating: 4.8, reviews: 1876,
         nutrition: { calories: 580, protein: 44, carbs: 18, fat: 36 },
-        video: "https://www.youtube.com/embed/1Ru7W2GiAYI?autoplay=1&mute=1" },
+        video: "https://www.youtube.com/embed/ERfbmNGs1VQ?autoplay=1&mute=1&rel=0",
+        videoTitle: "Crispy Buffalo Chicken Wings Recipe" },
       { id: 3, name: "TRUFFLE FRIES", category: "Sides", price: 449, desc: "Hand-cut fries, black truffle oil, parmesan, fresh herbs, aioli dip.", img: "https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=600&q=80", badge: "veg", rating: 4.7, reviews: 3012,
         nutrition: { calories: 380, protein: 6, carbs: 48, fat: 18 },
-        video: "https://www.youtube.com/embed/7LMUJv0BbMM?autoplay=1&mute=1" },
+        video: "https://www.youtube.com/embed/5mSHAyMu2TQ?autoplay=1&mute=1&rel=0",
+        videoTitle: "Truffle Parmesan Fries — Restaurant Style" },
       { id: 4, name: "CRISPY ZINGER", category: "Chicken", price: 699, desc: "Buttermilk fried chicken fillet, sriracha mayo, pickles, toasted brioche.", img: "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600&q=80", badge: "new", rating: 4.8, reviews: 912,
         nutrition: { calories: 640, protein: 36, carbs: 58, fat: 28 },
-        video: "https://www.youtube.com/embed/4RHoHMxHRXc?autoplay=1&mute=1" },
+        video: "https://www.youtube.com/embed/ACjN0GRjGT4?autoplay=1&mute=1&rel=0",
+        videoTitle: "KFC-Style Crispy Fried Chicken Burger" },
       { id: 5, name: "PEPPERONI FEAST", category: "Pizza", price: 1299, oldPrice: 1500, desc: "Double pepperoni, mozzarella fior di latte, San Marzano tomato, basil.", img: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=600&q=80", badge: "bestseller", rating: 4.9, reviews: 4521,
         nutrition: { calories: 890, protein: 42, carbs: 86, fat: 42 },
-        video: "https://www.youtube.com/embed/sv3TXMSv6Lw?autoplay=1&mute=1" },
+        video: "https://www.youtube.com/embed/LRbU2eaZrD0?autoplay=1&mute=1&rel=0",
+        videoTitle: "Homemade Pepperoni Pizza from Scratch" },
       { id: 6, name: "BBQ RIBS", category: "Grills", price: 1899, desc: "Slow-smoked baby back ribs, smoky BBQ glaze, coleslaw, cornbread.", img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80", badge: null, rating: 4.9, reviews: 1543,
         nutrition: { calories: 1050, protein: 68, carbs: 24, fat: 56 },
-        video: "https://www.youtube.com/embed/bJUiWdM__Qw?autoplay=1&mute=1" },
+        video: "https://www.youtube.com/embed/8EibFz5O4wo?autoplay=1&mute=1&rel=0",
+        videoTitle: "Fall-Off-The-Bone BBQ Baby Back Ribs" },
     ];
 
     const categories = [
@@ -6570,7 +6576,7 @@
                 <div className="video-modal-head">
                   <div>
                     <div className="video-modal-title">{videoItem.name}</div>
-                    <div className="video-modal-tag">🎥 Recipe Video · How It's Made</div>
+                    <div className="video-modal-tag">🎥 {videoItem.videoTitle || 'Recipe Video · How It's Made'}</div>
                   </div>
                   <button className="drawer-close" onClick={() => setVideoItem(null)}>✕</button>
                 </div>
