@@ -3630,6 +3630,192 @@
       .admin-modal { max-height: 100svh !important; }
     }
 
+    /* ======================================================
+       NUTRITION INFO
+    ====================================================== */
+    .nutrition-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px;
+      background: rgba(255,248,240,0.03);
+      border-top: 1px solid rgba(255,248,240,0.06);
+      flex-wrap: wrap;
+    }
+    .nutrition-cal {
+      font-family: var(--font-display);
+      font-size: 14px; color: var(--fire);
+      letter-spacing: 1px; flex-shrink: 0;
+    }
+    .nutrition-cal span { font-size: 10px; color: var(--smoke); font-family: var(--font-body); letter-spacing: 1px; }
+    .nutrition-macros {
+      display: flex; gap: 8px; flex: 1; justify-content: flex-end; flex-wrap: wrap;
+    }
+    .nutrition-macro {
+      display: flex; flex-direction: column; align-items: center;
+      background: var(--ash); padding: 3px 8px; min-width: 44px;
+    }
+    .nutrition-macro-val { font-size: 11px; font-weight: 700; color: var(--cream); }
+    .nutrition-macro-label { font-size: 8px; color: var(--smoke); letter-spacing: 1px; text-transform: uppercase; }
+    .nutrition-macro.protein .nutrition-macro-val { color: #3498db; }
+    .nutrition-macro.carbs   .nutrition-macro-val { color: var(--gold); }
+    .nutrition-macro.fat     .nutrition-macro-val { color: #e67e22; }
+
+    /* Calorie filter toggle */
+    .calorie-filter {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 8px; flex-wrap: wrap;
+    }
+    .calorie-filter-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+    .calorie-filter-btn {
+      background: transparent; border: 1px solid rgba(255,248,240,0.12);
+      color: var(--muted); padding: 5px 12px;
+      font-family: var(--font-body); font-size: 10px;
+      letter-spacing: 1px; cursor: none; transition: all 0.2s;
+      text-transform: uppercase;
+    }
+    .calorie-filter-btn.active { background: var(--fire); border-color: var(--fire); color: white; }
+
+    /* ======================================================
+       LIVE DELIVERY MAP MODAL
+    ====================================================== */
+    .map-modal {
+      background: var(--charcoal);
+      width: 100%; max-width: 600px;
+      border: 1px solid rgba(255,69,0,0.2);
+      overflow: hidden;
+      animation: modalPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .map-modal-head {
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(255,248,240,0.07);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .map-modal-title { font-family: var(--font-display); font-size: 22px; letter-spacing: 3px; }
+    .map-modal-title span { color: var(--fire); }
+    .map-iframe-wrap {
+      position: relative; width: 100%; height: 340px;
+      background: var(--ash);
+    }
+    .map-iframe-wrap iframe { width: 100%; height: 100%; border: none; }
+    .map-overlay-banner {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(10,8,5,0.95) 0%, transparent 100%);
+      padding: 20px 20px 16px;
+      pointer-events: none;
+    }
+    .map-rider-info {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 20px;
+      background: var(--ash);
+      border-top: 1px solid rgba(255,248,240,0.06);
+    }
+    .map-rider-avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      background: var(--fire); display: flex; align-items: center;
+      justify-content: center; font-size: 22px; flex-shrink: 0;
+      animation: callRing 2.5s ease-out infinite;
+    }
+    .map-rider-name { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+    .map-rider-sub  { font-size: 11px; color: var(--muted); }
+    .map-eta-badge {
+      margin-left: auto; background: rgba(255,69,0,0.12);
+      border: 1px solid rgba(255,69,0,0.3);
+      padding: 8px 14px; text-align: center; flex-shrink: 0;
+    }
+    .map-eta-num { font-family: var(--font-display); font-size: 24px; color: var(--fire); line-height: 1; }
+    .map-eta-label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+    .map-actions {
+      display: flex; gap: 8px; padding: 14px 20px;
+      border-top: 1px solid rgba(255,248,240,0.06);
+    }
+    .map-call-btn {
+      flex: 1; background: var(--fire); color: white; border: none;
+      padding: 12px; font-family: var(--font-body); font-weight: 700;
+      font-size: 12px; letter-spacing: 1px; cursor: none; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      text-decoration: none;
+    }
+    .map-call-btn:hover { background: var(--ember); }
+    .map-wa-btn {
+      flex: 1; background: #128C7E; color: white; border: none;
+      padding: 12px; font-family: var(--font-body); font-weight: 700;
+      font-size: 12px; letter-spacing: 1px; cursor: none; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      text-decoration: none;
+    }
+    .map-wa-btn:hover { background: #075E54; }
+
+    /* Map FAB — shows after order placed */
+    .map-fab {
+      position: fixed; bottom: 40px; right: 178px;
+      background: #27ae60; color: white; border: none;
+      padding: 0 16px; height: 52px;
+      display: flex; align-items: center; gap: 8px;
+      cursor: none; z-index: 200; font-size: 12px; font-weight: 700;
+      letter-spacing: 1px; box-shadow: 0 8px 28px rgba(39,174,96,0.45);
+      transition: all 0.3s; white-space: nowrap;
+      animation: pulse 2s infinite;
+    }
+    .map-fab:hover { background: #219a52; transform: translateY(-2px); }
+    @media (max-width: 575.98px) { .map-fab { display: none !important; } }
+
+    /* ======================================================
+       RECIPE VIDEO MODAL
+    ====================================================== */
+    .video-modal {
+      background: var(--dark);
+      width: 100%; max-width: 680px;
+      border: 1px solid rgba(255,69,0,0.2);
+      overflow: hidden;
+      animation: modalPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .video-modal-head {
+      padding: 16px 22px;
+      background: var(--charcoal);
+      border-bottom: 1px solid rgba(255,248,240,0.07);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .video-modal-title { font-family: var(--font-display); font-size: 20px; letter-spacing: 2px; }
+    .video-modal-tag { font-size: 10px; color: var(--fire); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+    .video-iframe-wrap {
+      position: relative; width: 100%;
+      padding-bottom: 56.25%; /* 16:9 */
+      background: var(--dark);
+    }
+    .video-iframe-wrap iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; border: none;
+    }
+    .video-modal-foot {
+      padding: 16px 22px;
+      background: var(--charcoal);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .video-modal-foot-img { width: 52px; height: 52px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,248,240,0.08); }
+    .video-modal-foot-name { font-family: var(--font-display); font-size: 18px; letter-spacing: 1px; }
+    .video-modal-foot-price { font-size: 13px; color: var(--gold); font-weight: 700; margin-top: 2px; }
+    .video-add-btn {
+      margin-left: auto; background: var(--fire); color: white; border: none;
+      padding: 12px 24px; font-family: var(--font-body); font-weight: 800;
+      font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: none; transition: all 0.2s; flex-shrink: 0;
+    }
+    .video-add-btn:hover { background: var(--ember); transform: translateY(-1px); }
+
+    /* Recipe video btn on menu card */
+    .menu-video-btn {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(0,0,0,0.75); border: 1px solid rgba(255,255,255,0.2);
+      color: white; width: 32px; height: 32px; border-radius: 50%;
+      font-size: 12px; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; opacity: 0;
+      backdrop-filter: blur(4px);
+    }
+    .menu-card:hover .menu-video-btn { opacity: 1; }
+    .menu-video-btn:hover { background: var(--fire); border-color: var(--fire); transform: scale(1.1); }
+    @media (hover: none) { .menu-video-btn { opacity: 1 !important; } }
+    @media (max-width: 575.98px) { .menu-video-btn { opacity: 1 !important; } }
+
   </style>
 </head>
 <body>
@@ -3658,12 +3844,24 @@
     /* ─── DATA ─── */
 
     const menuItems = [
-      { id: 1, name: "SMASH BURGER", category: "Burgers", price: 899, oldPrice: 1100, desc: "Double smash patty, aged cheddar, secret flare sauce, caramelized onion, brioche bun.", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80", badge: "bestseller", rating: 4.9, reviews: 2341 },
-      { id: 2, name: "INFERNO WINGS", category: "Chicken", price: 749, oldPrice: 950, desc: "Ghost pepper glazed wings, blue cheese dip, celery, pickled jalapeños.", img: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=600&q=80", badge: "spicy", rating: 4.8, reviews: 1876 },
-      { id: 3, name: "TRUFFLE FRIES", category: "Sides", price: 449, desc: "Hand-cut fries, black truffle oil, parmesan, fresh herbs, aioli dip.", img: "https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=600&q=80", badge: "veg", rating: 4.7, reviews: 3012 },
-      { id: 4, name: "CRISPY ZINGER", category: "Chicken", price: 699, desc: "Buttermilk fried chicken fillet, sriracha mayo, pickles, toasted brioche.", img: "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600&q=80", badge: "new", rating: 4.8, reviews: 912 },
-      { id: 5, name: "PEPPERONI FEAST", category: "Pizza", price: 1299, oldPrice: 1500, desc: "Double pepperoni, mozzarella fior di latte, San Marzano tomato, basil.", img: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=600&q=80", badge: "bestseller", rating: 4.9, reviews: 4521 },
-      { id: 6, name: "BBQ RIBS", category: "Grills", price: 1899, desc: "Slow-smoked baby back ribs, smoky BBQ glaze, coleslaw, cornbread.", img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80", badge: null, rating: 4.9, reviews: 1543 },
+      { id: 1, name: "SMASH BURGER", category: "Burgers", price: 899, oldPrice: 1100, desc: "Double smash patty, aged cheddar, secret flare sauce, caramelized onion, brioche bun.", img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80", badge: "bestseller", rating: 4.9, reviews: 2341,
+        nutrition: { calories: 720, protein: 38, carbs: 52, fat: 34 },
+        video: "https://www.youtube.com/embed/tDNX6-3IeGU?autoplay=1&mute=1" },
+      { id: 2, name: "INFERNO WINGS", category: "Chicken", price: 749, oldPrice: 950, desc: "Ghost pepper glazed wings, blue cheese dip, celery, pickled jalapeños.", img: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=600&q=80", badge: "spicy", rating: 4.8, reviews: 1876,
+        nutrition: { calories: 580, protein: 44, carbs: 18, fat: 36 },
+        video: "https://www.youtube.com/embed/1Ru7W2GiAYI?autoplay=1&mute=1" },
+      { id: 3, name: "TRUFFLE FRIES", category: "Sides", price: 449, desc: "Hand-cut fries, black truffle oil, parmesan, fresh herbs, aioli dip.", img: "https://images.unsplash.com/photo-1630431341973-02e1b662ec35?w=600&q=80", badge: "veg", rating: 4.7, reviews: 3012,
+        nutrition: { calories: 380, protein: 6, carbs: 48, fat: 18 },
+        video: "https://www.youtube.com/embed/7LMUJv0BbMM?autoplay=1&mute=1" },
+      { id: 4, name: "CRISPY ZINGER", category: "Chicken", price: 699, desc: "Buttermilk fried chicken fillet, sriracha mayo, pickles, toasted brioche.", img: "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600&q=80", badge: "new", rating: 4.8, reviews: 912,
+        nutrition: { calories: 640, protein: 36, carbs: 58, fat: 28 },
+        video: "https://www.youtube.com/embed/4RHoHMxHRXc?autoplay=1&mute=1" },
+      { id: 5, name: "PEPPERONI FEAST", category: "Pizza", price: 1299, oldPrice: 1500, desc: "Double pepperoni, mozzarella fior di latte, San Marzano tomato, basil.", img: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=600&q=80", badge: "bestseller", rating: 4.9, reviews: 4521,
+        nutrition: { calories: 890, protein: 42, carbs: 86, fat: 42 },
+        video: "https://www.youtube.com/embed/sv3TXMSv6Lw?autoplay=1&mute=1" },
+      { id: 6, name: "BBQ RIBS", category: "Grills", price: 1899, desc: "Slow-smoked baby back ribs, smoky BBQ glaze, coleslaw, cornbread.", img: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80", badge: null, rating: 4.9, reviews: 1543,
+        nutrition: { calories: 1050, protein: 68, carbs: 24, fat: 56 },
+        video: "https://www.youtube.com/embed/bJUiWdM__Qw?autoplay=1&mute=1" },
     ];
 
     const categories = [
@@ -3934,7 +4132,16 @@
       const [adminAuth, setAdminAuth]   = useState(false);
       const [adminPw, setAdminPw]       = useState('');
       const [adminPwError, setAdminPwError] = useState('');
-      const ADMIN_PASSWORD = 'flare2025'; // change this to your password
+      const ADMIN_PASSWORD = 'flare2025';
+
+      // Nutrition filter state
+      const [calorieFilter, setCalorieFilter] = useState('all'); // all | low | medium | high
+
+      // Recipe Video state
+      const [videoItem, setVideoItem]   = useState(null);
+
+      // Live Map state
+      const [mapOpen, setMapOpen]       = useState(false); // change this to your password
 
       // New state
       const [cartOpen, setCartOpen]     = useState(false);
@@ -4400,8 +4607,8 @@
 
       /* body scroll lock */
       useEffect(() => {
-        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen || adminOpen) ? 'hidden' : '';
-      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen, historyOpen, adminOpen]);
+        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen || adminOpen || videoItem || mapOpen) ? 'hidden' : '';
+      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen, historyOpen, adminOpen, videoItem, mapOpen]);
 
       /* cart helpers */
       const addToCart = (item, customizations) => {
@@ -4494,7 +4701,14 @@
       };
 
       const filters = ["All","Burgers","Chicken","Pizza","Sides","Grills"];
-      const filtered = activeFilter === "All" ? menuItems : menuItems.filter(i => i.category === activeFilter);
+      const filtered = menuItems.filter(i => {
+        const catMatch = activeFilter === "All" || i.category === activeFilter;
+        if (!catMatch) return false;
+        if (calorieFilter === 'low')    return (i.nutrition?.calories || 999) <= 450;
+        if (calorieFilter === 'medium') return (i.nutrition?.calories || 0) > 450 && (i.nutrition?.calories || 0) <= 750;
+        if (calorieFilter === 'high')   return (i.nutrition?.calories || 0) > 750;
+        return true;
+      });
 
       return (
         <>
@@ -4687,18 +4901,42 @@
                 <div className="section-tag">Full Menu</div>
                 <h2 className="section-title">OUR<br/><em>signatures</em></h2>
               </div>
-              <div className="menu-filters d-flex flex-wrap gap-2">
-                {filters.map(f => (
-                  <button key={f} className={`filter-btn ${activeFilter===f?'active':''}`} onClick={() => setActiveFilter(f)}>{f}</button>
-                ))}
+              <div style={{display:'flex',flexDirection:'column',gap:10,alignItems:'flex-end'}}>
+                <div className="menu-filters d-flex flex-wrap gap-2">
+                  {filters.map(f => (
+                    <button key={f} className={`filter-btn ${activeFilter===f?'active':''}`} onClick={() => setActiveFilter(f)}>{f}</button>
+                  ))}
+                </div>
+                {/* Calorie filter */}
+                <div className="calorie-filter">
+                  <span className="calorie-filter-label">🔥 Calories:</span>
+                  {[['all','All'],['low','Under 450'],['medium','450–750'],['high','750+']].map(([val,label]) => (
+                    <button key={val} className={`calorie-filter-btn ${calorieFilter===val?'active':''}`} onClick={() => setCalorieFilter(val)}>{label}</button>
+                  ))}
+                </div>
               </div>
             </div>
+
+            {filtered.length === 0 && (
+              <div style={{textAlign:'center',padding:'60px 20px',color:'var(--muted)'}}>
+                <div style={{fontSize:40,marginBottom:12}}>🥗</div>
+                <div style={{fontFamily:'var(--font-display)',fontSize:22,letterSpacing:2,marginBottom:8}}>NO ITEMS IN THIS RANGE</div>
+                <div style={{fontSize:13,fontWeight:300}}>Try a different calorie filter or category.</div>
+              </div>
+            )}
+
             <div className="menu-grid row g-3 g-md-4">
               {filtered.map(item => (
                 <div key={item.id} className="menu-card">
                   <div className="menu-img-wrap">
                     <img src={item.img} alt={item.name} />
                     {item.badge && <div className={`menu-badge ${item.badge==='spicy'?'spicy':item.badge==='new'?'new':item.badge==='veg'?'veg':''}`}>{item.badge}</div>}
+                    {/* Recipe video button */}
+                    {item.video && (
+                      <button className="menu-video-btn" onClick={e => { e.stopPropagation(); setVideoItem(item); }} title="Watch recipe video">
+                        ▶
+                      </button>
+                    )}
                     {customizerConfig[item.id] && (
                       <div style={{position:'absolute',top:16,right:60,background:'rgba(10,8,5,0.85)',border:'1px solid rgba(255,215,0,0.4)',color:'var(--gold)',fontSize:'9px',letterSpacing:'2px',padding:'5px 10px',fontWeight:700,textTransform:'uppercase',opacity:0,transition:'opacity 0.3s'}} className="cust-hint">
                         ✦ Customizable
@@ -4726,6 +4964,26 @@
                       </div>
                     </div>
                   </div>
+                  {/* Nutrition bar */}
+                  {item.nutrition && (
+                    <div className="nutrition-bar">
+                      <div className="nutrition-cal">{item.nutrition.calories} <span>kcal</span></div>
+                      <div className="nutrition-macros">
+                        <div className="nutrition-macro protein">
+                          <span className="nutrition-macro-val">{item.nutrition.protein}g</span>
+                          <span className="nutrition-macro-label">Protein</span>
+                        </div>
+                        <div className="nutrition-macro carbs">
+                          <span className="nutrition-macro-val">{item.nutrition.carbs}g</span>
+                          <span className="nutrition-macro-label">Carbs</span>
+                        </div>
+                        <div className="nutrition-macro fat">
+                          <span className="nutrition-macro-val">{item.nutrition.fat}g</span>
+                          <span className="nutrition-macro-label">Fat</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -6294,6 +6552,107 @@
                     })()}
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {/* ── LIVE MAP FAB — shows after order placed ── */}
+          {orderPlaced && (
+            <button className="map-fab d-none d-sm-flex" onClick={() => setMapOpen(true)}>
+              🗺️ Live Map
+            </button>
+          )}
+
+          {/* ── RECIPE VIDEO MODAL ── */}
+          {videoItem && (
+            <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget) setVideoItem(null); }}>
+              <div className="video-modal">
+                <div className="video-modal-head">
+                  <div>
+                    <div className="video-modal-title">{videoItem.name}</div>
+                    <div className="video-modal-tag">🎥 Recipe Video · How It's Made</div>
+                  </div>
+                  <button className="drawer-close" onClick={() => setVideoItem(null)}>✕</button>
+                </div>
+                <div className="video-iframe-wrap">
+                  <iframe
+                    src={videoItem.video}
+                    title={`${videoItem.name} recipe`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+                <div className="video-modal-foot">
+                  <img className="video-modal-foot-img" src={videoItem.img} alt={videoItem.name} />
+                  <div>
+                    <div className="video-modal-foot-name">{videoItem.name}</div>
+                    <div className="video-modal-foot-price">PKR {videoItem.price.toLocaleString()}</div>
+                  </div>
+                  <button className="video-add-btn" onClick={() => {
+                    requireAuth(() => { openCustomizer(videoItem); setVideoItem(null); }, 'Sign in to add to cart.');
+                  }}>
+                    + Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── LIVE DELIVERY MAP MODAL ── */}
+          {mapOpen && (
+            <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget) setMapOpen(false); }}>
+              <div className="map-modal">
+                <div className="map-modal-head">
+                  <div>
+                    <div className="map-modal-title">LIVE <span>DELIVERY</span></div>
+                    <div style={{fontSize:11,color:'var(--muted)',letterSpacing:1,marginTop:2}}>Order #{placedOrderId} · Tracking your rider</div>
+                  </div>
+                  <button className="drawer-close" onClick={() => setMapOpen(false)}>✕</button>
+                </div>
+
+                {/* Google Maps embed showing Peshawar */}
+                <div className="map-iframe-wrap">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26562.485836756396!2d71.48!3d34.01!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38d917b70715b7b9%3A0xa26a3f2ab6851b48!2sPeshawar%2C%20Khyber%20Pakhtunkhwa!5e0!3m2!1sen!2s!4v1234567890"
+                    allowFullScreen loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Delivery Map"
+                  />
+                  <div className="map-overlay-banner">
+                    <div style={{display:'flex',alignItems:'center',gap:10}}>
+                      <span style={{fontSize:24}}>🚴</span>
+                      <div>
+                        <div style={{fontFamily:'var(--font-display)',fontSize:16,letterSpacing:2,color:'white'}}>RIDER EN ROUTE</div>
+                        <div style={{fontSize:11,color:'rgba(255,255,255,0.7)'}}>Updating every 30 seconds</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rider info */}
+                <div className="map-rider-info">
+                  <div className="map-rider-avatar">🚴</div>
+                  <div>
+                    <div className="map-rider-name">Your FLARE Rider</div>
+                    <div className="map-rider-sub">📞 +92 326 1369791 · On the way to you</div>
+                  </div>
+                  <div className="map-eta-badge">
+                    <div className="map-eta-num">{Math.max(2, 18 - trackerStep * 4)}</div>
+                    <div className="map-eta-label">Min ETA</div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="map-actions">
+                  <a className="map-call-btn" href="tel:+923261369791">
+                    📞 Call Rider
+                  </a>
+                  <a className="map-wa-btn"
+                    href={`https://wa.me/923261369791?text=Hi!%20I%20am%20tracking%20my%20order%20%23${placedOrderId}`}
+                    target="_blank" rel="noopener noreferrer">
+                    💬 WhatsApp
+                  </a>
+                </div>
               </div>
             </div>
           )}
