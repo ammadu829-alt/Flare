@@ -4167,10 +4167,7 @@
       const [calorieFilter, setCalorieFilter] = useState('all'); // all | low | medium | high
 
       // Recipe Video state
-      const [videoItem, setVideoItem]   = useState(null);
-
-      // Live Map state
-      const [mapOpen, setMapOpen]       = useState(false); // change this to your password
+      const [videoItem, setVideoItem]   = useState(null); // change this to your password
 
       // New state
       const [cartOpen, setCartOpen]     = useState(false);
@@ -4662,8 +4659,8 @@
 
       /* body scroll lock */
       useEffect(() => {
-        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen || adminOpen || videoItem || mapOpen) ? 'hidden' : '';
-      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen, historyOpen, adminOpen, videoItem, mapOpen]);
+        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen || adminOpen || videoItem) ? 'hidden' : '';
+      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen, historyOpen, adminOpen, videoItem]);
 
       /* cart helpers */
       const addToCart = (item, customizations) => {
@@ -5839,13 +5836,9 @@
                           💬 WhatsApp
                         </a>
                         <button className="tracker-receipt-btn"
+                          style={{gridColumn:'span 2'}}
                           onClick={() => { setTrackerOpen(false); setCheckoutOpen(true); setCheckoutStep(4); }}>
-                          🧾 Receipt
-                        </button>
-                        <button className="tracker-receipt-btn"
-                          style={{borderColor:'rgba(39,174,96,0.3)',color:'#27ae60'}}
-                          onClick={() => { setTrackerOpen(false); setMapOpen(true); }}>
-                          🗺️ Live Map
+                          🧾 View Receipt
                         </button>
                       </div>
                     </div>
@@ -6616,13 +6609,6 @@
             </div>
           )}
 
-          {/* ── LIVE MAP FAB — shows after order placed ── */}
-          {orderPlaced && (
-            <button className="map-fab" onClick={() => setMapOpen(true)}>
-              🗺️ Live Map
-            </button>
-          )}
-
           {/* ── RECIPE VIDEO MODAL ── */}
           {videoItem && (
             <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget) setVideoItem(null); }}>
@@ -6653,65 +6639,6 @@
                   }}>
                     + Add to Cart
                   </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ── LIVE DELIVERY MAP MODAL ── */}
-          {mapOpen && (
-            <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget) setMapOpen(false); }}>
-              <div className="map-modal">
-                <div className="map-modal-head">
-                  <div>
-                    <div className="map-modal-title">LIVE <span>DELIVERY</span></div>
-                    <div style={{fontSize:11,color:'var(--muted)',letterSpacing:1,marginTop:2}}>Order #{placedOrderId} · Tracking your rider</div>
-                  </div>
-                  <button className="drawer-close" onClick={() => setMapOpen(false)}>✕</button>
-                </div>
-
-                {/* Google Maps embed showing Peshawar */}
-                <div className="map-iframe-wrap">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d26562.485836756396!2d71.48!3d34.01!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38d917b70715b7b9%3A0xa26a3f2ab6851b48!2sPeshawar%2C%20Khyber%20Pakhtunkhwa!5e0!3m2!1sen!2s!4v1234567890"
-                    allowFullScreen loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Delivery Map"
-                  />
-                  <div className="map-overlay-banner">
-                    <div style={{display:'flex',alignItems:'center',gap:10}}>
-                      <span style={{fontSize:24}}>🚴</span>
-                      <div>
-                        <div style={{fontFamily:'var(--font-display)',fontSize:16,letterSpacing:2,color:'white'}}>RIDER EN ROUTE</div>
-                        <div style={{fontSize:11,color:'rgba(255,255,255,0.7)'}}>Updating every 30 seconds</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Rider info */}
-                <div className="map-rider-info">
-                  <div className="map-rider-avatar">🚴</div>
-                  <div>
-                    <div className="map-rider-name">Your FLARE Rider</div>
-                    <div className="map-rider-sub">📞 +92 326 1369791 · On the way to you</div>
-                  </div>
-                  <div className="map-eta-badge">
-                    <div className="map-eta-num">{Math.max(2, 18 - trackerStep * 4)}</div>
-                    <div className="map-eta-label">Min ETA</div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="map-actions">
-                  <a className="map-call-btn" href="tel:+923261369791">
-                    📞 Call Rider
-                  </a>
-                  <a className="map-wa-btn"
-                    href={`https://wa.me/923261369791?text=Hi!%20I%20am%20tracking%20my%20order%20%23${placedOrderId}`}
-                    target="_blank" rel="noopener noreferrer">
-                    💬 WhatsApp
-                  </a>
                 </div>
               </div>
             </div>
