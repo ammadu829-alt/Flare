@@ -4313,28 +4313,9 @@
         setCartOpen(true);
       };
 
-      // ── Tracker computed vars (must be after all state declarations) ──
-      const STEP_TIMES = [0, 2, 8, 12, 30]; // real minutes per step
-      const elapsedMins = orderPlacedTime ? Math.floor((nowTime - orderPlacedTime) / 60000) : 0;
-      const elapsedSecs = orderPlacedTime ? Math.floor((nowTime - orderPlacedTime) / 1000) : 0;
-      const getStepTime = (stepIdx) => {
-        if (trackerStep < stepIdx) return 'Pending';
-        if (stepIdx === 0 && elapsedSecs < 10) return 'Just now';
-        const minsPassed = elapsedMins - STEP_TIMES[stepIdx];
-        if (minsPassed < 1) return 'Just now';
-        if (minsPassed === 1) return '1 min ago';
-        return `${minsPassed} min ago`;
-      };
-      const trackerSteps = [
-        { icon:'✅', name:'ORDER RECEIVED',      desc:'Your order is confirmed and sent to our kitchen.',              time: getStepTime(0), status: trackerStep > 0 ? 'done' : 'active' },
-        { icon:'👨‍🍳', name:'PREPARING YOUR FOOD', desc:'Our chefs are cooking your order fresh right now.',             time: getStepTime(1), status: trackerStep > 1 ? 'done' : trackerStep === 1 ? 'active' : 'pending' },
-        { icon:'📦', name:'PACKED & READY',       desc:'Your order is packed hot and ready for the rider.',             time: getStepTime(2), status: trackerStep > 2 ? 'done' : trackerStep === 2 ? 'active' : 'pending' },
-        { icon:'🚴', name:'OUT FOR DELIVERY',     desc:`Rider is heading your way! ETA ~${Math.max(1,30-elapsedMins)} min.`, time: getStepTime(3), status: trackerStep > 3 ? 'done' : trackerStep === 3 ? 'active' : 'pending' },
-        { icon:'🎉', name:'DELIVERED!',           desc:'Your FLARE order has arrived. Enjoy every bite!',               time: trackerStep >= 4 ? 'Delivered ✓' : `~${Math.max(1,30-elapsedMins)} min left`, status: trackerStep >= 4 ? 'done' : 'pending' },
-      ];
-      const trackerEtaMins = Math.max(0, 30 - elapsedMins);
+      // ── Tracker computed vars defined below after ALL state declarations ──
 
-      // Computed for tracker modal
+      // Computed for tracker modal — MUST be after all useState declarations
       const orderHistoryList = getOrderHistory();
       const orderHistoryTotal = orderHistoryList.reduce((s,o)=>s+(Number(o.total)||0),0);
 
@@ -4344,6 +4325,38 @@
       const adminItemCounts = {};
       adminOrders.forEach(o => (o.items||[]).forEach(i => { adminItemCounts[i.name] = (adminItemCounts[i.name]||0) + (Number(i.qty)||1); }));
       const adminTopItems = Object.entries(adminItemCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+
+      // ── TRACKER REAL-TIME VARS (after all state) ──
+      const STEP_MINS = [0, 2, 8, 12, 30]; // minutes after order placed per step
+      const _elapsed = orderPlacedTime ? (nowTime - orderPlacedTime) / 60000 : 0;
+      const elapsedMins = Math.floor(_elapsed);
+      const elapsedSecs = orderPlacedTime ? Math.floor((nowTime - orderPlacedTime) / 1000) : 0;
+
+      // Compute current step from elapsed time
+      const computedStep = (() => {
+        if (!orderPlacedTime) return 0;
+        for (let i = STEP_MINS.length - 1; i >= 0; i--) {
+          if (_elapsed >= STEP_MINS[i]) return i;
+        }
+        return 0;
+      })();
+
+      const getStepTime = (stepIdx) => {
+        if (computedStep < stepIdx) return 'Pending';
+        const minsPassed = elapsedMins - STEP_MINS[stepIdx];
+        if (minsPassed < 1) return 'Just now';
+        if (minsPassed === 1) return '1 min ago';
+        return `${minsPassed} min ago`;
+      };
+
+      const trackerSteps = [
+        { icon:'✅', name:'ORDER RECEIVED',      desc:'Your order is confirmed and sent to our kitchen.',                    time: getStepTime(0), status: computedStep > 0 ? 'done' : 'active' },
+        { icon:'👨‍🍳', name:'PREPARING YOUR FOOD', desc:'Our chefs are cooking your order fresh right now.',                   time: getStepTime(1), status: computedStep > 1 ? 'done' : computedStep === 1 ? 'active' : 'pending' },
+        { icon:'📦', name:'PACKED & READY',       desc:'Your order is packed hot and ready for the rider.',                   time: getStepTime(2), status: computedStep > 2 ? 'done' : computedStep === 2 ? 'active' : 'pending' },
+        { icon:'🚴', name:'OUT FOR DELIVERY',     desc:`Your rider is on the way! ~${Math.max(1, 30 - elapsedMins)} min ETA.`, time: getStepTime(3), status: computedStep > 3 ? 'done' : computedStep === 3 ? 'active' : 'pending' },
+        { icon:'🎉', name:'DELIVERED!',           desc:'Your FLARE order has arrived. Enjoy every bite!',                     time: computedStep >= 4 ? '✓ Delivered' : `~${Math.max(1, 30 - elapsedMins)} min left`, status: computedStep >= 4 ? 'done' : 'pending' },
+      ];
+      const trackerEtaMins = Math.max(0, 30 - elapsedMins);
 
       const copyReferral = () => {
         const code = getReferralCode();
@@ -4621,7 +4634,7 @@
         return () => clearInterval(t);
       }, [flashOpen]);
 
-      // Real-time tracker — step advances based on actual elapsed minutes
+      // Sync trackerStep state with real-time computed value
       useEffect(() => {
         if (!orderPlaced || !orderPlacedTime) return;
         const MINS = [0, 2, 8, 12, 30];
@@ -5765,12 +5778,12 @@
                     {/* Animated map */}
                     <div className="tracker-map">
                       <div className="tracker-map-bg" />
-                      <div className="tracker-road"><div className="tracker-road-dot" style={{left:`${10 + trackerStep * 16}%`}} /></div>
-                      <div className="tracker-rider" style={{left:`${8 + trackerStep * 15}%`}}>🚴</div>
+                      <div className="tracker-road"><div className="tracker-road-dot" style={{left:`${10 + computedStep * 16}%`}} /></div>
+                      <div className="tracker-rider" style={{left:`${8 + computedStep * 15}%`}}>🚴</div>
                       <div className="tracker-dest">🏠</div>
                       <div className="tracker-eta">
                         <div className="tracker-eta-label">Est. Arrival</div>
-                        <div className="tracker-eta-time">{trackerStep >= 4 ? 'Arrived! 🎉' : `~${trackerEtaMins} min`}</div>
+                        <div className="tracker-eta-time">{computedStep >= 4 ? 'Arrived! 🎉' : `~${trackerEtaMins} min`}</div>
                       </div>
                     </div>
 
