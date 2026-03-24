@@ -2260,40 +2260,105 @@
     /* steps */
     .tracker-steps { display: flex; flex-direction: column; gap: 0; }
     .tracker-step {
-      display: flex; gap: 20px; position: relative; padding-bottom: 28px;
+      display: flex; gap: 16px; position: relative; padding-bottom: 0;
     }
-    .tracker-step:last-child { padding-bottom: 0; }
+    .tracker-step:last-child .tracker-step-left .tracker-step-line { display: none; }
     .tracker-step-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+
+    /* Step icon circle */
     .tracker-step-icon {
-      width: 44px; height: 44px;
+      width: 48px; height: 48px;
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 18px; flex-shrink: 0;
-      border: 2px solid rgba(255,248,240,0.1);
-      background: var(--ash); transition: all 0.5s;
+      font-size: 20px; flex-shrink: 0;
+      border: 2px solid rgba(255,248,240,0.12);
+      background: var(--ash); transition: all 0.6s ease;
       position: relative; z-index: 1;
     }
+
+    /* DONE — bright green with white tick */
     .tracker-step.done .tracker-step-icon {
-      background: var(--fire); border-color: var(--fire);
-      box-shadow: 0 0 20px rgba(255,69,0,0.5);
+      background: #27ae60;
+      border-color: #27ae60;
+      box-shadow: 0 0 0 4px rgba(39,174,96,0.2), 0 0 16px rgba(39,174,96,0.4);
+      font-size: 22px;
     }
+
+    /* ACTIVE — orange pulsing */
     .tracker-step.active .tracker-step-icon {
-      background: rgba(255,69,0,0.15); border-color: var(--fire);
+      background: rgba(255,69,0,0.15);
+      border-color: var(--fire);
+      border-width: 2px;
       animation: stepPulse 1.5s ease-in-out infinite;
     }
-    @keyframes stepPulse { 0%,100%{box-shadow:0 0 0 0 rgba(255,69,0,0.4)} 50%{box-shadow:0 0 0 10px rgba(255,69,0,0)} }
-    .tracker-step-line {
-      width: 2px; flex: 1; margin: 4px 0;
-      background: rgba(255,248,240,0.07); min-height: 20px;
+
+    /* PENDING — dim */
+    .tracker-step.pending .tracker-step-icon {
+      background: var(--dark);
+      border-color: rgba(255,248,240,0.07);
+      opacity: 0.4;
+      font-size: 16px;
     }
-    .tracker-step.done .tracker-step-line { background: var(--fire); }
-    .tracker-step-right { padding-top: 8px; }
-    .tracker-step-name { font-family: var(--font-display); font-size: 18px; letter-spacing: 1px; margin-bottom: 4px; }
-    .tracker-step.done .tracker-step-name { color: var(--cream); }
-    .tracker-step.pending .tracker-step-name { color: var(--smoke); }
+
+    @keyframes stepPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(255,69,0,0.5); }
+      50%      { box-shadow: 0 0 0 12px rgba(255,69,0,0); }
+    }
+
+    /* Connecting line */
+    .tracker-step-line {
+      width: 3px; flex: 1; margin: 4px 0; min-height: 28px;
+      background: rgba(255,248,240,0.07);
+      transition: background 0.6s ease;
+    }
+    .tracker-step.done .tracker-step-line { background: #27ae60; }
+    .tracker-step.active .tracker-step-line { background: rgba(255,69,0,0.3); }
+
+    /* Text styles */
+    .tracker-step-right {
+      padding: 10px 0 24px;
+      flex: 1;
+    }
+    .tracker-step-name {
+      font-family: var(--font-display);
+      font-size: 17px; letter-spacing: 1px; margin-bottom: 3px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tracker-step.done  .tracker-step-name { color: #27ae60; }
     .tracker-step.active .tracker-step-name { color: var(--fire); }
-    .tracker-step-desc { font-size: 12px; color: var(--muted); font-weight: 300; line-height: 1.5; }
-    .tracker-step-time { font-size: 11px; color: var(--fire); font-weight: 600; margin-top: 4px; }
-    .tracker-step.pending .tracker-step-time { color: var(--smoke); }
+    .tracker-step.pending .tracker-step-name { color: var(--smoke); }
+
+    /* Done badge */
+    .tracker-done-badge {
+      background: rgba(39,174,96,0.15);
+      border: 1px solid rgba(39,174,96,0.4);
+      color: #27ae60;
+      font-size: 9px; font-family: var(--font-body);
+      font-weight: 800; letter-spacing: 2px;
+      padding: 2px 7px; text-transform: uppercase;
+    }
+    /* Active badge */
+    .tracker-active-badge {
+      background: rgba(255,69,0,0.12);
+      border: 1px solid rgba(255,69,0,0.4);
+      color: var(--fire);
+      font-size: 9px; font-family: var(--font-body);
+      font-weight: 800; letter-spacing: 2px;
+      padding: 2px 7px; text-transform: uppercase;
+      animation: badgePulse 1.5s ease-in-out infinite;
+    }
+    @keyframes badgePulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+    .tracker-step-desc {
+      font-size: 12px; color: var(--muted); font-weight: 300; line-height: 1.6;
+      margin-bottom: 4px;
+    }
+    .tracker-step.pending .tracker-step-desc { opacity: 0.4; }
+    .tracker-step-time {
+      font-size: 11px; font-weight: 600; margin-top: 2px;
+    }
+    .tracker-step.done   .tracker-step-time { color: #27ae60; }
+    .tracker-step.active .tracker-step-time { color: var(--fire); }
+    .tracker-step.pending .tracker-step-time { color: var(--smoke); opacity: 0.4; }
 
     .tracker-items-preview {
       margin-top: 24px; padding: 16px;
@@ -5792,11 +5857,21 @@
                       {trackerSteps.map((step, idx) => (
                         <div key={idx} className={`tracker-step ${step.status}`}>
                           <div className="tracker-step-left">
-                            <div className="tracker-step-icon">{step.status === 'done' ? '✓' : step.icon}</div>
+                            <div className="tracker-step-icon">
+                              {step.status === 'done'
+                                ? '✅'
+                                : step.status === 'active'
+                                ? step.icon
+                                : step.icon}
+                            </div>
                             {idx < trackerSteps.length - 1 && <div className="tracker-step-line" />}
                           </div>
                           <div className="tracker-step-right">
-                            <div className="tracker-step-name">{step.name}</div>
+                            <div className="tracker-step-name">
+                              {step.name}
+                              {step.status === 'done' && <span className="tracker-done-badge">✓ Done</span>}
+                              {step.status === 'active' && <span className="tracker-active-badge">● In Progress</span>}
+                            </div>
                             <div className="tracker-step-desc">{step.desc}</div>
                             <div className="tracker-step-time">{step.time}</div>
                           </div>
