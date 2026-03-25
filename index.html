@@ -5899,8 +5899,8 @@
               </div>
             </div>
           )}
-          {/* ── TRACK ORDER FAB — only visible after order is placed ── */}
-          {loggedInUser && orderPlaced && (
+          {/* ── TRACK ORDER FAB — only while order is active, hidden after delivery ── */}
+          {loggedInUser && orderPlaced && computedStep < 4 && (
             <button className="track-fab" onClick={() => setTrackerOpen(true)}>
               <span className="track-fab-dot" />
               Track Order
