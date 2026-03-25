@@ -3904,6 +3904,126 @@
     @media (hover: none) { .menu-video-btn { opacity: 1 !important; } }
     @media (max-width: 575.98px) { .menu-video-btn { opacity: 1 !important; } }
 
+    /* ======================================================
+       DELIVERY RATING MODAL
+    ====================================================== */
+    .rating-modal {
+      background: var(--charcoal);
+      width: 100%; max-width: 420px;
+      border: 1px solid rgba(255,215,0,0.25);
+      overflow: hidden;
+      animation: modalPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative;
+    }
+    .rating-modal::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(255,215,0,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .rating-head {
+      padding: 28px 24px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,248,240,0.07);
+    }
+    .rating-delivered-icon {
+      font-size: 52px; display: block; margin-bottom: 12px;
+      animation: deliveredBounce 0.8s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes deliveredBounce {
+      0%   { transform: scale(0) rotate(-20deg); }
+      60%  { transform: scale(1.2) rotate(5deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    .rating-title {
+      font-family: var(--font-display);
+      font-size: 28px; letter-spacing: 3px; color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .rating-sub { font-size: 13px; color: var(--muted); font-weight: 300; line-height: 1.6; }
+
+    .rating-body { padding: 24px; }
+
+    /* Star rating */
+    .rating-stars-label {
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted); font-weight: 600; text-align: center;
+      margin-bottom: 14px;
+    }
+    .rating-stars {
+      display: flex; justify-content: center; gap: 8px; margin-bottom: 20px;
+    }
+    .rating-star {
+      font-size: 40px; cursor: none;
+      transition: transform 0.15s ease;
+      filter: grayscale(1) opacity(0.3);
+      line-height: 1;
+    }
+    .rating-star.lit {
+      filter: none;
+      animation: starPop 0.2s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .rating-star:hover { transform: scale(1.2); }
+    @keyframes starPop {
+      0%   { transform: scale(0.7); }
+      60%  { transform: scale(1.25); }
+      100% { transform: scale(1); }
+    }
+    .rating-label-text {
+      text-align: center; font-family: var(--font-display);
+      font-size: 18px; letter-spacing: 2px; min-height: 26px;
+      margin-bottom: 18px; transition: all 0.2s;
+    }
+
+    /* Comment box */
+    .rating-comment {
+      width: 100%; background: var(--ash);
+      border: 1px solid rgba(255,248,240,0.1);
+      color: var(--cream); font-family: var(--font-body);
+      font-size: 13px; padding: 12px 14px;
+      outline: none; resize: none; height: 80px;
+      transition: border-color 0.2s; margin-bottom: 16px;
+    }
+    .rating-comment:focus { border-color: var(--gold); }
+    .rating-comment::placeholder { color: var(--smoke); }
+
+    /* Quick feedback chips */
+    .rating-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .rating-chip {
+      background: transparent; border: 1px solid rgba(255,248,240,0.1);
+      color: var(--muted); padding: 6px 12px; font-size: 11px;
+      font-family: var(--font-body); cursor: none; transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .rating-chip.selected { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.08); }
+    .rating-chip:hover { border-color: var(--gold); color: var(--gold); }
+
+    .rating-submit-btn {
+      width: 100%; background: var(--gold); color: var(--dark);
+      border: none; padding: 15px; font-family: var(--font-body);
+      font-weight: 800; font-size: 14px; letter-spacing: 2px;
+      text-transform: uppercase; cursor: none; transition: all 0.3s;
+    }
+    .rating-submit-btn:hover { background: #f0c800; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(255,215,0,0.35); }
+    .rating-submit-btn:disabled { background: var(--smoke); color: var(--muted); transform: none; box-shadow: none; cursor: not-allowed; }
+    .rating-skip { text-align: center; margin-top: 12px; font-size: 12px; color: var(--smoke); cursor: none; }
+    .rating-skip span { text-decoration: underline; cursor: none; }
+    .rating-skip span:hover { color: var(--muted); }
+
+    /* Success screen */
+    .rating-success {
+      padding: 40px 24px; text-align: center;
+      animation: modalPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .rating-success-icon { font-size: 56px; display: block; margin-bottom: 16px; animation: deliveredBounce 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+    .rating-success-title { font-family: var(--font-display); font-size: 26px; letter-spacing: 3px; color: #27ae60; margin-bottom: 8px; }
+    .rating-success-sub { font-size: 13px; color: var(--muted); line-height: 1.7; font-weight: 300; }
+
+    @media (max-width: 575.98px) {
+      .rating-modal { max-width: 100%; }
+      .rating-star { font-size: 34px !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -4408,6 +4528,14 @@
       const [orderPlacedTime, setOrderPlacedTime] = useState(null);
       const [activeOrderId] = useState(() => 'FLR-' + Math.floor(100000 + Math.random() * 900000));
 
+      // Rating state
+      const [ratingOpen, setRatingOpen]     = useState(false);
+      const [ratingDone, setRatingDone]     = useState(false);
+      const [ratingStars, setRatingStars]   = useState(0);
+      const [ratingHover, setRatingHover]   = useState(0);
+      const [ratingComment, setRatingComment] = useState('');
+      const [ratingSubmitted, setRatingSubmitted] = useState(false);
+
       // Live clock — ticks every second to keep tracker display fresh
       const [nowTime, setNowTime] = useState(Date.now());
       useEffect(() => {
@@ -4694,7 +4822,17 @@
         return () => clearInterval(t);
       }, [flashOpen]);
 
-      // Sync trackerStep state with real-time computed value
+      // Auto-show rating when order is delivered (computedStep = 4)
+      useEffect(() => {
+        if (computedStep >= 4 && trackerOpen && !ratingDone) {
+          // Close tracker after 3 seconds, then show rating
+          const t = setTimeout(() => {
+            setTrackerOpen(false);
+            setTimeout(() => setRatingOpen(true), 600);
+          }, 3000);
+          return () => clearTimeout(t);
+        }
+      }, [computedStep, trackerOpen, ratingDone]);
       useEffect(() => {
         if (!orderPlaced || !orderPlacedTime) return;
         const MINS = [0, 2, 8, 12, 30];
@@ -4732,8 +4870,8 @@
 
       /* body scroll lock */
       useEffect(() => {
-        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen || adminOpen || videoItem) ? 'hidden' : '';
-      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen, historyOpen, adminOpen, videoItem]);
+        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen || adminOpen || videoItem || ratingOpen) ? 'hidden' : '';
+      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen, historyOpen, adminOpen, videoItem, ratingOpen]);
 
       /* cart helpers */
       const addToCart = (item, customizations) => {
@@ -6723,6 +6861,102 @@
                     + Add to Cart
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── DELIVERY RATING MODAL ── */}
+          {ratingOpen && (
+            <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget && ratingSubmitted) { setRatingOpen(false); } }}>
+              <div className="rating-modal">
+                {!ratingSubmitted ? (
+                  <>
+                    <div className="rating-head">
+                      <span className="rating-delivered-icon">🎉</span>
+                      <div className="rating-title">ORDER DELIVERED!</div>
+                      <div className="rating-sub">
+                        Your FLARE order <strong style={{color:'var(--cream)'}}>#{placedOrderId}</strong> has arrived.<br/>
+                        How was your experience?
+                      </div>
+                    </div>
+                    <div className="rating-body">
+                      <div className="rating-stars-label">Rate Your Order</div>
+                      <div className="rating-stars">
+                        {[1,2,3,4,5].map(star => (
+                          <span
+                            key={star}
+                            className={`rating-star ${(ratingHover || ratingStars) >= star ? 'lit' : ''}`}
+                            onClick={() => setRatingStars(star)}
+                            onMouseEnter={() => setRatingHover(star)}
+                            onMouseLeave={() => setRatingHover(0)}
+                          >⭐</span>
+                        ))}
+                      </div>
+                      <div className="rating-label-text" style={{color: ratingStars >= 4 ? '#27ae60' : ratingStars >= 3 ? 'var(--gold)' : ratingStars > 0 ? 'var(--fire)' : 'var(--smoke)'}}>
+                        {ratingStars === 5 ? '🔥 Amazing! Absolutely loved it!'
+                          : ratingStars === 4 ? '😊 Great! Really enjoyed it'
+                          : ratingStars === 3 ? '😐 Okay, could be better'
+                          : ratingStars === 2 ? '😕 Disappointing experience'
+                          : ratingStars === 1 ? '😠 Very bad, needs improvement'
+                          : 'Tap a star to rate'}
+                      </div>
+
+                      {/* Quick feedback chips */}
+                      {ratingStars > 0 && (
+                        <div className="rating-chips">
+                          {(ratingStars >= 4
+                            ? ['🍔 Delicious food','⚡ Fast delivery','🌡️ Food was hot','📦 Great packaging','😊 Friendly rider']
+                            : ['🐢 Late delivery','🥶 Food was cold','📦 Bad packaging','🍔 Food quality','😐 Wrong order']
+                          ).map(chip => (
+                            <button key={chip}
+                              className={`rating-chip ${ratingComment.includes(chip) ? 'selected' : ''}`}
+                              onClick={() => setRatingComment(p => p.includes(chip) ? p.replace(chip,'').trim() : (p ? p + ', ' + chip : chip))}>
+                              {chip}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      <textarea className="rating-comment"
+                        placeholder="Any additional comments? (optional)"
+                        value={ratingComment}
+                        onChange={e => setRatingComment(e.target.value)}
+                      />
+
+                      <button className="rating-submit-btn"
+                        disabled={ratingStars === 0}
+                        onClick={() => {
+                          setRatingSubmitted(true);
+                          setRatingDone(true);
+                          // Save rating to localStorage
+                          try {
+                            const ratings = JSON.parse(localStorage.getItem('flare_ratings') || '[]');
+                            ratings.push({ orderId: placedOrderId, stars: ratingStars, comment: ratingComment, date: new Date().toLocaleString() });
+                            localStorage.setItem('flare_ratings', JSON.stringify(ratings));
+                          } catch(e) {}
+                        }}>
+                        ⭐ Submit Rating
+                      </button>
+                      <div className="rating-skip">
+                        <span onClick={() => { setRatingDone(true); setRatingOpen(false); }}>Skip for now</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="rating-success">
+                    <span className="rating-success-icon">🙏</span>
+                    <div className="rating-success-title">THANK YOU!</div>
+                    <div className="rating-success-sub">
+                      Your {ratingStars}⭐ rating has been submitted.<br/>
+                      We appreciate your feedback and will keep improving for you!<br/><br/>
+                      <strong style={{color:'var(--gold)'}}>Come back soon for more fire! 🔥</strong>
+                    </div>
+                    <button className="rating-submit-btn" style={{marginTop:24,background:'var(--fire)',color:'white'}}
+                      onClick={() => setRatingOpen(false)}>
+                      Close
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
