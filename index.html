@@ -4352,7 +4352,6 @@
       const [calorieFilter, setCalorieFilter] = useState('all'); // all | low | medium | high
 
       // Recipe Video state
-      const [videoItem, setVideoItem]   = useState(null); // change this to your password
 
       // New state
       const [cartOpen, setCartOpen]     = useState(false);
@@ -4870,8 +4869,8 @@
 
       /* body scroll lock */
       useEffect(() => {
-        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen || adminOpen || videoItem || ratingOpen) ? 'hidden' : '';
-      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen, historyOpen, adminOpen, videoItem, ratingOpen]);
+        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen || adminOpen || ratingOpen) ? 'hidden' : '';
+      }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen, historyOpen, adminOpen, ratingOpen]);
 
       /* cart helpers */
       const addToCart = (item, customizations) => {
@@ -5194,12 +5193,6 @@
                   <div className="menu-img-wrap">
                     <img src={item.img} alt={item.name} />
                     {item.badge && <div className={`menu-badge ${item.badge==='spicy'?'spicy':item.badge==='new'?'new':item.badge==='veg'?'veg':''}`}>{item.badge}</div>}
-                    {/* Recipe video button */}
-                    {item.video && (
-                      <button className="menu-video-btn" onClick={e => { e.stopPropagation(); setVideoItem(item); }} title="Watch recipe video">
-                        ▶
-                      </button>
-                    )}
                     {customizerConfig[item.id] && (
                       <div style={{position:'absolute',top:16,right:60,background:'rgba(10,8,5,0.85)',border:'1px solid rgba(255,215,0,0.4)',color:'var(--gold)',fontSize:'9px',letterSpacing:'2px',padding:'5px 10px',fontWeight:700,textTransform:'uppercase',opacity:0,transition:'opacity 0.3s'}} className="cust-hint">
                         ✦ Customizable
@@ -6826,41 +6819,6 @@
                     })()}
                   </div>
                 )}
-              </div>
-            </div>
-          )}
-
-          {/* ── RECIPE VIDEO MODAL ── */}
-          {videoItem && (
-            <div className="modal-overlay" onClick={e => { if(e.target===e.currentTarget) setVideoItem(null); }}>
-              <div className="video-modal">
-                <div className="video-modal-head">
-                  <div>
-                    <div className="video-modal-title">{videoItem.name}</div>
-                    <div className="video-modal-tag">🎥 {videoItem.videoTitle || "Recipe Video · How It's Made"}</div>
-                  </div>
-                  <button className="drawer-close" onClick={() => setVideoItem(null)}>✕</button>
-                </div>
-                <div className="video-iframe-wrap">
-                  <iframe
-                    src={videoItem.video}
-                    title={`${videoItem.name} recipe`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-                <div className="video-modal-foot">
-                  <img className="video-modal-foot-img" src={videoItem.img} alt={videoItem.name} />
-                  <div>
-                    <div className="video-modal-foot-name">{videoItem.name}</div>
-                    <div className="video-modal-foot-price">PKR {videoItem.price.toLocaleString()}</div>
-                  </div>
-                  <button className="video-add-btn" onClick={() => {
-                    requireAuth(() => { openCustomizer(videoItem); setVideoItem(null); }, 'Sign in to add to cart.');
-                  }}>
-                    + Add to Cart
-                  </button>
-                </div>
               </div>
             </div>
           )}
