@@ -4400,15 +4400,7 @@
         try { return JSON.parse(localStorage.getItem('flare_orders') || '[]'); } catch { return []; }
       };
 
-      // Load orders from MySQL when user is logged in
       const [dbOrders, setDbOrders] = useState([]);
-      useEffect(() => {
-        if (!loggedInUser?.email) return;
-        fetch(`${API}/get_orders.php?email=${encodeURIComponent(loggedInUser.email)}`)
-          .then(r => r.json())
-          .then(data => { if (Array.isArray(data)) setDbOrders(data); })
-          .catch(() => {}); // fallback to localStorage silently
-      }, [loggedInUser, historyOpen]);
       const [referralCopied, setReferralCopied] = useState(false);
       const [referralStats, setReferralStats]   = useState(() => {
         try { return JSON.parse(localStorage.getItem('flare_referral_stats')) || { sent: 0, joined: 0, earned: 0 }; } catch { return { sent:0, joined:0, earned:0 }; }
@@ -4510,43 +4502,17 @@
       // ── Tracker computed vars defined below after ALL state declarations ──
 
       // Computed for tracker modal — MUST be after all useState declarations
-      // Use MySQL orders if available, fallback to localStorage
-      const orderHistoryList = dbOrders.length > 0
-        ? dbOrders.map(o => ({
-            id:       o.order_id,
-            date:     o.created_at,
-            items:    Array.isArray(o.items) ? o.items : [],
-            total:    Number(o.total),
-            delivery: { name: o.customer_name, phone: o.customer_phone, area: o.delivery_area, city: o.delivery_city },
-            payment:  o.payment_method,
-            status:   o.status,
-          }))
-        : getOrderHistory();
+      // Use localStorage orders
+      const orderHistoryList = getOrderHistory();
       const orderHistoryTotal = orderHistoryList.reduce((s,o)=>s+(Number(o.total)||0),0);
 
-      // Admin stats — loads from MySQL when admin panel opens
-      const [adminData, setAdminData] = useState({ orders:[], accounts:[], stats:{} });
-      useEffect(() => {
-        if (!adminOpen || !adminAuth) return;
-        const h = { 'x-admin-secret': 'flare2025' };
-        Promise.all([
-          fetch(`${API}/admin.php?type=orders`,   { headers: h }).then(r=>r.json()).catch(()=>[]),
-          fetch(`${API}/admin.php?type=accounts`, { headers: h }).then(r=>r.json()).catch(()=>[]),
-          fetch(`${API}/admin.php?type=stats`,    { headers: h }).then(r=>r.json()).catch(()=>({})),
-        ]).then(([orders, accounts, stats]) => {
-          setAdminData({
-            orders:   Array.isArray(orders)   ? orders   : [],
-            accounts: Array.isArray(accounts) ? accounts : [],
-            stats:    stats || {},
-          });
-        });
-      }, [adminOpen, adminAuth]);
-
-      const adminOrders    = adminData.orders.length > 0 ? adminData.orders : orderHistoryList;
-      const adminRevenue   = adminData.stats.totalRevenue || adminOrders.reduce((s,o)=>s+(Number(o.total)||0),0);
-      const adminAccounts  = adminData.accounts;
+      // Admin stats from localStorage
+      const [adminData] = useState({ orders:[], accounts:[], stats:{} });
+      const adminOrders = orderHistoryList;
+      const adminRevenue = adminOrders.reduce((s,o)=>s+(Number(o.total)||0),0);
+      const adminAccounts = (() => { try { return JSON.parse(localStorage.getItem('flare_accounts')||'[]'); } catch { return []; } })();
       const adminItemCounts = {};
-      adminOrders.forEach(o => (o.items||[]).forEach(i => { adminItemCounts[i.name||i.customerName||'Item'] = (adminItemCounts[i.name||i.customerName||'Item']||0) + (Number(i.qty)||1); }));
+      adminOrders.forEach(o => (o.items||[]).forEach(i => { adminItemCounts[i.name||'Item'] = (adminItemCounts[i.name||'Item']||0) + (Number(i.qty)||1); }));
       const adminTopItems = Object.entries(adminItemCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
 
       const copyReferral = () => {
@@ -4581,9 +4547,6 @@
         return () => clearInterval(t);
       }, []);
 
-      // ── XAMPP API URL ──
-      const API = 'http://localhost/flare-api';
-
       // Auth system state
       const [loggedInUser, setLoggedInUser] = useState(() => {
         try { return JSON.parse(localStorage.getItem('flare_user')) || null; } catch { return null; }
@@ -4594,58 +4557,40 @@
       const [signupForm, setSignupForm]   = useState({ name:'', email:'', phone:'', password:'' });
       const [loginForm, setLoginForm]     = useState({ email:'', password:'' });
 
-      // ── SIGNUP — saves to MySQL via PHP ──
-      const handleSignup = async () => {
-        setAuthError(''); setAuthSuccess(''); setAuthLoading(true);
+      const getAccounts = () => { try { return JSON.parse(localStorage.getItem('flare_accounts')) || []; } catch { return []; } };
+      const saveAccounts = (a) => localStorage.setItem('flare_accounts', JSON.stringify(a));
+
+      const handleSignup = () => {
+        setAuthError(''); setAuthSuccess('');
         const { name, email, phone, password } = signupForm;
-        if (!name.trim()) { setAuthError('Please enter your full name.'); setAuthLoading(false); return; }
-        if (!email.trim() || !email.includes('@')) { setAuthError('Please enter a valid email.'); setAuthLoading(false); return; }
-        if (!phone.trim()) { setAuthError('Please enter your phone number.'); setAuthLoading(false); return; }
-        if (password.length < 6) { setAuthError('Password must be at least 6 characters.'); setAuthLoading(false); return; }
-        try {
-          const res  = await fetch(`${API}/signup.php`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, phone, password })
-          });
-          const data = await res.json();
-          if (data.error) { setAuthError(data.error); }
-          else {
-            setLoggedInUser(data.user);
-            localStorage.setItem('flare_user', JSON.stringify(data.user));
-            setAuthSuccess(`Welcome to FLARE, ${data.user.name.split(' ')[0]}! 🔥`);
-            setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setSignupForm({ name:'', email:'', phone:'', password:'' }); }, 1500);
-          }
-        } catch(e) {
-          setAuthError('Cannot connect to server. Make sure XAMPP is running.');
-        }
-        setAuthLoading(false);
+        if (!name.trim()) return setAuthError('Please enter your full name.');
+        if (!email.trim() || !email.includes('@')) return setAuthError('Please enter a valid email address.');
+        if (!phone.trim()) return setAuthError('Please enter your phone number.');
+        if (password.length < 6) return setAuthError('Password must be at least 6 characters.');
+        const accounts = getAccounts();
+        if (accounts.find(a => a.email.toLowerCase() === email.toLowerCase()))
+          return setAuthError('An account with this email already exists. Please sign in.');
+        const newUser = { name, email: email.toLowerCase(), phone, password, joinedAt: new Date().toLocaleDateString() };
+        saveAccounts([...accounts, newUser]);
+        setLoggedInUser(newUser);
+        localStorage.setItem('flare_user', JSON.stringify(newUser));
+        setAuthSuccess(`Welcome to FLARE, ${name.split(' ')[0]}! 🔥`);
+        setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setSignupForm({ name:'', email:'', phone:'', password:'' }); }, 1500);
       };
 
-      // ── LOGIN — checks MySQL via PHP ──
-      const handleLogin = async () => {
-        setAuthError(''); setAuthSuccess(''); setAuthLoading(true);
+      const handleLogin = () => {
+        setAuthError(''); setAuthSuccess('');
         const { email, password } = loginForm;
-        if (!email.trim()) { setAuthError('Please enter your email address.'); setAuthLoading(false); return; }
-        if (!password.trim()) { setAuthError('Please enter your password.'); setAuthLoading(false); return; }
-        try {
-          const res  = await fetch(`${API}/login.php`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-          });
-          const data = await res.json();
-          if (data.error) { setAuthError(data.error); }
-          else {
-            setLoggedInUser(data.user);
-            localStorage.setItem('flare_user', JSON.stringify(data.user));
-            setAuthSuccess(`Welcome back, ${data.user.name.split(' ')[0]}! 🔥`);
-            setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setLoginForm({ email:'', password:'' }); }, 1500);
-          }
-        } catch(e) {
-          setAuthError('Cannot connect to server. Make sure XAMPP is running.');
-        }
-        setAuthLoading(false);
+        if (!email.trim()) return setAuthError('Please enter your email address.');
+        if (!password.trim()) return setAuthError('Please enter your password.');
+        const accounts = getAccounts();
+        const found = accounts.find(a => a.email.toLowerCase() === email.toLowerCase());
+        if (!found) return setAuthError('No account found with this email. Please sign up first.');
+        if (found.password !== password) return setAuthError('Incorrect password. Please try again.');
+        setLoggedInUser(found);
+        localStorage.setItem('flare_user', JSON.stringify(found));
+        setAuthSuccess(`Welcome back, ${found.name.split(' ')[0]}! 🔥`);
+        setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setLoginForm({ email:'', password:'' }); }, 1500);
       };
 
       const handleLogout = () => {
@@ -4812,31 +4757,7 @@
           window.open(`https://wa.me/923261369791?text=${riderMsg}`, '_blank');
         }
 
-        // Save to MySQL via PHP
-        fetch(`${API}/save_order.php`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId:       orderId,
-            customerName:  deliveryForm.name,
-            customerEmail: deliveryForm.email,
-            customerPhone: deliveryForm.phone,
-            items:         cart,
-            total:         freshGrand,
-            delivery: {
-              address: deliveryForm.address,
-              area:    deliveryForm.area,
-              city:    deliveryForm.city,
-              notes:   deliveryForm.notes,
-            },
-            deliveryType:  deliveryType,
-            paymentMethod: paymentMethod,
-          })
-        }).then(r => r.json())
-          .then(d => console.log('Order saved to MySQL:', d))
-          .catch(() => console.warn('MySQL save failed — saved to localStorage only'));
-
-        // Also keep localStorage as backup
+        // Save order to localStorage
         try {
           const history = JSON.parse(localStorage.getItem('flare_orders') || '[]');
           localStorage.setItem('flare_orders', JSON.stringify([{
@@ -5853,8 +5774,8 @@
                           value={signupForm.phone}
                           onChange={e => setSignupForm(p=>({...p, phone:e.target.value}))} />
                       </div>
-                      <button className="auth-submit" onClick={handleSignup} disabled={authLoading}>
-                        {authLoading ? 'Creating Account...' : 'Create My Account'}
+                      <button className="auth-submit" onClick={handleSignup}>
+                        Create My Account
                       </button>
                       <div className="auth-switch">
                         Already have an account? <span onClick={() => { setAuthTab('login'); setAuthError(''); }}>Sign in</span>
@@ -5879,8 +5800,8 @@
                           onChange={e => setLoginForm(p=>({...p, password:e.target.value}))}
                           onKeyDown={e => e.key==='Enter' && handleLogin()} />
                       </div>
-                      <button className="auth-submit" onClick={handleLogin} disabled={authLoading}>
-                        {authLoading ? 'Signing In...' : 'Sign In to FLARE'}
+                      <button className="auth-submit" onClick={handleLogin}>
+                        Sign In to FLARE
                       </button>
                       <div style={{textAlign:'center',marginTop:12}}>
                         <span style={{fontSize:12,color:'var(--fire)',cursor:'none',fontWeight:600,letterSpacing:1}}>Forgot password?</span>
@@ -6793,10 +6714,10 @@
                     {/* Stats */}
                     <div className="admin-stats-grid">
                       {[
-                        ['📦', adminData.stats.totalOrders    || adminOrders.length,                             'Total Orders'],
-                        ['💰', `PKR ${Number(adminRevenue).toLocaleString()}`,                                   'Total Revenue'],
-                        ['👥', adminData.stats.totalCustomers || adminAccounts.length,                           'Customers'],
-                        ['⭐', adminData.stats.avgRating      ? `${adminData.stats.avgRating}/5` : '—',          'Avg Rating'],
+                        ['📦', adminOrders.length,                    'Total Orders'],
+                        ['💰', `PKR ${adminRevenue.toLocaleString()}`, 'Total Revenue'],
+                        ['👥', adminAccounts.length,                   'Customers'],
+                        ['🍔', adminOrders.reduce((s,o)=>s+(o.items?.length||0),0), 'Items Sold'],
                       ].map(([icon, val, label]) => (
                         <div key={label} className="admin-stat-card">
                           <span className="admin-stat-icon">{icon}</span>
@@ -6953,18 +6874,6 @@
                         onClick={() => {
                           setRatingSubmitted(true);
                           setRatingDone(true);
-                          // Save rating to MySQL
-                          fetch(`${API}/save_rating.php`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              orderId:       placedOrderId,
-                              customerEmail: loggedInUser?.email || '',
-                              stars:         ratingStars,
-                              comment:       ratingComment,
-                            })
-                          }).catch(() => {});
-                          // Also save locally as backup
                           try {
                             const ratings = JSON.parse(localStorage.getItem('flare_ratings') || '[]');
                             ratings.push({ orderId: placedOrderId, stars: ratingStars, comment: ratingComment, date: new Date().toLocaleString() });
