@@ -4401,6 +4401,13 @@
       };
 
       const [dbOrders, setDbOrders] = useState([]);
+      useEffect(() => {
+        if (!loggedInUser?.email) return;
+        fetch(`${SUPA_URL}/orders?customer_email=eq.${encodeURIComponent(loggedInUser.email)}&order=created_at.desc`, { headers: supaHeaders })
+          .then(r => r.json())
+          .then(data => { if (Array.isArray(data)) setDbOrders(data); })
+          .catch(() => {});
+      }, [loggedInUser, historyOpen]);
       const [referralCopied, setReferralCopied] = useState(false);
       const [referralStats, setReferralStats]   = useState(() => {
         try { return JSON.parse(localStorage.getItem('flare_referral_stats')) || { sent: 0, joined: 0, earned: 0 }; } catch { return { sent:0, joined:0, earned:0 }; }
@@ -4502,15 +4509,45 @@
       // ── Tracker computed vars defined below after ALL state declarations ──
 
       // Computed for tracker modal — MUST be after all useState declarations
-      // Use localStorage orders
-      const orderHistoryList = getOrderHistory();
+      // Use Supabase orders if loaded, fallback to localStorage
+      const orderHistoryList = dbOrders.length > 0
+        ? dbOrders.map(o => ({
+            id:       o.order_id,
+            date:     o.created_at ? new Date(o.created_at).toLocaleString() : '',
+            items:    Array.isArray(o.items) ? o.items : [],
+            total:    Number(o.total),
+            delivery: { name: o.customer_name, phone: o.customer_phone, area: o.delivery_area, city: o.delivery_city },
+            payment:  o.payment_method,
+            status:   o.status,
+          }))
+        : getOrderHistory();
       const orderHistoryTotal = orderHistoryList.reduce((s,o)=>s+(Number(o.total)||0),0);
 
-      // Admin stats from localStorage
-      const [adminData] = useState({ orders:[], accounts:[], stats:{} });
-      const adminOrders = orderHistoryList;
-      const adminRevenue = adminOrders.reduce((s,o)=>s+(Number(o.total)||0),0);
-      const adminAccounts = (() => { try { return JSON.parse(localStorage.getItem('flare_accounts')||'[]'); } catch { return []; } })();
+      // Admin — load all orders + accounts from Supabase
+      const [adminData, setAdminData] = useState({ orders:[], accounts:[] });
+      useEffect(() => {
+        if (!adminOpen || !adminAuth) return;
+        Promise.all([
+          fetch(`${SUPA_URL}/orders?order=created_at.desc`, { headers: supaHeaders }).then(r=>r.json()).catch(()=>[]),
+          fetch(`${SUPA_URL}/accounts?select=id,name,email,phone,joined_at&order=joined_at.desc`, { headers: supaHeaders }).then(r=>r.json()).catch(()=>[]),
+        ]).then(([orders, accounts]) => {
+          setAdminData({
+            orders:   Array.isArray(orders)   ? orders   : [],
+            accounts: Array.isArray(accounts) ? accounts : [],
+          });
+        });
+      }, [adminOpen, adminAuth]);
+
+      const adminOrders   = adminData.orders.length > 0 ? adminData.orders.map(o => ({
+        id: o.order_id, date: o.created_at ? new Date(o.created_at).toLocaleString() : '',
+        items: Array.isArray(o.items) ? o.items : [],
+        total: Number(o.total),
+        delivery: { name: o.customer_name, phone: o.customer_phone, area: o.delivery_area, city: o.delivery_city },
+        payment: o.payment_method, status: o.status,
+      })) : orderHistoryList;
+      const adminRevenue  = adminOrders.reduce((s,o)=>s+(Number(o.total)||0),0);
+      const adminAccounts = adminData.accounts.length > 0 ? adminData.accounts
+        : (() => { try { return JSON.parse(localStorage.getItem('flare_accounts')||'[]'); } catch { return []; } })();
       const adminItemCounts = {};
       adminOrders.forEach(o => (o.items||[]).forEach(i => { adminItemCounts[i.name||'Item'] = (adminItemCounts[i.name||'Item']||0) + (Number(i.qty)||1); }));
       const adminTopItems = Object.entries(adminItemCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
@@ -4547,6 +4584,15 @@
         return () => clearInterval(t);
       }, []);
 
+      // ── SUPABASE CONFIG ──
+      const SUPA_URL = 'https://lxaqozldydhyrrrcnuzc.supabase.co/rest/v1';
+      const SUPA_KEY = 'sb_publishable_EqBAsPBpy_dgHcrfTSU1-A_ONu9S3pm';
+      const supaHeaders = {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+      };
+
       // Auth system state
       const [loggedInUser, setLoggedInUser] = useState(() => {
         try { return JSON.parse(localStorage.getItem('flare_user')) || null; } catch { return null; }
@@ -4557,40 +4603,75 @@
       const [signupForm, setSignupForm]   = useState({ name:'', email:'', phone:'', password:'' });
       const [loginForm, setLoginForm]     = useState({ email:'', password:'' });
 
-      const getAccounts = () => { try { return JSON.parse(localStorage.getItem('flare_accounts')) || []; } catch { return []; } };
-      const saveAccounts = (a) => localStorage.setItem('flare_accounts', JSON.stringify(a));
-
-      const handleSignup = () => {
-        setAuthError(''); setAuthSuccess('');
+      // ── SIGNUP — saves to Supabase ──
+      const handleSignup = async () => {
+        setAuthError(''); setAuthSuccess(''); setAuthLoading(true);
         const { name, email, phone, password } = signupForm;
-        if (!name.trim()) return setAuthError('Please enter your full name.');
-        if (!email.trim() || !email.includes('@')) return setAuthError('Please enter a valid email address.');
-        if (!phone.trim()) return setAuthError('Please enter your phone number.');
-        if (password.length < 6) return setAuthError('Password must be at least 6 characters.');
-        const accounts = getAccounts();
-        if (accounts.find(a => a.email.toLowerCase() === email.toLowerCase()))
-          return setAuthError('An account with this email already exists. Please sign in.');
-        const newUser = { name, email: email.toLowerCase(), phone, password, joinedAt: new Date().toLocaleDateString() };
-        saveAccounts([...accounts, newUser]);
-        setLoggedInUser(newUser);
-        localStorage.setItem('flare_user', JSON.stringify(newUser));
-        setAuthSuccess(`Welcome to FLARE, ${name.split(' ')[0]}! 🔥`);
-        setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setSignupForm({ name:'', email:'', phone:'', password:'' }); }, 1500);
+        if (!name.trim()) { setAuthError('Please enter your full name.'); setAuthLoading(false); return; }
+        if (!email.trim() || !email.includes('@')) { setAuthError('Please enter a valid email.'); setAuthLoading(false); return; }
+        if (!phone.trim()) { setAuthError('Please enter your phone number.'); setAuthLoading(false); return; }
+        if (password.length < 6) { setAuthError('Password must be at least 6 characters.'); setAuthLoading(false); return; }
+        try {
+          // Check if email exists
+          const checkRes = await fetch(`${SUPA_URL}/accounts?email=eq.${encodeURIComponent(email.toLowerCase())}&select=id`, { headers: supaHeaders });
+          const checkData = await checkRes.json();
+          if (checkData.length > 0) { setAuthError('An account with this email already exists. Please sign in.'); setAuthLoading(false); return; }
+          // Insert new account
+          const res = await fetch(`${SUPA_URL}/accounts`, {
+            method: 'POST',
+            headers: { ...supaHeaders, 'Prefer': 'return=representation' },
+            body: JSON.stringify({ name, email: email.toLowerCase(), phone, password })
+          });
+          const data = await res.json();
+          if (!res.ok) { setAuthError(data?.message || 'Signup failed. Please try again.'); setAuthLoading(false); return; }
+          const user = { name, email: email.toLowerCase(), phone };
+          setLoggedInUser(user);
+          localStorage.setItem('flare_user', JSON.stringify(user));
+          setAuthSuccess(`Welcome to FLARE, ${name.split(' ')[0]}! 🔥`);
+          setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setSignupForm({ name:'', email:'', phone:'', password:'' }); }, 1500);
+        } catch(e) {
+          // Fallback to localStorage
+          const accounts = (() => { try { return JSON.parse(localStorage.getItem('flare_accounts')||'[]'); } catch { return []; } })();
+          if (accounts.find(a => a.email.toLowerCase() === email.toLowerCase())) { setAuthError('An account with this email already exists.'); setAuthLoading(false); return; }
+          const newUser = { name, email: email.toLowerCase(), phone, password, joinedAt: new Date().toLocaleDateString() };
+          localStorage.setItem('flare_accounts', JSON.stringify([...accounts, newUser]));
+          setLoggedInUser(newUser);
+          localStorage.setItem('flare_user', JSON.stringify(newUser));
+          setAuthSuccess(`Welcome to FLARE, ${name.split(' ')[0]}! 🔥`);
+          setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setSignupForm({ name:'', email:'', phone:'', password:'' }); }, 1500);
+        }
+        setAuthLoading(false);
       };
 
-      const handleLogin = () => {
-        setAuthError(''); setAuthSuccess('');
+      // ── LOGIN — checks Supabase ──
+      const handleLogin = async () => {
+        setAuthError(''); setAuthSuccess(''); setAuthLoading(true);
         const { email, password } = loginForm;
-        if (!email.trim()) return setAuthError('Please enter your email address.');
-        if (!password.trim()) return setAuthError('Please enter your password.');
-        const accounts = getAccounts();
-        const found = accounts.find(a => a.email.toLowerCase() === email.toLowerCase());
-        if (!found) return setAuthError('No account found with this email. Please sign up first.');
-        if (found.password !== password) return setAuthError('Incorrect password. Please try again.');
-        setLoggedInUser(found);
-        localStorage.setItem('flare_user', JSON.stringify(found));
-        setAuthSuccess(`Welcome back, ${found.name.split(' ')[0]}! 🔥`);
-        setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setLoginForm({ email:'', password:'' }); }, 1500);
+        if (!email.trim()) { setAuthError('Please enter your email address.'); setAuthLoading(false); return; }
+        if (!password.trim()) { setAuthError('Please enter your password.'); setAuthLoading(false); return; }
+        try {
+          const res = await fetch(`${SUPA_URL}/accounts?email=eq.${encodeURIComponent(email.toLowerCase())}&select=name,email,phone,password`, { headers: supaHeaders });
+          const data = await res.json();
+          if (!data.length) { setAuthError('No account found with this email. Please sign up first.'); setAuthLoading(false); return; }
+          const account = data[0];
+          if (account.password !== password) { setAuthError('Incorrect password. Please try again.'); setAuthLoading(false); return; }
+          const user = { name: account.name, email: account.email, phone: account.phone };
+          setLoggedInUser(user);
+          localStorage.setItem('flare_user', JSON.stringify(user));
+          setAuthSuccess(`Welcome back, ${account.name.split(' ')[0]}! 🔥`);
+          setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setLoginForm({ email:'', password:'' }); }, 1500);
+        } catch(e) {
+          // Fallback to localStorage
+          const accounts = (() => { try { return JSON.parse(localStorage.getItem('flare_accounts')||'[]'); } catch { return []; } })();
+          const found = accounts.find(a => a.email.toLowerCase() === email.toLowerCase());
+          if (!found) { setAuthError('No account found with this email.'); setAuthLoading(false); return; }
+          if (found.password !== password) { setAuthError('Incorrect password.'); setAuthLoading(false); return; }
+          setLoggedInUser(found);
+          localStorage.setItem('flare_user', JSON.stringify(found));
+          setAuthSuccess(`Welcome back, ${found.name.split(' ')[0]}! 🔥`);
+          setTimeout(() => { setAuthOpen(false); setAuthSuccess(''); setLoginForm({ email:'', password:'' }); }, 1500);
+        }
+        setAuthLoading(false);
       };
 
       const handleLogout = () => {
@@ -4757,7 +4838,26 @@
           window.open(`https://wa.me/923261369791?text=${riderMsg}`, '_blank');
         }
 
-        // Save order to localStorage
+        // Save order to Supabase + localStorage backup
+        const orderPayload = {
+          order_id: orderId,
+          customer_name: deliveryForm.name,
+          customer_email: deliveryForm.email,
+          customer_phone: deliveryForm.phone,
+          items: cart,
+          total: freshGrand,
+          delivery_address: deliveryForm.address,
+          delivery_area: deliveryForm.area,
+          delivery_city: deliveryForm.city,
+          delivery_type: deliveryType,
+          payment_method: paymentMethod,
+        };
+        fetch(`${SUPA_URL}/orders`, {
+          method: 'POST',
+          headers: { ...supaHeaders, 'Prefer': 'return=minimal' },
+          body: JSON.stringify(orderPayload)
+        }).catch(() => {});
+        // localStorage backup
         try {
           const history = JSON.parse(localStorage.getItem('flare_orders') || '[]');
           localStorage.setItem('flare_orders', JSON.stringify([{
@@ -5774,8 +5874,8 @@
                           value={signupForm.phone}
                           onChange={e => setSignupForm(p=>({...p, phone:e.target.value}))} />
                       </div>
-                      <button className="auth-submit" onClick={handleSignup}>
-                        Create My Account
+                      <button className="auth-submit" onClick={handleSignup} disabled={authLoading}>
+                        {authLoading ? 'Creating Account...' : 'Create My Account'}
                       </button>
                       <div className="auth-switch">
                         Already have an account? <span onClick={() => { setAuthTab('login'); setAuthError(''); }}>Sign in</span>
@@ -5800,8 +5900,8 @@
                           onChange={e => setLoginForm(p=>({...p, password:e.target.value}))}
                           onKeyDown={e => e.key==='Enter' && handleLogin()} />
                       </div>
-                      <button className="auth-submit" onClick={handleLogin}>
-                        Sign In to FLARE
+                      <button className="auth-submit" onClick={handleLogin} disabled={authLoading}>
+                        {authLoading ? 'Signing In...' : 'Sign In to FLARE'}
                       </button>
                       <div style={{textAlign:'center',marginTop:12}}>
                         <span style={{fontSize:12,color:'var(--fire)',cursor:'none',fontWeight:600,letterSpacing:1}}>Forgot password?</span>
@@ -6714,9 +6814,9 @@
                     {/* Stats */}
                     <div className="admin-stats-grid">
                       {[
-                        ['📦', adminOrders.length,                    'Total Orders'],
+                        ['📦', adminOrders.length, 'Total Orders'],
                         ['💰', `PKR ${adminRevenue.toLocaleString()}`, 'Total Revenue'],
-                        ['👥', adminAccounts.length,                   'Customers'],
+                        ['👥', adminAccounts.length, 'Customers'],
                         ['🍔', adminOrders.reduce((s,o)=>s+(o.items?.length||0),0), 'Items Sold'],
                       ].map(([icon, val, label]) => (
                         <div key={label} className="admin-stat-card">
@@ -6874,6 +6974,18 @@
                         onClick={() => {
                           setRatingSubmitted(true);
                           setRatingDone(true);
+                          // Save rating to Supabase
+                          fetch(`${SUPA_URL}/ratings`, {
+                            method: 'POST',
+                            headers: { ...supaHeaders, 'Prefer': 'return=minimal' },
+                            body: JSON.stringify({
+                              order_id: placedOrderId,
+                              customer_email: loggedInUser?.email || '',
+                              stars: ratingStars,
+                              comment: ratingComment,
+                            })
+                          }).catch(() => {});
+                          // localStorage backup
                           try {
                             const ratings = JSON.parse(localStorage.getItem('flare_ratings') || '[]');
                             ratings.push({ orderId: placedOrderId, stars: ratingStars, comment: ratingComment, date: new Date().toLocaleString() });
