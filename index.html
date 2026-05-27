@@ -4024,6 +4024,104 @@
       .rating-star { font-size: 34px !important; }
     }
 
+    /* ======================================================
+       SCHEDULE ORDER
+    ====================================================== */
+    .schedule-section {
+      margin-top: 20px; margin-bottom: 4px;
+    }
+    .schedule-label {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); font-weight: 600; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .schedule-slots {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .schedule-slot {
+      background: transparent;
+      border: 1px solid rgba(255,248,240,0.12);
+      color: var(--muted); padding: 9px 14px;
+      font-family: var(--font-body); font-size: 12px;
+      letter-spacing: 1px; cursor: none; transition: all 0.2s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .schedule-slot.active {
+      border-color: var(--fire); background: rgba(255,69,0,0.1);
+      color: var(--cream);
+    }
+    .schedule-slot:hover { border-color: rgba(255,69,0,0.5); color: var(--cream); }
+    .schedule-slot.now { border-color: rgba(39,174,96,0.4); }
+    .schedule-slot.now.active { border-color: #27ae60; background: rgba(39,174,96,0.1); color: #27ae60; }
+
+    /* ======================================================
+       MIN ORDER PROGRESS BAR
+    ====================================================== */
+    .min-order-bar-wrap {
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      background: var(--ash);
+      border: 1px solid rgba(255,248,240,0.06);
+    }
+    .min-order-bar-top {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 10px;
+    }
+    .min-order-bar-label {
+      font-size: 11px; color: var(--muted);
+      letter-spacing: 1px; font-weight: 600;
+    }
+    .min-order-bar-amounts {
+      font-size: 12px; font-weight: 700;
+    }
+    .min-order-bar-amounts .current { color: var(--fire); }
+    .min-order-bar-amounts .separator { color: var(--smoke); margin: 0 4px; }
+    .min-order-bar-amounts .target { color: var(--muted); }
+    .min-order-track {
+      height: 6px; background: rgba(255,248,240,0.07);
+      border-radius: 3px; overflow: hidden; position: relative;
+    }
+    .min-order-fill {
+      height: 100%; border-radius: 3px;
+      transition: width 0.5s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .min-order-fill.danger  { background: #e74c3c; }
+    .min-order-fill.warning { background: var(--gold); }
+    .min-order-fill.ok      { background: #27ae60; }
+    .min-order-msg {
+      font-size: 11px; margin-top: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .min-order-msg.danger  { color: #e74c3c; }
+    .min-order-msg.warning { color: var(--gold); }
+    .min-order-msg.ok      { color: #27ae60; }
+
+    /* ======================================================
+       ADMIN — MARK AS DELIVERED
+    ====================================================== */
+    .admin-deliver-btn {
+      background: transparent;
+      border: 1px solid rgba(39,174,96,0.4);
+      color: #27ae60; padding: 5px 12px;
+      font-family: var(--font-body); font-size: 10px;
+      font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; cursor: none;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .admin-deliver-btn:hover { background: rgba(39,174,96,0.15); border-color: #27ae60; }
+    .admin-deliver-btn.delivered {
+      border-color: rgba(255,248,240,0.1);
+      color: var(--smoke); cursor: not-allowed;
+    }
+    .admin-status-badge.delivered {
+      background: rgba(39,174,96,0.15); color: #27ae60;
+      border-color: rgba(39,174,96,0.3);
+    }
+    .admin-status-badge.pending {
+      background: rgba(255,215,0,0.1); color: var(--gold);
+      border-color: rgba(255,215,0,0.3);
+    }
+
   </style>
 </head>
 <body>
@@ -4365,10 +4463,11 @@
       const [checkoutOpen, setCheckoutOpen] = useState(false);
       const [checkoutStep, setCheckoutStep] = useState(1); // 1=Delivery, 2=Payment, 3=Review, 4=Confirmed
       const [deliveryType, setDeliveryType] = useState('delivery');
+      const [scheduledTime, setScheduledTime] = useState('now');
       const [deliveryForm, setDeliveryForm] = useState({
         name: '', phone: '', email: '', address: '', city: '', area: '', notes: ''
       });
-      const [selectedZone, setSelectedZone] = useState(null); // {fee, eta, zone}
+      const [selectedZone, setSelectedZone] = useState(null);
       const [paymentMethod, setPaymentMethod] = useState('cod');
       const [cardForm, setCardForm] = useState({ number:'', name:'', expiry:'', cvv:'' });
       const [promoCode, setPromoCode] = useState('');
@@ -4551,6 +4650,22 @@
       const adminItemCounts = {};
       adminOrders.forEach(o => (o.items||[]).forEach(i => { adminItemCounts[i.name||'Item'] = (adminItemCounts[i.name||'Item']||0) + (Number(i.qty)||1); }));
       const adminTopItems = Object.entries(adminItemCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+
+      // Mark orders as delivered
+      const [deliveredOrders, setDeliveredOrders] = useState(() => {
+        try { return JSON.parse(localStorage.getItem('flare_delivered_orders') || '[]'); } catch { return []; }
+      });
+      const markDelivered = (orderId) => {
+        const updated = [...new Set([...deliveredOrders, orderId])];
+        setDeliveredOrders(updated);
+        localStorage.setItem('flare_delivered_orders', JSON.stringify(updated));
+        // Update in Supabase too
+        fetch(`${SUPA_URL}/orders?order_id=eq.${orderId}`, {
+          method: 'PATCH',
+          headers: { ...supaHeaders, 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ status: 'delivered' })
+        }).catch(() => {});
+      };
 
       const copyReferral = () => {
         const code = getReferralCode();
@@ -6209,6 +6324,39 @@
                         </div>
 
                         {deliveryType === 'delivery' && (<>
+                          {/* Schedule time */}
+                          <div className="schedule-section">
+                            <div className="schedule-label">⏰ When do you want it delivered?</div>
+                            <div className="schedule-slots">
+                              {[
+                                { val:'now',   label:'🔥 Deliver Now',  sub:'~' + (selectedZone?.eta || '30 min') },
+                                { val:'7pm',   label:'🕖 7:00 PM',      sub:'Schedule' },
+                                { val:'8pm',   label:'🕗 8:00 PM',      sub:'Schedule' },
+                                { val:'9pm',   label:'🕘 9:00 PM',      sub:'Schedule' },
+                                { val:'10pm',  label:'🕙 10:00 PM',     sub:'Schedule' },
+                                { val:'custom',label:'📅 Custom Time',  sub:'Pick time' },
+                              ].map(slot => (
+                                <button key={slot.val}
+                                  className={`schedule-slot ${scheduledTime===slot.val?'active':''} ${slot.val==='now'?'now':''}`}
+                                  onClick={() => setScheduledTime(slot.val)}>
+                                  <div>
+                                    <div style={{fontWeight:700,fontSize:12}}>{slot.label}</div>
+                                    <div style={{fontSize:10,opacity:0.7,marginTop:1}}>{slot.sub}</div>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                            {scheduledTime === 'custom' && (
+                              <input type="time" className="co-input" style={{marginTop:10,width:'auto'}}
+                                onChange={e => setScheduledTime(e.target.value)} />
+                            )}
+                            {scheduledTime !== 'now' && scheduledTime !== 'custom' && (
+                              <div style={{marginTop:10,padding:'10px 14px',background:'rgba(255,215,0,0.07)',border:'1px solid rgba(255,215,0,0.2)',fontSize:12,color:'var(--gold)'}}>
+                                ⏰ Your order will arrive at <strong>{scheduledTime.toUpperCase()}</strong> — kitchen starts preparing 30 min before
+                              </div>
+                            )}
+                          </div>
+
                           {/* City */}
                           <div className="co-row full">
                             <div className="co-field">
@@ -6273,13 +6421,36 @@
                             </div>
                           )}
 
-                          {/* Min order warning */}
-                          {belowMin && (
-                            <div style={{padding:'10px 14px',background:'rgba(231,76,60,0.1)',border:'1px solid rgba(231,76,60,0.3)',fontSize:12,color:'#e74c3c',marginBottom:8}}>
-                              ⚠️ Minimum order for {deliveryForm.city} is PKR {minOrder}. Add PKR {minOrder - cartTotal} more to continue.
+                          {/* Min order progress bar — always show when city selected */}
+                          {deliveryForm.city && deliveryZones[deliveryForm.city] && (
+                            <div className="min-order-bar-wrap">
+                              <div className="min-order-bar-top">
+                                <span className="min-order-bar-label">🛒 Minimum Order</span>
+                                <span className="min-order-bar-amounts">
+                                  <span className="current">PKR {cartTotal.toLocaleString()}</span>
+                                  <span className="separator">/</span>
+                                  <span className="target">PKR {minOrder.toLocaleString()}</span>
+                                </span>
+                              </div>
+                              <div className="min-order-track">
+                                <div className="min-order-fill"
+                                  style={{
+                                    width: `${Math.min(100, (cartTotal / minOrder) * 100)}%`,
+                                  }}
+                                  className={`min-order-fill ${cartTotal >= minOrder ? 'ok' : cartTotal >= minOrder * 0.7 ? 'warning' : 'danger'}`}
+                                />
+                              </div>
+                              <div className={`min-order-msg ${cartTotal >= minOrder ? 'ok' : cartTotal >= minOrder * 0.7 ? 'warning' : 'danger'}`}>
+                                {cartTotal >= minOrder
+                                  ? '✅ Minimum order reached — you\'re good to go!'
+                                  : cartTotal >= minOrder * 0.7
+                                  ? `⚠️ Almost there! Add PKR ${(minOrder - cartTotal).toLocaleString()} more`
+                                  : `❌ Add PKR ${(minOrder - cartTotal).toLocaleString()} more to meet minimum order`}
+                              </div>
                             </div>
                           )}
 
+                          {/* Street address */}
                           <div className="co-row full">
                             <div className="co-field">
                               <label className="co-label">Street Address *</label>
@@ -6462,6 +6633,7 @@
                           <div style={{fontSize:13,color:'var(--muted)',lineHeight:1.8}}>
                             <strong style={{color:'var(--cream)'}}>{deliveryForm.name}</strong> · {deliveryForm.phone}<br/>
                             {deliveryType==='delivery' ? `${deliveryForm.address}, ${deliveryForm.area}, ${deliveryForm.city}` : 'Shop #14, Food Street, DHA Phase 2, Lahore'}<br/>
+                            {scheduledTime !== 'now' && <span style={{color:'var(--gold)'}}>⏰ Scheduled: {scheduledTime.toUpperCase()}<br/></span>}
                             {deliveryForm.notes && <span style={{fontSize:11,color:'var(--smoke)'}}>Note: {deliveryForm.notes}</span>}
                           </div>
                         </div>
@@ -6525,6 +6697,7 @@
                     <p className="co-confirm-sub">
                       Confirmed! Our kitchen is already on it.<br/>
                       Updates sent to <strong style={{color:'var(--cream)'}}>{deliveryForm.phone || 'your phone'}</strong>.
+                      {scheduledTime !== 'now' && <><br/><span style={{color:'var(--gold)'}}>⏰ Scheduled delivery at {scheduledTime.toUpperCase()}</span></>}
                     </p>
                     <div className="co-confirm-id">{placedOrderId}</div>
                     <div className="co-confirm-details">
@@ -6845,24 +7018,39 @@
                           <thead>
                             <tr>
                               <th>Order ID</th><th>Date</th><th>Customer</th>
-                              <th>Items</th><th>Total</th><th>Payment</th><th>Status</th>
+                              <th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Action</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {adminOrders.map((order, idx) => (
-                              <tr key={idx}>
-                                <td><span className="admin-order-id">#{order.id}</span></td>
-                                <td>{order.date}</td>
-                                <td>
-                                  <div style={{fontWeight:600,color:'var(--cream)',fontSize:12}}>{order.delivery?.name||'—'}</div>
-                                  <div style={{fontSize:10,color:'var(--smoke)'}}>{order.delivery?.phone||''}</div>
-                                </td>
-                                <td>{(order.items||[]).map(i=>`${i.name} ×${i.qty||1}`).join(', ').slice(0,40)}{(order.items||[]).length > 2 ? '...' : ''}</td>
-                                <td><span className="admin-order-total">PKR {Number(order.total).toLocaleString()}</span></td>
-                                <td style={{textTransform:'capitalize'}}>{order.payment==='cod'?'Cash':order.payment}</td>
-                                <td><span className="admin-status-badge">✓ {order.status||'confirmed'}</span></td>
-                              </tr>
-                            ))}
+                            {adminOrders.map((order, idx) => {
+                              const isDelivered = deliveredOrders.includes(order.id) || order.status === 'delivered';
+                              return (
+                                <tr key={idx}>
+                                  <td><span className="admin-order-id">#{order.id}</span></td>
+                                  <td>{order.date}</td>
+                                  <td>
+                                    <div style={{fontWeight:600,color:'var(--cream)',fontSize:12}}>{order.delivery?.name||'—'}</div>
+                                    <div style={{fontSize:10,color:'var(--smoke)'}}>{order.delivery?.phone||''}</div>
+                                  </td>
+                                  <td>{(order.items||[]).map(i=>`${i.name} ×${i.qty||1}`).join(', ').slice(0,40)}{(order.items||[]).length > 2 ? '...' : ''}</td>
+                                  <td><span className="admin-order-total">PKR {Number(order.total).toLocaleString()}</span></td>
+                                  <td style={{textTransform:'capitalize'}}>{order.payment==='cod'?'Cash':order.payment}</td>
+                                  <td>
+                                    <span className={`admin-status-badge ${isDelivered ? 'delivered' : 'confirmed'}`}>
+                                      {isDelivered ? '✓ Delivered' : '● Confirmed'}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <button
+                                      className={`admin-deliver-btn ${isDelivered ? 'delivered' : ''}`}
+                                      disabled={isDelivered}
+                                      onClick={() => markDelivered(order.id)}>
+                                      {isDelivered ? '✓ Done' : '🚴 Mark Delivered'}
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </>
