@@ -4136,13 +4136,15 @@
   <div id="root"></div>
   <script>
     // Dismiss loader after 2.2s
-    window.addEventListener('load', function() {
-      setTimeout(function() {
-        var loader = document.getElementById('flare-loader');
-        if (loader) loader.classList.add('hide');
-        setTimeout(function() { if (loader) loader.remove(); }, 700);
-      }, 2200);
-    });
+    function hideLoader() {
+      var loader = document.getElementById('flare-loader');
+      if (loader && !loader.classList.contains('hide')) {
+        loader.classList.add('hide');
+        setTimeout(function() { if (loader && loader.parentNode) loader.remove(); }, 700);
+      }
+    }
+    window.addEventListener('load', function() { setTimeout(hideLoader, 1500); });
+    setTimeout(hideLoader, 6000);
   </script>
   <script type="text/babel">
     const { useState, useEffect, useRef, useCallback } = React;
@@ -5023,7 +5025,7 @@
             setFlashOpen(true);
             flashShownRef.current = true;
           }
-        }, 8000);
+        }, 3000);
         return () => clearTimeout(t);
       }, []);
 
@@ -5088,7 +5090,9 @@
 
       /* body scroll lock */
       useEffect(() => {
-        document.body.style.overflow = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen || adminOpen || ratingOpen) ? 'hidden' : '';
+        const anyOpen = (cartOpen || authOpen || custItem || mobileMenuOpen || flashOpen || trackerOpen || checkoutOpen || spinOpen || historyOpen || adminOpen || ratingOpen);
+        document.body.style.overflow = anyOpen ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
       }, [cartOpen, authOpen, custItem, mobileMenuOpen, flashOpen, trackerOpen, checkoutOpen, spinOpen, historyOpen, adminOpen, ratingOpen]);
 
       /* cart helpers */
@@ -6109,10 +6113,10 @@
 
           {/* ── FLASH SALE POPUP ── */}
           {flashOpen && (
-            <div className="flash-overlay" onClick={e => { if(e.target===e.currentTarget){ setFlashOpen(false); sessionStorage.setItem('flare_flash_seen','1'); } }}>
+            <div className="flash-overlay" onClick={e => { if(e.target===e.currentTarget){ setFlashOpen(false); sessionStorage.setItem('flare_flash_seen','1'); document.body.style.overflow=''; } }}>
               <div className="flash-popup">
                 <div className="flash-header">
-                  <button className="flash-close" onClick={() => { setFlashOpen(false); sessionStorage.setItem('flare_flash_seen','1'); }}>✕</button>
+                  <button className="flash-close" onClick={() => { setFlashOpen(false); sessionStorage.setItem('flare_flash_seen','1'); document.body.style.overflow=''; }}>✕</button>
                   <span className="flash-emoji">⚡</span>
                   <div className="flash-title">FLASH SALE!</div>
                   <div className="flash-subtitle">Surprise deals — only for the next few minutes</div>
@@ -6154,7 +6158,7 @@
                     🔥 Grab All Flash Deals Now
                   </button>
                   <div className="flash-skip">
-                    <span onClick={() => { setFlashOpen(false); sessionStorage.setItem('flare_flash_seen','1'); }}>No thanks, I'll pay full price</span>
+                    <span onClick={() => { setFlashOpen(false); sessionStorage.setItem('flare_flash_seen','1'); document.body.style.overflow=''; }}>No thanks, I'll pay full price</span>
                   </div>
                 </div>
               </div>
