@@ -6434,11 +6434,9 @@
                                 </span>
                               </div>
                               <div className="min-order-track">
-                                <div className="min-order-fill"
-                                  style={{
-                                    width: `${Math.min(100, (cartTotal / minOrder) * 100)}%`,
-                                  }}
+                                <div
                                   className={`min-order-fill ${cartTotal >= minOrder ? 'ok' : cartTotal >= minOrder * 0.7 ? 'warning' : 'danger'}`}
+                                  style={{ width: `${Math.min(100, (cartTotal / minOrder) * 100)}%` }}
                                 />
                               </div>
                               <div className={`min-order-msg ${cartTotal >= minOrder ? 'ok' : cartTotal >= minOrder * 0.7 ? 'warning' : 'danger'}`}>
