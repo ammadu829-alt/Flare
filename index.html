@@ -4427,6 +4427,16 @@
 
     /* ─── APP ─── */
     function App() {
+      // ── SUPABASE CONFIG ──
+      const SUPA_URL = 'https://lxaqozldydhyrrrcnuzc.supabase.co/rest/v1';
+      const SUPA_KEY = 'sb_publishable_EqBAsPBpy_dgHcrfTSU1-A_ONu9S3pm';
+      const supaHeaders = {
+        'Content-Type': 'application/json',
+        'apikey': SUPA_KEY,
+        'Authorization': `Bearer ${SUPA_KEY}`,
+      };
+
+
       const [scrolled, setScrolled]     = useState(false);
       const [activeFilter, setActiveFilter] = useState("All");
       const [cart, setCart]             = useState([]);
@@ -4698,15 +4708,6 @@
         const t = setInterval(() => setNowTime(Date.now()), 1000);
         return () => clearInterval(t);
       }, []);
-
-      // ── SUPABASE CONFIG ──
-      const SUPA_URL = 'https://lxaqozldydhyrrrcnuzc.supabase.co/rest/v1';
-      const SUPA_KEY = 'sb_publishable_EqBAsPBpy_dgHcrfTSU1-A_ONu9S3pm';
-      const supaHeaders = {
-        'Content-Type': 'application/json',
-        'apikey': SUPA_KEY,
-        'Authorization': `Bearer ${SUPA_KEY}`,
-      };
 
       // Auth system state
       const [loggedInUser, setLoggedInUser] = useState(() => {
