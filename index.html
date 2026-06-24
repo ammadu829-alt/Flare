@@ -2097,8 +2097,7 @@
     ====================================================== */
     .flash-overlay {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(6px);
+      background: rgba(0,0,0,0.82);
       z-index: 700;
       display: flex; align-items: center; justify-content: center;
       padding: 20px;
@@ -3469,7 +3468,7 @@
     .loader-bar {
       height: 100%; background: var(--fire);
       width: 0%;
-      animation: loadFill 1.8s 0.4s cubic-bezier(0.4,0,0.2,1) forwards;
+      animation: loadFill 5s 0.4s cubic-bezier(0.4,0,0.2,1) forwards;
     }
     .loader-emoji {
       font-size: 48px; margin-bottom: 8px;
@@ -3481,7 +3480,8 @@
     }
     @keyframes loadFill {
       0%   { width: 0%; }
-      60%  { width: 80%; }
+      40%  { width: 60%; }
+      80%  { width: 85%; }
       100% { width: 100%; }
     }
     @keyframes loaderBounce {
@@ -4143,8 +4143,12 @@
         setTimeout(function() { if (loader && loader.parentNode) loader.remove(); }, 700);
       }
     }
-    window.addEventListener('load', function() { setTimeout(hideLoader, 1500); });
-    setTimeout(hideLoader, 6000);
+    // Hide after window load + 1s delay
+    window.addEventListener('load', function() { setTimeout(hideLoader, 1000); });
+    // Hard fallback: hide after 8s no matter what
+    setTimeout(hideLoader, 8000);
+    // React will call this when it first renders
+    window.flareReactReady = hideLoader;
   </script>
   <script type="text/babel">
     const { useState, useEffect, useRef, useCallback } = React;
@@ -4512,6 +4516,9 @@
       };
 
       const [dbOrders, setDbOrders] = useState([]);
+      // Signal React has mounted — hides the loader immediately
+      useEffect(() => { if (window.flareReactReady) window.flareReactReady(); }, []);
+
       useEffect(() => {
         if (!loggedInUser?.email) return;
         fetch(`${SUPA_URL}/orders?customer_email=eq.${encodeURIComponent(loggedInUser.email)}&order=created_at.desc`, { headers: supaHeaders })
@@ -5018,14 +5025,14 @@
         return () => clearInterval(t);
       }, []);
 
-      // Flash sale — appear after 8s, once per session
+      // Flash sale — appear 6s after React mounts, once per session
       useEffect(() => {
         const t = setTimeout(() => {
           if (!flashShownRef.current && !sessionStorage.getItem('flare_flash_seen')) {
             setFlashOpen(true);
             flashShownRef.current = true;
           }
-        }, 3000);
+        }, 6000);
         return () => clearTimeout(t);
       }, []);
 
